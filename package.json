@@ -1,0 +1,25 @@
+{
+  "name": "1system",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/surajnepali/1system_api_automation.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/surajnepali/1system_api_automation/issues"
+  },
+  "homepage": "https://github.com/surajnepali/1system_api_automation#readme",
+  "devDependencies": {
+    "cypress": "^12.14.0"
+  },
+  "dependencies": {
+    "cypress-plugin-api": "^2.11.1"
+  }
+}
