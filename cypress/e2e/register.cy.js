@@ -134,12 +134,12 @@ describe('Register', () => {
       })
     });
 
-    // it("Can't register with invalid username", () => {
-    //   register.registerCustomer(Cypress.env('newEmail'), 'username123', 'password', otp, '12').then((response) => {
-    //     expect(response.status).to.eq(400)
-    //     expect(response.body).to.have.property('message', ERROR.invalidUsername)
-    //   })
-    // });
+    it("Can't register with invalid username", () => {
+      register.registerCustomer(Cypress.env('newEmail'), 'username123', 'password', otp, '12').then((response) => {
+        expect(response.status).to.eq(400)
+        expect(response.body).to.have.property('message', ERROR.invalidUsername)
+      })
+    });
 
     it("Can't register with empty username", () => {
       register.registerCustomer(Cypress.env('newEmail'), '', 'password', otp, '12').then((response) => {
@@ -182,6 +182,28 @@ describe('Register', () => {
         expect(response.body).to.have.property('message', ERROR.emptyEstimatedServiceUsage)
       })
     });
+
+    // it("Can't register with image file with size more than 5 MB", () => {
+    //   cy.fixture('sample.jpg').as('sampleImage');
+    //   cy.get('@sampleImage').then((imageData) => {
+    //     cy.api({
+    //       method: 'POST',
+    //       url: Cypress.env('apiUrl') + ENDPOINTS.registerCustomer,
+    //       body: {
+    //         email: Cypress.env('newEmail'),
+    //         username: 'username',
+    //         password: 'password',
+    //         otp: otp,
+    //         estimated_service_usage: '12',
+    //         file: imageData
+    //       },
+    //       failOnStatusCode: false,
+    //     }).then((response) => {
+    //       expect(response.status).to.eq(400)
+    //       expect(response.body).to.have.property('message', ERROR.imageSize)
+    //     })
+    //   })
+    // });
 
     it("Can register with valid data", () => {
       register.registerCustomer(Cypress.env('newEmail'), 'username', 'password', otp, '12').then((response) => {

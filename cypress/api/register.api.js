@@ -2,23 +2,23 @@
 
 import ENDPOINTS from "../constants/endpoints";
 
-const setOTP = (eMail, purPose) => cy.api({
+const setOTP = (email, purpose) => cy.api({
     method: 'POST',
     url: Cypress.env('apiUrl') + ENDPOINTS.setOTP,
     body: {
-        email: eMail,
-        purpose: purPose,
+        email,
+        purpose,
     },
     failOnStatusCode: false,
 });
 
-const verifyOTP = (eMail, purPose, oTp) => cy.api({
+const verifyOTP = (email, purpose, otp) => cy.api({
     method: 'POST',
     url: Cypress.env('apiUrl') + ENDPOINTS.verifyOTP,
     body: {
-        email: eMail,
-        purpose: purPose,
-        otp: oTp,
+        email,
+        purpose,
+        otp,
     },
     failOnStatusCode: false,
 });
