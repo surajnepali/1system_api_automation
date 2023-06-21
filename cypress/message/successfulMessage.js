@@ -4,6 +4,7 @@ const SUCCESSFUL = {
     customerRegistered: 'successful',
     otpToSetPasswordSent: 'OTP Sent to your email. Please check your inbox.',
     passwordReset: 'Successfully updated. Please login.',
+    sucessfulLogin: 'successful',
 }
 
 export default SUCCESSFUL;
