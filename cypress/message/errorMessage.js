@@ -14,6 +14,9 @@ const ERROR = {
     emptyEstimatedServiceUsage: 'estimated_service_usage must be an integer number.',
     userNotExist: 'No info found. Please register.',
     userNotFound: 'User not found. Please register',
+    driverRoleNotApplied: 'Cannot switch to driver. You must submit application for driver before switching.',
+    vendorRoleNotApplied: 'Cannot switch to vendor. You must submit application for vendor before switching.',
+    emptyRole: 'role must be one of the following values: user, driver, vendor.',
 }
 
 export default ERROR;

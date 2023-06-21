@@ -5,6 +5,10 @@ const SUCCESSFUL = {
     otpToSetPasswordSent: 'OTP Sent to your email. Please check your inbox.',
     passwordReset: 'Successfully updated. Please login.',
     sucessfulLogin: 'successful',
+    driverApplicationInReview: 'You application is in review process. Please wait to login into driver after being verified.',
+    vendorApplicationInReview: 'You application is in review process. Please wait to login into vendor after being verified.',
+    driverRoleSwitched: 'Successfully switched to driver',
+    vendorRoleSwitched: 'Successfully switched to vendor',
 }
 
 export default SUCCESSFUL;
