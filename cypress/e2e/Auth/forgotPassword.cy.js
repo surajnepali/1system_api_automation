@@ -66,7 +66,7 @@ describe('Forgot Password', () => {
             });
         });
 
-        it("Can reset password with password less than 8 characters", () => {
+        it("Can't reset password with password less than 8 characters", () => {
             forgotPassword.forgotPassword(Cypress.env('registeredEmail'), otp, '1234567').then((response) => {
                 expect(response.status).to.eq(400);
                 expect(response.body).to.have.property('message', ERROR.invalidPassword);
