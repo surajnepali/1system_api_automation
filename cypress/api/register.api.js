@@ -36,8 +36,19 @@ const registerCustomer = (email, username, password, otp, estimated_service_usag
     failOnStatusCode: false,
 });
 
+const registerCustomerWithImage = (formData) => cy.api({
+    method: 'POST',
+    url: Cypress.env('apiUrl') + ENDPOINTS.registerCustomer,
+    body: formData,
+    headers: {
+        'content-type': 'multipart/form-data',
+    },
+    failOnStatusCode: false,
+});
+
 export default{
     setOTP,
     verifyOTP,
     registerCustomer,
+    registerCustomerWithImage,
 }
