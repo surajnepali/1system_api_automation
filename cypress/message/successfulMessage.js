@@ -10,6 +10,8 @@ const SUCCESSFUL = {
     driverRoleSwitched: 'Successfully switched to driver',
     vendorRoleSwitched: 'Successfully switched to vendor',
     passwordChanged: 'Successfully updated.',
+    profileInfo: 'User found',
+    profileInfoUpdated: 'Successfully updated',
 }
 
 export default SUCCESSFUL;
