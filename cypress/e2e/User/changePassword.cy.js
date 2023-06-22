@@ -7,7 +7,17 @@ import ERROR from '../../message/errorMessage';
 
 describe('Change Password', () => {
 
-    describe('Try to change Password Without Login', () => {});
+    describe('Without Login', () => {
+      
+        it('Should throw error message on trying to change the password', () => {
+                
+            changePassword.changePassword(Cypress.env('newPassword'), Cypress.env('oldPassword')).then((response) => {
+                expect(response.status).to.eq(401);
+                expect(response.body).to.have.property('message', ERROR.unauthorized);
+            });
+        });
+        
+    });
 
     describe('Change Password After Successful Login', () => {
 
@@ -28,7 +38,7 @@ describe('Change Password', () => {
         it('Should throw error when old password is empty', () => {
             changePassword.changePassword('', Cypress.env('newPassword')).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', ERROR.emptyPassword);
+                expect(response.body).to.have.property('message', ERROR.emptyCurrentPassword);
             });
         });
 
