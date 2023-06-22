@@ -9,6 +9,7 @@ const SUCCESSFUL = {
     vendorApplicationInReview: 'You application is in review process. Please wait to login into vendor after being verified.',
     driverRoleSwitched: 'Successfully switched to driver',
     vendorRoleSwitched: 'Successfully switched to vendor',
+    passwordChanged: 'Successfully updated.',
 }
 
 export default SUCCESSFUL;

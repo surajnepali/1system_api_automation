@@ -17,6 +17,9 @@ const ERROR = {
     driverRoleNotApplied: 'Cannot switch to driver. You must submit application for driver before switching.',
     vendorRoleNotApplied: 'Cannot switch to vendor. You must submit application for vendor before switching.',
     emptyRole: 'role must be one of the following values: user, driver, vendor.',
+    oldInvalidPassword: "Old Password don't matched",
+    newPasswordSame: 'You must enter different password to change password.',
+
 }
 
 export default ERROR;
