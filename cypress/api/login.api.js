@@ -2,12 +2,13 @@
 
 import ENDPOINTS from "../constants/endpoints";
 
-const loginUser = (email, password) => cy.api({
+const loginUser = (email, password, loginAgent) => cy.api({
     method: 'POST',
     url: Cypress.env('apiUrl') + ENDPOINTS.login,
     body: {
         email,
         password,
+        loginAgent,
     },
     failOnStatusCode: false,
 });
