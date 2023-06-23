@@ -1,3 +1,5 @@
+import { faker } from "@faker-js/faker";
+
 export const vendorCreateData = {
     vendorName: "Vendor 1",
     vendorEmail: "random@gmail.com",
@@ -9,7 +11,30 @@ export const vendorCreateData = {
     vendorLatitude: "89.1973",
     applyForVendorEmail: "merob32430@vaband.com",
     notAppliedEmail: "cacoto8214@soremap.com",
-    appliedmail: "habiri9567@onlcool.com",
+    appliedEmail: "habiri9567@onlcool.com",
     approvedVendor: "kemoja5763@peogi.com"
 };
 
+export const vendorEditData = {
+    editVendorName: "Vendor 2",
+    editVendorEmail: "random2@gmail.com",
+    editVendorStateId: "12345",
+    editVendorPlaceId: "12345",
+    editVendorContact: "1234567891",
+    editVendorLandmark: "4th Floor of the Avengers building",
+    editVendorLongitude: "33.73648",
+    editVendorLatitude: "79.1974",
+};
+
+export const vendorFakerData = {
+    company_name :faker.company.name(),
+    state_id :'28YHUJHJ1',
+    company_email :faker.internet.email(),
+};
+
+export const vendorFakerData2 = {
+    landmark :faker.location.secondaryAddress(),
+    contact :faker.phone.imei(),
+    longitude :faker.location.longitude(),
+    latitude :faker.location.latitude(),
+};
