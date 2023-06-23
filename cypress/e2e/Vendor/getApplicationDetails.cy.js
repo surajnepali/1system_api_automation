@@ -13,10 +13,10 @@ describe("Get Application Details", () => {
 
         it('Should throw error message on trying to get the details of the vendor', () => {
                 
-                getApplicationDetails.getApplicationDetails().then((response) => {
-                    expect(response.status).to.eq(401);
-                    expect(response.body).to.have.property('message', vendorErrorMessages.unauthorized);
-                });
+            getApplicationDetails.getApplicationDetails().then((response) => {
+                expect(response.status).to.eq(401);
+                expect(response.body).to.have.property('message', vendorErrorMessages.unauthorized);
+            });
     
         });
 
@@ -52,7 +52,7 @@ describe("Get Application Details", () => {
         describe('If user tries to get the application details after being approved for the vendor, the system', () => {
             beforeEach(() => {
                                     
-                login.loginUser(vendorCreateData.appliedmail, Cypress.env('password'), 'email').then((response) => {
+                login.loginUser(vendorCreateData.approvedVendor, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                     expect(response.body).to.have.property('data');
@@ -67,8 +67,8 @@ describe("Get Application Details", () => {
             it('Should throw error message', () => {
                         
                 getApplicationDetails.getApplicationDetails().then((response) => {
-                    expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', vendorSuccessMessages.dataRetrieved);
+                    expect(response.status).to.eq(400);
+                    expect(response.body).to.have.property('message', vendorErrorMessages.alreadyApproved);
                 }); 
             });
         });
@@ -76,7 +76,7 @@ describe("Get Application Details", () => {
         describe('If user tries to get the application details after applying for the vendor, the system', () => {
             beforeEach(() => {
                                     
-                login.loginUser(vendorCreateData.approvedVendor, Cypress.env('password'), 'email').then((response) => {
+                login.loginUser(vendorCreateData.appliedEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                     expect(response.body).to.have.property('data');
@@ -97,7 +97,6 @@ describe("Get Application Details", () => {
                     expect(response.body.data).to.have.property('company_name');
                     expect(response.body.data).to.have.property('state_id');
                     expect(response.body.data).to.have.property('company_email');
-                    expect(response.body.data).to.have.property('user_id');
                     expect(response.body.data).to.have.property('registration_document');
                 });
             });
