@@ -8,5 +8,8 @@ export const vendorCreateData = {
     vendorLongitude: "23.73647",
     vendorLatitude: "89.1973",
     applyForVendorEmail: "merob32430@vaband.com",
+    notAppliedEmail: "cacoto8214@soremap.com",
+    appliedmail: "habiri9567@onlcool.com",
+    approvedVendor: "kemoja5763@peogi.com"
 };
 

@@ -1,5 +1,6 @@
 const vendorErrorMessages = {
-    unauthorized: 'Unauthorized'
+    unauthorized: 'Unauthorized access',
+    hasNotAppliedYet: 'Please apply for vendor.',
 }
 
 export default vendorErrorMessages;
