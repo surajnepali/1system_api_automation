@@ -14,6 +14,7 @@ const vendorErrorMessages = {
     invalidContact: 'Enter valid phone number.',
     invalidLongitude: 'longitude must be a number conforming to the specified constraints.',
     invalidLatitude: 'latitude must be a number conforming to the specified constraints.',
+    forbiddenFromUserMode: 'You are not allowed to perform this action with user mode.'
 }
 
 export default vendorErrorMessages;

@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "^8.0.2",
-    "cypress-plugin-api": "^2.11.1"
+    "cypress-plugin-api": "^2.11.1",
+    "mocha": "^10.2.0"
   }
 }

@@ -9,7 +9,7 @@ export const vendorCreateData = {
     vendorLandmark: "3rd Floor of the Avengers building",
     vendorLongitude: "23.73647",
     vendorLatitude: "89.1973",
-    applyForVendorEmail: "merob32430@vaband.com",
+    applyForVendorEmail: "nebem35733@camplvad.com",
     notAppliedEmail: "cacoto8214@soremap.com",
     appliedEmail: "habiri9567@onlcool.com",
     approvedVendor: "kemoja5763@peogi.com"
