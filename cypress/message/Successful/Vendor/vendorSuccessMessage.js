@@ -4,4 +4,5 @@ export const vendorSuccessMessages = {
     vendorApplicationEdited2: 'Successfully retrieved data',
     switchedToVendor: 'Successfully switched to vendor',
     retrievedServices: 'Successfully get service data',
+    branchCreated: 'Successfully created new branch',
 };

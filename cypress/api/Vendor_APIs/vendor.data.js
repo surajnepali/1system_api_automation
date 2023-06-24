@@ -38,3 +38,11 @@ export const vendorFakerData2 = {
     longitude :faker.location.longitude(),
     latitude :faker.location.latitude(),
 };
+
+export const branchFakerData = {
+    landmark :faker.location.secondaryAddress(),
+    contact :faker.phone.number('415#######'),
+    longitude :faker.location.longitude(),
+    latitude :faker.location.latitude(),
+    place_id :'1234',
+};
