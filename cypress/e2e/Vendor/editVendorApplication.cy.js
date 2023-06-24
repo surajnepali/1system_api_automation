@@ -3,7 +3,6 @@
 import editVendorApplication from "../../api/Vendor_APIs/editVendorApplication.api";
 import getApplicationDetails from "../../api/Vendor_APIs/getApplicationDetails.api";
 import { vendorCreateData, vendorFakerData, vendorFakerData2 } from "../../api/Vendor_APIs/vendor.data";
-import loginApi from "../../api/login.api";
 import login from "../../api/login.api";
 import vendorErrorMessages from "../../message/Error/Vendor/vendorErrorMessage";
 import { vendorSuccessMessages } from "../../message/Successful/Vendor/vendorSuccessMessage";
