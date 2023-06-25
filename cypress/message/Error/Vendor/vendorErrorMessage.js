@@ -10,10 +10,20 @@ const vendorErrorMessages = {
     emptyLongitude: 'longitude should not be empty.',
     emptyLatitude: 'latitude should not be empty.',
     emptyLandmark: 'landmark should not be empty.',
+    emptyPrice: 'price should not be empty.',
+    emptyEstimatedHour: 'estimated_hour should not be empty.',
+    emptyDescription: 'description should not be empty.',
+    emptyServiceId: 'service_id should not be empty.',
     invalidCompanyEmail: 'company_email must be an email.',
     invalidContact: 'Enter valid phone number.',
     invalidLongitude: 'longitude must be a number conforming to the specified constraints.',
     invalidLatitude: 'latitude must be a number conforming to the specified constraints.',
+    invalidPrice: 'price must be a number conforming to the specified constraints.',
+    invalidDescription: 'description must be longer than or equal to 8 characters.',
+    invalidServiceId: 'service_id must be an integer number.',
+    invalidEstimatedHour: 'estimated_hour must be an integer number.',
+    negativeServiceId: 'service_id must not be less than 0.',
+    negativeEstimatedHour: 'estimated_hour must be an integer number.',
     forbiddenFromUserMode: 'You are not allowed to perform this action with user mode.'
 }
 

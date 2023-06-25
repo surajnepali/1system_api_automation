@@ -8,7 +8,7 @@ import vendorErrorMessages from "../../../message/Error/Vendor/vendorErrorMessag
 import { vendorSuccessMessages } from "../../../message/Successful/Vendor/vendorSuccessMessage";
 import SUCCESSFUL from "../../../message/successfulMessage";
 
-let token;
+let token = '';
 
 describe('Get All Branches Of Vendor', () => {
 
@@ -95,7 +95,6 @@ describe('Get All Branches Of Vendor', () => {
                     expect(response.body).to.have.property('message', vendorSuccessMessages.retrievedAllBranches);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('branches');
-                    cy.log(response.body.data.branches);
                 });
             }); 
         });

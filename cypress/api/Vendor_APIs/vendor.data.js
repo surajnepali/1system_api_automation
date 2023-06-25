@@ -46,3 +46,25 @@ export const branchFakerData = {
     latitude :faker.location.latitude(),
     place_id :'1234',
 };
+
+export const editBranchFakerData = {
+    landmark :faker.location.secondaryAddress(),
+    contact :faker.phone.number('415#######'),
+    longitude :faker.location.longitude(),
+    latitude :faker.location.latitude(),
+    place_id :'1234567',
+}; 
+
+export const createOfferingFakerData = {
+    price :456765,
+    estimated_hour :48,
+    description :faker.lorem.sentence(),
+    service_id :'1',
+};
+
+export const editOfferingFakerData = {
+    price :faker.finance.amount(),
+    estimated_hour :faker.date.anytime(),
+    description :faker.lorem.sentences(),
+    service_id : '2',
+};
