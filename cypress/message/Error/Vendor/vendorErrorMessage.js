@@ -24,7 +24,8 @@ const vendorErrorMessages = {
     invalidEstimatedHour: 'estimated_hour must be an integer number.',
     negativeServiceId: 'service_id must not be less than 0.',
     negativeEstimatedHour: 'estimated_hour must be an integer number.',
-    forbiddenFromUserMode: 'You are not allowed to perform this action with user mode.'
+    forbiddenFromUserMode: 'You are not allowed to perform this action with user mode.',
+    noOfferingId: 'offeringId must be an integer number.'
 }
 
 export default vendorErrorMessages;

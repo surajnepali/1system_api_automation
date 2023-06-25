@@ -11,4 +11,5 @@ export const vendorSuccessMessages = {
     serviceAdded: 'Successfully added service to this vendor',
     allOfferingsOfBranch: 'All the Offering from the branch',
     detailsOfOffering: 'Offering details',
+    offeringEdited: 'Edited successfully.',
 };

@@ -63,8 +63,8 @@ export const createOfferingFakerData = {
 };
 
 export const editOfferingFakerData = {
-    price :faker.finance.amount(),
-    estimated_hour :faker.date.anytime(),
-    description :faker.lorem.sentences(),
+    price :678,
+    estimated_hour :35,
+    description :faker.lorem.sentence(),
     service_id : '2',
 };
