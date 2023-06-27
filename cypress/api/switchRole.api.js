@@ -2,11 +2,11 @@
 
 import ENDPOINTS from "../constants/endpoints";
 
-const switchRole = (role) => cy.api({
+const switchRole = (role, token) => cy.api({
     method: 'POST',
     url: Cypress.env('apiUrl') + ENDPOINTS.switchRole,
     headers: {
-        'Authorization': 'Bearer ' + localStorage.getItem('token'),
+        'Authorization': 'Bearer ' + token,
     },
     body: {
         role,
