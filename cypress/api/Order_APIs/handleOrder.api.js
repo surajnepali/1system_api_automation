@@ -38,3 +38,21 @@ export const acceptOrderByVendor = (orderId, token) => cy.api({
     },
     failOnStatusCode: false,
 });
+
+export const rejectOrderByVendor = (orderId, token) => cy.api({
+    method: 'PATCH',
+    url: Cypress.env('apiUrl') + orderEndpoints.orderApi + '/' + orderId + orderEndpoints.rejectOrderByVendor,
+    headers: {
+        'Authorization': 'Bearer ' + token,
+    },
+    failOnStatusCode: false,
+});
+
+export const vendorStartServicing = (orderId, token) => cy.api({
+    method: 'PATCH',
+    url: Cypress.env('apiUrl') + orderEndpoints.orderApi + '/' + orderId + orderEndpoints.startServicing,
+    headers: {
+        'Authorization': 'Bearer ' + token,
+    },
+    failOnStatusCode: false,
+});

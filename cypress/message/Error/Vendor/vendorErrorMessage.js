@@ -22,8 +22,9 @@ const vendorErrorMessages = {
     invalidDescription: 'description must be longer than or equal to 8 characters.',
     invalidServiceId: 'service_id must be an integer number.',
     invalidEstimatedHour: 'estimated_hour must be an integer number.',
+    negativePrice: 'price must not be less than 0.',
     negativeServiceId: 'service_id must not be less than 0.',
-    negativeEstimatedHour: 'estimated_hour must be an integer number.',
+    negativeEstimatedHour: 'estimated_hour must not be less than 0.',
     forbiddenFromUserMode: 'You are not allowed to perform this action with user mode.',
     noOfferingId: 'offeringId must be an integer number.'
 }

@@ -8,4 +8,6 @@ export const orderSuccessMessages = {
     orderCreatedSuccessfully: 'Successfully created',
     orderMetaData: 'Successfully Retrived data',
     orderAcceptedByVendor: 'Successfully accepted',
+    orderCancelledByUser: 'Successfully cancelled',
+    orderRejectedByVendor: 'Order successfully rejected.',
 };

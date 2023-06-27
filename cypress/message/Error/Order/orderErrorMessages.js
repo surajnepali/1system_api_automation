@@ -14,5 +14,10 @@ export const orderErrorMessages = {
     selfAssignedError: 'location and time if you are not self assigned for',
     detailsNotFound: "Can't find the order details.",
     orderCancelled: 'Successfully cancelled',
-    couldNotCancel: "You cann't cancel your order at this point."
+    couldNotCancel: "You cann't cancel your order at this point.",
+    noOrderFound: 'No order found to reject',
+    couldNotRejectOrder: "Can't reject this order at this time.",
+    cantAccept: "You can't perform this action.",
+    cantReAccept: "Cann't accept this order at this time.",
+
 };
