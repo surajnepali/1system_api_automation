@@ -8,8 +8,9 @@ import switchRoleApi from "../../../../api/switchRole.api";
 import { vendorSuccessMessages } from "../../../../message/Successful/Vendor/vendorSuccessMessage";
 import getAllBranchesOfVendorApi from "../../../../api/Vendor_APIs/getAllBranchesOfVendor.api";
 import getServiceTypesApi from "../../../../api/Vendor_APIs/getServiceTypes.api";
+import { use } from "chai";
 
-let token, branchId, serviceId, offeringId;
+let userToken, vendorToken, branchId, serviceId, offeringId;
 
 describe('Create Branch Offering API Testing', () => {
 
@@ -33,21 +34,21 @@ describe('Create Branch Offering API Testing', () => {
                     expect(response.body).to.have.property('message', vendorSuccessMessages.successfulLogin);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('token');
-                    localStorage.setItem('token', response.body.data.token);
+                    userToken = response.body.data.token;
                 });
             });
     
             it('should switch to vendor role', () => {
-                switchRoleApi.switchRole('vendor').then((response) => {
+                switchRoleApi.switchRole('vendor', userToken).then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', vendorSuccessMessages.switchedToVendor);
                     expect(response.body.data).to.have.property('token');
-                    token = response.body.data.token;
+                    vendorToken = response.body.data.token;
                 });
             });
     
             it('should get all the branches of the vendor', () => {
-                getAllBranchesOfVendorApi.getAllBranchesOfVendor(token).then((response) => {
+                getAllBranchesOfVendorApi.getAllBranchesOfVendor(vendorToken).then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', vendorSuccessMessages.retrievedAllBranches);
                     const branches = response.body.data.branches;
@@ -60,7 +61,7 @@ describe('Create Branch Offering API Testing', () => {
             });
 
             it('should get all the services of the vendor', () => {
-                getServiceTypesApi.getServiceTypes(1, 10, token).then((response) => {
+                getServiceTypesApi.getServiceTypes(1, 10, vendorToken).then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', vendorSuccessMessages.retrievedServices);
                     expect(response.body).to.have.property('data');
@@ -77,7 +78,7 @@ describe('Create Branch Offering API Testing', () => {
 
             it('should throw error om leaving price field empty', () => {
                 const x = {...createOfferingFakerData, price : ''};
-                createBranchOffering(x, token, branchId).then((response) => {
+                createBranchOffering(x, vendorToken, branchId).then((response) => {
                     expect(response.status).to.eq(400);
                     expect(response.body).to.have.property('message', vendorErrorMessages.emptyPrice);
                 });
@@ -85,23 +86,23 @@ describe('Create Branch Offering API Testing', () => {
 
             it('should throw error on entering invalid price', () => {
                 const x = {...createOfferingFakerData, price : 'abc'};
-                createBranchOffering(x, token, branchId).then((response) => {
+                createBranchOffering(x, vendorToken, branchId).then((response) => {
                     expect(response.status).to.eq(400);
                     expect(response.body).to.have.property('message', vendorErrorMessages.invalidPrice);
                 });
             });
 
             it('should throw error on entering negative price', () => {
-                const x = {...createOfferingFakerData, price : '-1'};
-                createBranchOffering(x, token, branchId).then((response) => {
+                const x = {...createOfferingFakerData, price : -1};
+                createBranchOffering(x, vendorToken, branchId).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', vendorErrorMessages.invalidPrice);
+                    expect(response.body).to.have.property('message', vendorErrorMessages.negativePrice);
                 });
             });
 
             it('should throw error on leaving estimated_hour field empty', () => {
                 const x = {...createOfferingFakerData, estimated_hour : ''};
-                createBranchOffering(x, token, branchId).then((response) => {
+                createBranchOffering(x, vendorToken, branchId).then((response) => {
                     expect(response.status).to.eq(400);
                     expect(response.body).to.have.property('message', vendorErrorMessages.emptyEstimatedHour);
                 });
@@ -109,23 +110,23 @@ describe('Create Branch Offering API Testing', () => {
 
             it('should throw error on entering invalid estimated_hour', () => {
                 const x = {...createOfferingFakerData, estimated_hour : 'abc'};
-                createBranchOffering(x, token, branchId).then((response) => {
+                createBranchOffering(x, vendorToken, branchId).then((response) => {
                     expect(response.status).to.eq(400);
                         expect(response.body).to.have.property('message', vendorErrorMessages.invalidEstimatedHour);
                 });
             });
 
             it('should throw error on entering negative estimated_hour', () => {
-                const x = {...createOfferingFakerData, estimated_hour : '-1'};
-                createBranchOffering(x, token, branchId).then((response) => {
+                const x = {...createOfferingFakerData, estimated_hour : -1};
+                createBranchOffering(x, vendorToken, branchId).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', vendorErrorMessages.invalidEstimatedHour);
+                    expect(response.body).to.have.property('message', vendorErrorMessages.negativeEstimatedHour);
                 });
             });
 
             it('should throw error on leaving description field empty', () => {
                 const x = {...createOfferingFakerData, description : ''};
-                createBranchOffering(x, token, branchId).then((response) => {
+                createBranchOffering(x, vendorToken, branchId).then((response) => {
                     expect(response.status).to.eq(400);
                     expect(response.body).to.have.property('message', vendorErrorMessages.emptyDescription);
                 });
@@ -133,7 +134,7 @@ describe('Create Branch Offering API Testing', () => {
 
             it('should throw error on entering invalid description', () => {
                 const x = {...createOfferingFakerData, description : 'abc'};
-                createBranchOffering(x, token, branchId).then((response) => {
+                createBranchOffering(x, vendorToken, branchId).then((response) => {
                     expect(response.status).to.eq(400);
                     expect(response.body).to.have.property('message', vendorErrorMessages.invalidDescription);
                 });
@@ -141,7 +142,7 @@ describe('Create Branch Offering API Testing', () => {
 
             it('should throw error on leaving service_id field empty', () => {
                 const x = {...createOfferingFakerData, service_id : ''};
-                createBranchOffering(x, token, branchId).then((response) => {
+                createBranchOffering(x, vendorToken, branchId).then((response) => {
                     expect(response.status).to.eq(400);
                     expect(response.body).to.have.property('message', vendorErrorMessages.emptyServiceId);
                 });
@@ -149,23 +150,23 @@ describe('Create Branch Offering API Testing', () => {
 
             it('should throw error on entering invalid service_id', () => {
                 const x = {...createOfferingFakerData, service_id : 'abc'};
-                createBranchOffering(x, token, branchId).then((response) => {
+                createBranchOffering(x, vendorToken, branchId).then((response) => {
                     expect(response.status).to.eq(400);
                     expect(response.body).to.have.property('message', vendorErrorMessages.invalidServiceId);
                 });
             });
 
             it('should throw error on entering negative service_id', () => {
-                const x = {...createOfferingFakerData, service_id : '-1'};
-                createBranchOffering(x, token, branchId).then((response) => {
+                const x = {...createOfferingFakerData, service_id : -1};
+                createBranchOffering(x, vendorToken, branchId).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', vendorErrorMessages.invalidServiceId);
+                    expect(response.body).to.have.property('message', vendorErrorMessages.negativeServiceId);
                 });
             });
 
             it('should successfully create a branch offering', () => {
                 const x = {...createOfferingFakerData, service_id : serviceId};
-                createBranchOffering(x, token, branchId).then((response) => {
+                createBranchOffering(x, vendorToken, branchId).then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', vendorSuccessMessages.serviceAdded);
                     expect(response.body.data).to.have.property('provides');
@@ -188,13 +189,13 @@ describe('Create Branch Offering API Testing', () => {
                     expect(response.body).to.have.property('message', vendorSuccessMessages.successfulLogin);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('token');
-                    token = response.body.data.token;
+                    userToken = response.body.data.token;
                 });;
             });
                 
             it('should throw error on creating a branch offering', () => {
                 const x = {...createOfferingFakerData, service_id : serviceId};
-                createBranchOffering(x, token, branchId).then((response) => {
+                createBranchOffering(x, userToken, branchId).then((response) => {
                     expect(response.status).to.eq(403);
                     expect(response.body).to.have.property('message', vendorErrorMessages.forbiddenFromUserMode);
                 });
@@ -210,13 +211,13 @@ describe('Create Branch Offering API Testing', () => {
                         expect(response.body).to.have.property('message', vendorSuccessMessages.successfulLogin);
                         expect(response.body).to.have.property('data');
                         expect(response.body.data).to.have.property('token');
-                        token = response.body.data.token;
+                        userToken = response.body.data.token;
                     });;
                 });
     
                 it('should throw error on creating a branch offering', () => {
                     const x = {...createOfferingFakerData, service_id : serviceId};
-                    createBranchOffering(x, token, branchId).then((response) => {
+                    createBranchOffering(x, userToken, branchId).then((response) => {
                         expect(response.status).to.eq(403);
                         expect(response.body).to.have.property('message', vendorErrorMessages.forbiddenFromUserMode);
                     });
@@ -250,12 +251,12 @@ describe('Get All Offering of a Branch API Testing', () => {
                     expect(response.body).to.have.property('message', vendorSuccessMessages.successfulLogin);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('token');
-                    token = response.body.data.token;
+                    userToken = response.body.data.token;
                 });
             });
                     
             it('should throw error on getting all branch offerings', () => {
-                getAllOfferingsOfBranch(token, branchId).then((response) => {
+                getAllOfferingsOfBranch(userToken, branchId).then((response) => {
                     expect(response.status).to.eq(403);
                     expect(response.body).to.have.property('message', vendorErrorMessages.forbiddenFromUserMode);
                 });
@@ -271,12 +272,12 @@ describe('Get All Offering of a Branch API Testing', () => {
                     expect(response.body).to.have.property('message', vendorSuccessMessages.successfulLogin);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('token');
-                    token = response.body.data.token;
+                    userToken = response.body.data.token;
                 });
             });
     
             it('should throw error on getting all branch offerings', () => {
-                getAllOfferingsOfBranch(token, branchId).then((response) => {
+                getAllOfferingsOfBranch(userToken, branchId).then((response) => {
                     expect(response.status).to.eq(403);
                     expect(response.body).to.have.property('message', vendorErrorMessages.forbiddenFromUserMode);
                 });
@@ -292,21 +293,21 @@ describe('Get All Offering of a Branch API Testing', () => {
                     expect(response.body).to.have.property('message', vendorSuccessMessages.successfulLogin);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('token');
-                    localStorage.setItem('token', response.body.data.token);
+                    userToken = response.body.data.token;
                 });
             });
 
             it('should switch to vendor mode', () => {
-                switchRoleApi.switchRole('vendor').then((response) => {
+                switchRoleApi.switchRole('vendor', userToken).then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', vendorSuccessMessages.switchedToVendor);
-                    token = response.body.data.token;
+                    vendorToken = response.body.data.token;
                 });
             });
 
             it('should get all branch offerings', () => {
 
-                getAllOfferingsOfBranch(token, branchId).then((response) => {
+                getAllOfferingsOfBranch(vendorToken, branchId).then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', vendorSuccessMessages.allOfferingsOfBranch);
                     expect(response.body).to.have.property('data');
@@ -347,12 +348,12 @@ describe('Get details of a service offered API Testing', () => {
                     expect(response.body).to.have.property('message', vendorSuccessMessages.successfulLogin);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('token');
-                    token = response.body.data.token;
+                    userToken = response.body.data.token;
                 });
             });
                         
             it('should throw error on getting details of a service offered', () => {
-                getAOffering(token, branchId, offeringId).then((response) => {
+                getAOffering(userToken, branchId, offeringId).then((response) => {
                     expect(response.status).to.eq(403);
                     expect(response.body).to.have.property('message', vendorErrorMessages.forbiddenFromUserMode);
                 });
@@ -368,12 +369,12 @@ describe('Get details of a service offered API Testing', () => {
                     expect(response.body).to.have.property('message', vendorSuccessMessages.successfulLogin);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('token');
-                    token = response.body.data.token;
+                    userToken = response.body.data.token;
                 });
             });
 
             it('should throw error on getting details of a service offered', () => {
-                getAOffering(token, branchId, offeringId).then((response) => {
+                getAOffering(userToken, branchId, offeringId).then((response) => {
                     expect(response.status).to.eq(403);
                     expect(response.body).to.have.property('message', vendorErrorMessages.forbiddenFromUserMode);
                 });
@@ -389,20 +390,20 @@ describe('Get details of a service offered API Testing', () => {
                     expect(response.body).to.have.property('message', vendorSuccessMessages.successfulLogin);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('token');
-                    localStorage.setItem('token', response.body.data.token);
+                    userToken = response.body.data.token;
                 });
             });
     
             it('should switch to vendor mode', () => {
-                switchRoleApi.switchRole('vendor').then((response) => {
+                switchRoleApi.switchRole('vendor', userToken).then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', vendorSuccessMessages.switchedToVendor);
-                    token = response.body.data.token;
+                    vendorToken = response.body.data.token;
                 });
             });
     
             it('should get details of a service offered', () => {
-                getAOffering(token, branchId, offeringId).then((response) => {
+                getAOffering(vendorToken, branchId, offeringId).then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', vendorSuccessMessages.detailsOfOffering);
                     expect(response.body).to.have.property('data');
