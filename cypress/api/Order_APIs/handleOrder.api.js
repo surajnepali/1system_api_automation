@@ -1,0 +1,40 @@
+/// <reference types="Cypress" />
+
+import { orderEndpoints } from "../../constants/endpoints";
+
+export const createOrder = (orderData, token) => cy.api({
+    method: 'POST',
+    url: Cypress.env('apiUrl') + orderEndpoints.orderApi + orderEndpoints.createOrder,
+    body: {...orderData},
+    headers: {
+        'Authorization': 'Bearer ' + token,
+    },
+    failOnStatusCode: false,
+});
+
+export const getOrderDetails = (orderId, token) => cy.api({
+    method: 'GET',
+    url: Cypress.env('apiUrl') + orderEndpoints.orderApi + '/' + orderId + orderEndpoints.getOrderDetails,
+    headers: {
+        'Authorization': 'Bearer ' + token,
+    },
+    failOnStatusCode: false,
+});
+
+export const cancelOrderByUser = (orderId, token) => cy.api({
+    method: 'PATCH',
+    url: Cypress.env('apiUrl') + orderEndpoints.orderApi + '/' + orderId + orderEndpoints.cancelOrderByUser,
+    headers: {
+        'Authorization': 'Bearer ' + token,
+    },
+    failOnStatusCode: false,
+});
+
+export const acceptOrderByVendor = (orderId, token) => cy.api({
+    method: 'PATCH',
+    url: Cypress.env('apiUrl') + orderEndpoints.orderApi + '/' + orderId + orderEndpoints.acceptOrderByVendor,
+    headers: {
+        'Authorization': 'Bearer ' + token,
+    },
+    failOnStatusCode: false,
+});
