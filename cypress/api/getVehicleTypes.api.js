@@ -2,11 +2,11 @@
 
 import ENDPOINTS from "../constants/endpoints";
 
-const getVehicleTypes = () => cy.api({
+const getVehicleTypes = (token) => cy.api({
     method: 'GET',
     url: Cypress.env('apiUrl') + ENDPOINTS.getVehicleTypes,
     headers: {
-        'Authorization': 'Bearer ' + localStorage.getItem('token'),
+        'Authorization': 'Bearer ' + token,
     },
     failOnStatusCode: false,
 });

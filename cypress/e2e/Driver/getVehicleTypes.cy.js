@@ -5,6 +5,8 @@ import getVehicleTypes from "../../api/getVehicleTypes.api";
 import ERROR from "../../message/errorMessage";
 import SUCCESSFUL from "../../message/successfulMessage";
 
+let userToken;
+
 describe('Get Vehicle Types', () => {
 
     describe('Without Login', () => {
@@ -29,15 +31,13 @@ describe('Get Vehicle Types', () => {
                 expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                 expect(response.body).to.have.property('data');
                 expect(response.body.data).to.have.property('token');
-                const token = response.body.data.token;
-                localStorage.setItem('token', token);
-                return token;
+                userToken = response.body.data.token;
             });
         
         });
 
         it('Should return all vehicle types', () => {
-            getVehicleTypes.getVehicleTypes().then((response) => {
+            getVehicleTypes.getVehicleTypes(userToken).then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body).to.have.property('data');
                 expect(response.body.data).to.have.property('types');
