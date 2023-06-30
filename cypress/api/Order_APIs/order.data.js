@@ -14,3 +14,11 @@ export const createOrderData= {
     'is_self_delivery': faker.datatype.boolean(),   
     'is_self_pickup': faker.datatype.boolean(),
 };
+
+export const orderAccessEmails = {
+    onlyCustomerEmail: 'lepoha7775@rockdian.com',
+    appliedVendorEmail: 'xekag24890@peogi.com',
+    approvedVendorEmail: 'pustesotru@gufum.com',
+    appliedDriverEmail: 'nebem35733@camplvad.com',
+    approvedDriverEmail: 'hicif13925@soremap.com',
+};
