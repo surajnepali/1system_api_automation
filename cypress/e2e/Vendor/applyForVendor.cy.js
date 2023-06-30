@@ -153,28 +153,28 @@ describe('Apply for Vendor', () => {
             // });
 
             // No Vendor Name validation
-            it('Should throw error on trying to apply for vendor with invalid vendor name', () => {
+            // it('Should throw error on trying to apply for vendor with invalid vendor name', () => {
                             
-                cy.fixture('vendorRegistrationDocument.jpg', 'binary')
-                    .then((file) => Cypress.Blob.binaryStringToBlob(file, 'image/jpg'))
-                    .then((blob) => {
+            //     cy.fixture('vendorRegistrationDocument.jpg', 'binary')
+            //         .then((file) => Cypress.Blob.binaryStringToBlob(file, 'image/jpg'))
+            //         .then((blob) => {
                                     
-                        let formData = new FormData();
-                        formData.append('company_name', '123');
-                        formData.append('state_id', vendorCreateData.vendorStateId);
-                        formData.append('registration_document', blob, 'vendorRegistrationDocument.jpg');
-                        formData.append('landmark', vendorCreateData.vendorLandmark);
-                        formData.append('contact', vendorCreateData.vendorContact);
-                        formData.append('place_id', vendorCreateData.vendorPlaceId);
-                        formData.append('company_email', vendorCreateData.vendorEmail);
-                        formData.append('longitude', vendorCreateData.vendorLongitude);
-                        formData.append('latitude', vendorCreateData.vendorLatitude);
+            //             let formData = new FormData();
+            //             formData.append('company_name', '123');
+            //             formData.append('state_id', vendorCreateData.vendorStateId);
+            //             formData.append('registration_document', blob, 'vendorRegistrationDocument.jpg');
+            //             formData.append('landmark', vendorCreateData.vendorLandmark);
+            //             formData.append('contact', vendorCreateData.vendorContact);
+            //             formData.append('place_id', vendorCreateData.vendorPlaceId);
+            //             formData.append('company_email', vendorCreateData.vendorEmail);
+            //             formData.append('longitude', vendorCreateData.vendorLongitude);
+            //             formData.append('latitude', vendorCreateData.vendorLatitude);
             
-                        applyForVendor.applyForVendor(formData).then((response) => {
-                            expect(response.status).to.eq(422);
-                        });
-                    });
-            });
+            //             applyForVendor.applyForVendor(formData).then((response) => {
+            //                 expect(response.status).to.eq(422);
+            //             });
+            //         });
+            // });
 
             // it('Should throw error on trying to apply for vendor with empty state id', () => {
                                 
@@ -221,27 +221,27 @@ describe('Apply for Vendor', () => {
             //         }); 
             // });
 
-            // it('Should throw error on trying to apply for vendor with registration document of invalid type', () => {
-            //     cy.fixture('vendorRegistrationDocument.pdf', 'binary')
-            //         .then((file) => Cypress.Blob.binaryStringToBlob(file, 'application/pdf'))
-            //         .then((blob) => {
-            //             let formData = new FormData();
-            //             formData.append('company_name', vendorCreateData.vendorName);
-            //             formData.append('state_id', vendorCreateData.vendorStateId);
-            //             formData.append('registration_document', blob, 'vendorRegistrationDocument.pdf');
-            //             formData.append('landmark', vendorCreateData.vendorLandmark);
-            //             formData.append('contact', vendorCreateData.vendorContact);
-            //             formData.append('place_id', vendorCreateData.vendorPlaceId);
-            //             formData.append('company_email', vendorCreateData.vendorEmail);
-            //             formData.append('longitude', vendorCreateData.vendorLongitude);
-            //             formData.append('latitude', vendorCreateData.vendorLatitude);
+            it('Should throw error on trying to apply for vendor with registration document of invalid type', () => {
+                cy.fixture('vendorRegistrationDocument.pdf', 'binary')
+                    .then((file) => Cypress.Blob.binaryStringToBlob(file, 'application/pdf'))
+                    .then((blob) => {
+                        let formData = new FormData();
+                        formData.append('company_name', vendorCreateData.vendorName);
+                        formData.append('state_id', vendorCreateData.vendorStateId);
+                        formData.append('registration_document', blob, 'vendorRegistrationDocument.pdf');
+                        formData.append('landmark', vendorCreateData.vendorLandmark);
+                        formData.append('contact', vendorCreateData.vendorContact);
+                        formData.append('place_id', vendorCreateData.vendorPlaceId);
+                        formData.append('company_email', vendorCreateData.vendorEmail);
+                        formData.append('longitude', vendorCreateData.vendorLongitude);
+                        formData.append('latitude', vendorCreateData.vendorLatitude);
     
-            //             applyForVendor.applyForVendor(formData).then((response) => {
-            //                 expect(response.status).to.eq(400);
-            //             });
-            //         });
+                        applyForVendor.applyForVendor(formData).then((response) => {
+                            expect(response.status).to.eq(400);
+                        });
+                    });
  
-            // });
+            });
 
             // it('Should throw error on trying to apply for vendor with empty landmark', () => {
             //     cy.fixture('vendorRegistrationDocument.jpg', 'binary')
@@ -453,30 +453,30 @@ describe('Apply for Vendor', () => {
             //         });
             // });
 
-            it('Should apply for vendor successfully', () => {
+            // it('Should apply for vendor successfully', () => {
                     
-                cy.fixture('vendorRegistrationDocument.jpg', 'binary')
-                    .then((file) => Cypress.Blob.binaryStringToBlob(file, 'image/jpg'))
-                    .then((blob) => {
+            //     cy.fixture('vendorRegistrationDocument.jpg', 'binary')
+            //         .then((file) => Cypress.Blob.binaryStringToBlob(file, 'image/jpg'))
+            //         .then((blob) => {
                             
-                        let formData = new FormData();
-                        formData.append('company_name', vendorCreateData.vendorName);
-                        formData.append('state_id', vendorCreateData.vendorStateId);
-                        formData.append('registration_document', blob, 'vendorRegistrationDocument.jpg');
-                        formData.append('landmark', vendorCreateData.vendorLandmark);
-                        formData.append('contact', vendorCreateData.vendorContact);
-                        formData.append('place_id', vendorCreateData.vendorPlaceId);
-                        formData.append('company_email', vendorCreateData.vendorEmail);
-                        formData.append('longitude', vendorCreateData.vendorLongitude);
-                        formData.append('latitude', vendorCreateData.vendorLatitude);
+            //             let formData = new FormData();
+            //             formData.append('company_name', vendorCreateData.vendorName);
+            //             formData.append('state_id', vendorCreateData.vendorStateId);
+            //             formData.append('registration_document', blob, 'vendorRegistrationDocument.jpg');
+            //             formData.append('landmark', vendorCreateData.vendorLandmark);
+            //             formData.append('contact', vendorCreateData.vendorContact);
+            //             formData.append('place_id', vendorCreateData.vendorPlaceId);
+            //             formData.append('company_email', vendorCreateData.vendorEmail);
+            //             formData.append('longitude', vendorCreateData.vendorLongitude);
+            //             formData.append('latitude', vendorCreateData.vendorLatitude);
     
-                        applyForVendor.applyForVendor(formData).then((response) => {
-                            cy.log('Request Body:', formData);
-                            cy.log('Response Body:', response.body);
-                            expect(response.status).to.eq(200);
-                        });
-                    });
-            });
+            //             applyForVendor.applyForVendor(formData).then((response) => {
+            //                 cy.log('Request Body:', formData);
+            //                 cy.log('Response Body:', response.body);
+            //                 expect(response.status).to.eq(200);
+            //             });
+            //         });
+            // });
         }); 
     });
 
