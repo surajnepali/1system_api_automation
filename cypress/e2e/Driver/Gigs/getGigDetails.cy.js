@@ -39,7 +39,7 @@ describe('Get GIG Details API Testing', () => {
                 });
 
                 it('should get all gigs', () => {
-                    getAllGigs(driverToken, 1, 20).then((response) => {
+                    getAllGigs(driverToken, 1, 100).then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', driverSuccessMessages.gigsRetrieved);
                         expect(response.body.data).to.have.property('gigs');

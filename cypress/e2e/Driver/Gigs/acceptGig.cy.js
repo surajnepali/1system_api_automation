@@ -125,7 +125,7 @@ describe('Driver Accepts GIG API Testing', () => {
                 });
 
                 it('should get all the gigs', () => {
-                    getAllGigs(driverToken, 1, 20).then((response) => {
+                    getAllGigs(driverToken, 1, 100).then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', driverSuccessMessages.gigsRetrieved);
                         expect(response.body.data).to.have.property('gigs');
@@ -234,7 +234,69 @@ describe('Driver Accepts GIG API Testing', () => {
             });
 
             describe('When user tries to re-accept the accepted gig', () => {
-                    
+
+                it('Vendor should accept the order', () => {
+                    acceptOrderByVendor(orderId, vendorToken).then((response) => {
+                        expect(response.status).to.eq(200);
+                        expect(response.body).to.have.property('message', orderSuccessMessages.orderAcceptedByVendor);
+                        expect(response.body.data.order[0]).to.have.property('status', 'accepted');
+                        cy.log('Order Status: ', response.body.data.order[0].status)
+                    });
+                });
+
+                it('should login with the driver email', () => {
+                    loginApi.loginUser(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                        expect(response.status).to.eq(200);
+                        expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                        expect(response.body.data).to.have.property('token');
+                        userToken = response.body.data.token;
+                    });
+                });
+
+                it('should switch to driver role', () => {
+                    switchRoleApi.switchRole('driver', userToken).then((response) => {
+                        expect(response.status).to.eq(200);
+                        expect(response.body).to.have.property('message', driverSuccessMessages.roleSwitched);
+                        expect(response.body.data).to.have.property('token');
+                        driverToken = response.body.data.token;
+                    });
+                });
+
+                it('should get all the gigs', () => {
+                    getAllGigs(driverToken, 1, 100).then((response) => {
+                        expect(response.status).to.eq(200);
+                        expect(response.body).to.have.property('message', driverSuccessMessages.gigsRetrieved);
+                        expect(response.body.data).to.have.property('gigs');
+                        expect(response.body.data.gigs).to.be.an('array');
+                        const gigs = response.body.data.gigs;
+                        for(let i = 0; i < gigs.length; i++) {
+                            if(gigs[i].order_id === orderId) {
+                                gigId = gigs[i].gig_id;
+                                cy.log('Gig ID: ' + gigId);
+                                break;
+                            }
+                        }
+                    });
+                });
+
+                it('should accept the gig', () => {
+                    acceptGig(driverToken, gigId).then((response) => {
+                        expect(response.status).to.eq(200);
+                        expect(response.body).to.have.property('message', driverSuccessMessages.gigAccepted);
+                    });
+                });
+
+                it('should throw error on trying to re-accept the accepted gig', () => {
+                    acceptGig(driverToken, gigId).then((response) => {
+                        expect(response.status).to.eq(400);
+                        expect(response.body).to.have.property('message', driverErrorMessages.noOrderFound);
+                    });
+                });
+
+            });
+
+            describe('User tries to accept the gig that is already accepted by another driver', () => {
+
                 before(() => {
                     loginApi.loginUser(orderAccessEmails.approvedVendorEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
@@ -335,7 +397,7 @@ describe('Driver Accepts GIG API Testing', () => {
                 });
 
                 it('should get all the gigs', () => {
-                    getAllGigs(driverToken, 1, 20).then((response) => {
+                    getAllGigs(driverToken, 1, 100).then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', driverSuccessMessages.gigsRetrieved);
                         expect(response.body.data).to.have.property('gigs');
@@ -358,13 +420,31 @@ describe('Driver Accepts GIG API Testing', () => {
                     });
                 });
 
-                it('should throw error on trying to re-accept the accepted gig', () => {
+                it('should login with another driver email', () => {
+                    loginApi.loginUser(Cypress.env('userWithDriverRoleApproved'), Cypress.env('password'), 'email').then((response) => {
+                        expect(response.status).to.eq(200);
+                        expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                        expect(response.body.data).to.have.property('token');
+                        userToken = response.body.data.token;
+                    });
+                });
+
+                it('should switch to driver role', () => {
+                    switchRoleApi.switchRole('driver', userToken).then((response) => {
+                        expect(response.status).to.eq(200);
+                        expect(response.body).to.have.property('message', driverSuccessMessages.roleSwitched);
+                        expect(response.body.data).to.have.property('token');
+                        driverToken = response.body.data.token;
+                    });
+                });
+
+                it('should throw on trying to accept the gig', () => {
                     acceptGig(driverToken, gigId).then((response) => {
                         expect(response.status).to.eq(400);
                         expect(response.body).to.have.property('message', driverErrorMessages.noOrderFound);
                     });
                 });
-
+                
             });
 
         });
@@ -471,7 +551,7 @@ describe('Driver Accepts GIG API Testing', () => {
             });
 
             it('should get all the gigs', () => {
-                getAllGigs(driverToken, 1, 20).then((response) => {
+                getAllGigs(driverToken, 1, 100).then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', driverSuccessMessages.gigsRetrieved);
                     expect(response.body.data).to.have.property('gigs');
@@ -598,7 +678,7 @@ describe('Driver Accepts GIG API Testing', () => {
             });
 
             it('should get all the gigs', () => {
-                getAllGigs(driverToken, 1, 20).then((response) => {
+                getAllGigs(driverToken, 1, 100).then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', driverSuccessMessages.gigsRetrieved);
                     expect(response.body.data).to.have.property('gigs');

@@ -76,7 +76,7 @@ describe('Driver Get All GIGS API Testing', () => {
             });
 
             it('should successfully retireve the gigs', () => {
-                getAllGigs(driverToken, 1, 20).then((response) => {
+                getAllGigs(driverToken, 1, 100).then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', driverSuccessMessages.gigsRetrieved);
                 });
