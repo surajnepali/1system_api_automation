@@ -8,7 +8,7 @@ import vendorErrorMessages from "../../../message/Error/Vendor/vendorErrorMessag
 import { vendorSuccessMessages } from "../../../message/Successful/Vendor/vendorSuccessMessage";
 import SUCCESSFUL from "../../../message/successfulMessage";
 
-let token = '';
+let userToken, vendorToken;
 
 describe('Create Branch', () => {
 
@@ -33,12 +33,12 @@ describe('Create Branch', () => {
                     expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('token');
-                    token = response.body.data.token;
+                    userToken = response.body.data.token;
                 });
             });
 
             it('should throw status code of 403', () => {
-                createBranch.createBranch(branchFakerData, token).then((response) => {
+                createBranch.createBranch(branchFakerData, userToken).then((response) => {
                     expect(response.status).to.eq(403);
                     expect(response.body).to.have.property('message', vendorErrorMessages.forbiddenFromUserMode);
                 });
@@ -54,12 +54,12 @@ describe('Create Branch', () => {
                     expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('token');
-                    token = response.body.data.token;
+                    userToken = response.body.data.token;
                 });
             });
     
             it('should throw status code of 403', () => {
-                createBranch.createBranch(branchFakerData, token).then((response) => {
+                createBranch.createBranch(branchFakerData, userToken).then((response) => {
                     expect(response.status).to.eq(403);
                     expect(response.body).to.have.property('message', vendorErrorMessages.forbiddenFromUserMode);
                 });
@@ -75,23 +75,23 @@ describe('Create Branch', () => {
                         expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                         expect(response.body).to.have.property('data');
                         expect(response.body.data).to.have.property('token');
-                        localStorage.setItem('token', response.body.data.token);
+                        userToken = response.body.data.token;
                     });
             });
 
             it("should switch to vendor's mode", () => {
-                switchRole.switchRole('vendor').then((response) => {
+                switchRole.switchRole('vendor', userToken).then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', vendorSuccessMessages.switchedToVendor);
                     expect(response.body.data).to.have.property('token');
-                    token = response.body.data.token;
+                    vendorToken = response.body.data.token;
                 });
             });
       
             it('should throw error on trying to create new branch leaving landmark', () => {
 
                 const x = {...branchFakerData, landmark: ''};
-                createBranch.createBranch(x, token).then((response) => {
+                createBranch.createBranch(x, vendorToken).then((response) => {
                     expect(response.status).to.eq(400);
                     expect(response.body).to.have.property('message', vendorErrorMessages.emptyLandmark);
                 });
@@ -100,7 +100,7 @@ describe('Create Branch', () => {
             it('should throw error on trying to create new branch leaving contact', () => {
                     
                 const x = {...branchFakerData, contact: ''};
-                createBranch.createBranch(x, token).then((response) => {
+                createBranch.createBranch(x, vendorToken).then((response) => {
                     expect(response.status).to.eq(400);
                     expect(response.body).to.have.property('message', vendorErrorMessages.emptyContact);
                 });
@@ -109,16 +109,16 @@ describe('Create Branch', () => {
             it('should throw error on trying to create new branch entering invalid contact', () => {
                         
                 const x = {...branchFakerData, contact: '123456789'};
-                createBranch.createBranch(x, token).then((response) => {
+                createBranch.createBranch(x, vendorToken).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', vendorErrorMessages.invalidContact);
+                    expect(response.body).to.have.property('message', vendorErrorMessages.incompleteContact);
                 });
             });
 
             it('should throw error on trying to create new branch entering invalid contact', () => {
                                 
                 const x = {...branchFakerData, contact: '1234567891111'};
-                createBranch.createBranch(x, token).then((response) => {
+                createBranch.createBranch(x, vendorToken).then((response) => {
                     expect(response.status).to.eq(400);
                     expect(response.body).to.have.property('message', vendorErrorMessages.invalidContact);
                 }); 
@@ -127,7 +127,7 @@ describe('Create Branch', () => {
             it('should throw error on trying to create new branch leaving longitutde field empty', () => {
                                         
                 const x = {...branchFakerData, longitude: ''};
-                createBranch.createBranch(x, token).then((response) => {
+                createBranch.createBranch(x, vendorToken).then((response) => {
                     expect(response.status).to.eq(400);
                     expect(response.body).to.have.property('message', vendorErrorMessages.emptyLongitude);
                 }); 
@@ -136,7 +136,7 @@ describe('Create Branch', () => {
             it('should throw error on trying to create new branch entering invalid longitude', () => {
                                                     
                 const x = {...branchFakerData, longitude: 'abcd'};
-                createBranch.createBranch(x, token).then((response) => {
+                createBranch.createBranch(x, vendorToken).then((response) => {
                     expect(response.status).to.eq(400);
                     expect(response.body).to.have.property('message', vendorErrorMessages.invalidLongitude);
                 });     
@@ -145,7 +145,7 @@ describe('Create Branch', () => {
             it('should throw error on trying to create new branch leaving latitude field empty', () => {
                                                         
                 const x = {...branchFakerData, latitude: ''};
-                createBranch.createBranch(x, token).then((response) => {
+                createBranch.createBranch(x, vendorToken).then((response) => {
                     expect(response.status).to.eq(400);
                     expect(response.body).to.have.property('message', vendorErrorMessages.emptyLatitude);
                 });         
@@ -154,7 +154,7 @@ describe('Create Branch', () => {
             it('should throw error on trying to create new branch entering invalid latitude', () => {
                                                                     
                 const x = {...branchFakerData, latitude: 'abcd'};
-                createBranch.createBranch(x, token).then((response) => {
+                createBranch.createBranch(x, vendorToken).then((response) => {
                     expect(response.status).to.eq(400);
                     expect(response.body).to.have.property('message', vendorErrorMessages.invalidLatitude);
                 });             
@@ -163,14 +163,14 @@ describe('Create Branch', () => {
             it('should throw error on trying to create new branch leaving place_id field empty', () => {
                                                                                     
                 const x = {...branchFakerData, place_id: ''};
-                    createBranch.createBranch(x, token).then((response) => {
+                    createBranch.createBranch(x, vendorToken).then((response) => {
                     expect(response.status).to.eq(400);
                     expect(response.body).to.have.property('message', vendorErrorMessages.emptyPlaceId);
                 });                     
             });
 
             it('should create new branch successfully', () => {
-                createBranch.createBranch(branchFakerData, token).then((response) => {
+                createBranch.createBranch(branchFakerData, vendorToken).then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', vendorSuccessMessages.branchCreated);
                     expect(response.body.data).to.have.property('branch');
