@@ -34,7 +34,7 @@ export const editDriverApplicationDocs = (formData, token) => cy.api({
 
 export const getAllGigs = (token, page, limit) => cy.api({
     method: 'GET',
-    url: Cypress.env('apiUrl') + driverEndpoints.getAllGigs + '?page=' + page + '&limit=' + limit,
+    url: Cypress.env('apiUrl') + driverEndpoints.gig + '?page=' + page + '&limit=' + limit,
     headers: {
         'Authorization': 'Bearer ' + token,
     },
@@ -43,9 +43,27 @@ export const getAllGigs = (token, page, limit) => cy.api({
 
 export const getGigDetails = (token, gigId) => cy.api({
     method: 'GET',
-    url: Cypress.env('apiUrl') + driverEndpoints.getAllGigs + '/' + gigId,
+    url: Cypress.env('apiUrl') + driverEndpoints.gig + '/' + gigId,
     headers: {
         'Authorization': 'Bearer ' + token,
     },
     failOnStatusCode: false,
+});
+
+export const acceptGig = (token, gigId) => cy.api({
+    method: 'PATCH',
+    url: Cypress.env('apiUrl') + driverEndpoints.gig + '/' + gigId + '/accept',
+    headers: {
+        'Authorization': 'Bearer ' + token,
+    },
+    failOnStatusCode: false,
+});
+
+export const pickGig = (token, gigId) => cy.api({
+    method: 'PATCH',
+    url: Cypress.env('apiUrl') + driverEndpoints.gig + '/' + gigId + '/picked',
+    headers: {
+        'Authorization': 'Bearer ' + token,
+    },
+    failOnStatusCode: false,    
 });

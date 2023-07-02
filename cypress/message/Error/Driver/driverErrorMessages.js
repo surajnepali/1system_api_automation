@@ -6,4 +6,7 @@ export const driverErrorMessages = {
     emptyField: 'must not be empty.',
     invalidData: 'must be longer than or equal to 2 characters.',
     invalidVehicleType: 'vehicle_type must be one of the following values: bicycle, motorcycle, car, suv, minivan, truck.',
+    noOrderFound: 'No order found',
+    noGigFound: 'No Gig found.',
+    notAssignedGig: 'You are not assigned to this gig.'
 };  
