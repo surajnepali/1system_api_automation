@@ -29,3 +29,10 @@ export const pageOptions = {
     PAGE: 1,
     LIMIT: 300,
 };
+
+const now = new Date();
+export const orderDataAndTime = {
+    NOW: now,
+    YESTERDAY: new Date(now - 86400000),
+    TOMORROW: new Date(now + 86400000),
+};

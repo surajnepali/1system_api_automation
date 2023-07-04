@@ -13,4 +13,5 @@ export const orderSuccessMessages = {
     getOrdersByVendor: 'Orders',
     isNowServicing: 'This order is now in servicing.',
     isNowReadyToDeliver: 'This order is now ready..',
+    orderCompleted: 'This order is now completed.',
 };

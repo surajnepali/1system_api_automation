@@ -1,28 +1,27 @@
 /// <reference types="Cypress" />
 
 import { acceptGig, getAllGigs, pickGig } from "../../api/Driver_APIs/driver.api";
-import { acceptOrderByVendor, createOrder, vendorFinishServicing, vendorStartServicing } from "../../api/Order_APIs/handleOrder.api";
+import { acceptOrderByVendor, completeOrderProcess, createOrder, vendorFinishServicing, vendorStartServicing } from "../../api/Order_APIs/handleOrder.api";
 import { createOrderData, orderAccessEmails } from "../../api/Order_APIs/order.data";
 import { getAllOfferingsOfBranch } from "../../api/Vendor_APIs/branchOffering.api";
 import getAllBranchesOfVendorApi from "../../api/Vendor_APIs/getAllBranchesOfVendor.api";
 import { getOrders } from "../../api/Vendor_APIs/getOrders.api";
 import loginApi from "../../api/login.api";
 import switchRoleApi from "../../api/switchRole.api";
-import { orderApiOptions, pageOptions } from "../../constants/apiOptions.constants";
-import { driverErrorMessages } from "../../message/Error/Driver/driverErrorMessages";
+import { orderApiOptions, orderDataAndTime, pageOptions } from "../../constants/apiOptions.constants";
+import { orderErrorMessages } from "../../message/Error/Order/orderErrorMessages";
 import { driverSuccessMessages } from "../../message/Successful/Driver/driverSuccessMessages";
 import { orderSuccessMessages } from "../../message/Successful/Order/orderSuccessMessages";
 import { vendorSuccessMessages } from "../../message/Successful/Vendor/vendorSuccessMessage";
-import ERROR from "../../message/errorMessage";
 import SUCCESSFUL from "../../message/successfulMessage";
 
 let userToken, vendorToken, driverToken, branchId, serviceId, offeringId, orderId, pickupGigId, deliveryGigId;
 let selfPickup, selfDelivery;
 
-describe("Delivery Assigned By Vendor API Testing", () => {
+describe('Order Recieved By Customer API Testing', () => {
 
-    describe('GET branchId, ServiceId, OfferingId', () => {
-        
+    describe('GET branchId, OfferingId, serviceId', () => {
+
         before(() => {
             loginApi.loginUser(orderAccessEmails.approvedVendorEmail, Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
@@ -72,9 +71,9 @@ describe("Delivery Assigned By Vendor API Testing", () => {
 
     describe('After Login', () => {
 
-        describe('User is an approved Vendor and tries to make the order serviced', () => {
+        describe('User is genuine customer and tries to complete the order by receiving the order from vendor', () => {
 
-            describe('When user switches to driver role', () => {
+            describe('User receives the order from the driver', () => {
 
                 before(() => {
                     loginApi.loginUser(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
@@ -88,11 +87,7 @@ describe("Delivery Assigned By Vendor API Testing", () => {
                 it('should create order successfully', () => {
                     const x = {...createOrderData, branch_id: branchId, service_id: serviceId, offering_id: offeringId, 
                         pickup_time: "2023-06-30 01:05:00.099",
-                        dropoff_time: "2023-07-03 08:30:00.099"};
-                        const now = new Date();
-                        const yesterday = new Date(now - 86400000);
-                        const tomorrow = new Date(now + 86400000);
-                        console.log('Yesterday: ', yesterday);
+                        dropoff_time: orderDataAndTime.YESTERDAY};
                     createOrder(x, userToken).then((response) => {
                         expect(response.status).to.eq(201);
                         expect(response.body).to.have.property('message', orderSuccessMessages.orderCreatedSuccessfully);
@@ -293,69 +288,57 @@ describe("Delivery Assigned By Vendor API Testing", () => {
                     }
                 });
 
-            });
+                it('should pick the gig', () => {
+                    if(selfDelivery === false){
+                        pickGig(driverToken, deliveryGigId).then((response) => {
+                            expect(response.status).to.eq(200);
+                            expect(response.body).to.have.property('message', driverSuccessMessages.gigPicked);
+                        });
+                    }else{
+                        cy.log('Self Delivery is true, so no need to pick the gig')
+                    }
+                });
 
-            describe('When another driver tries to accept the already accepted gig', () => {
-
-                it('should login with the another driver email', () => {
-                    loginApi.loginUser(Cypress.env('userWithDriverRoleApproved'), Cypress.env('password'), 'email').then((response) => {
+                it('should login with user email', () => {
+                    loginApi.loginUser(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                         expect(response.body.data).to.have.property('token');
                         userToken = response.body.data.token;
-                    });   
+                    });
                 });
 
-                it('should switch to driver role', () => {
-                    switchRoleApi.switchRole('driver', userToken).then((response) => {
+                it('should complete the order succesfully', () => {
+                    completeOrderProcess(orderId, userToken).then((response) => {
                         expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', driverSuccessMessages.roleSwitched);
-                        expect(response.body.data).to.have.property('token');
-                        driverToken = response.body.data.token;
-                    });   
-                });
-
-                it('should throw error on trying to accept the gig', () => {
-                    acceptGig(driverToken, deliveryGigId).then((response) => {
-                        expect(response.status).to.eq(400);
-                        expect(response.body).to.have.property('message', driverErrorMessages.noOrderFound);
+                        expect(response.body).to.have.property('message', orderSuccessMessages.orderCompleted);
                     });
                 });
 
             });
 
-            describe('When driver tries to make the gig accept which is already accepted', () => {
+            describe('When user tries to complete the order which is already completed', () => {
 
-                it('should throw an error on trying to accept the gig', () => {
-
-                    if(selfDelivery === false){
-                        acceptGig(driverToken, deliveryGigId).then((response) => {
-                            expect(response.status).to.eq(400);
-                            expect(response.body).to.have.property('message', driverErrorMessages.noOrderFound);
-                        });
-                    }else{
-                        cy.log('Self Delivery is true, so no need to re-accept the gig')
-                    }
+                it('should throw error on trying to re-complete the order', () => {
+                    completeOrderProcess(orderId, userToken).then((response) => {
+                        expect(response.status).to.eq(400);
+                        expect(response.body).to.have.property('message', orderErrorMessages.alreadyCompleted);
+                    });
                 });
 
             });
 
-            describe('When user doesnot switch to driver role', () => {
+        });
 
-                it('should throw an error on trying to accept the gig', () => {
+        describe('When user tries to complete the order with invalid order id', () => {
 
-                    if(selfDelivery === false){
-                        acceptGig(userToken, deliveryGigId).then((response) => {
-                            expect(response.status).to.eq(403   );
-                            expect(response.body).to.have.property('message', driverErrorMessages.forbidden);
-                        });
-                    }else{
-                        cy.log('Self Delivery is true, so no need to accept the gig')
-                    }
+            it('should throw error on trying to complete the order', () => {
+                completeOrderProcess(12345, userToken).then((response) => {
+                    expect(response.status).to.eq(400);
+                    expect(response.body).to.have.property('message', orderErrorMessages.invalidOrderId);
                 });
-
-
             });
+
 
         });
 
@@ -363,13 +346,17 @@ describe("Delivery Assigned By Vendor API Testing", () => {
 
     describe('Without Login', () => {
             
-        it('should throw an error on trying to accept the gig', () => {
-            acceptGig('', deliveryGigId).then((response) => {
-                expect(response.status).to.eq(401);
-                expect(response.body).to.have.property('message', ERROR.unauthorized);
+        describe('When user tries to complete the order', () => {
+    
+            it('should throw error on trying to complete the order', () => {
+                completeOrderProcess(orderId, '').then((response) => {
+                    expect(response.status).to.eq(401);
+                    expect(response.body).to.have.property('message', orderErrorMessages.unauthorized);
+                });
             });
+        
         });
     
     });
-    
+
 });
