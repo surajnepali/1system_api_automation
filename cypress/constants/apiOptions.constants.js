@@ -27,5 +27,5 @@ export const orderTabs = {
 
 export const pageOptions = {
     PAGE: 1,
-    LIMIT: 200,
+    LIMIT: 300,
 };
