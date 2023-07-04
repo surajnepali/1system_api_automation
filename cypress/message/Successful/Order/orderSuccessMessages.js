@@ -12,4 +12,5 @@ export const orderSuccessMessages = {
     orderRejectedByVendor: 'Order successfully rejected.',
     getOrdersByVendor: 'Orders',
     isNowServicing: 'This order is now in servicing.',
+    isNowReadyToDeliver: 'This order is now ready..',
 };

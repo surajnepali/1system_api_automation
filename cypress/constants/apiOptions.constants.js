@@ -13,6 +13,7 @@ export const orderApiOptions = {
     PICKING: 'picking',
     PROCESSING: 'processing',
     DECLINED: 'declined',
+    PICKUP: 'pickup',
 };
 
 export const orderTabs = {
@@ -22,4 +23,9 @@ export const orderTabs = {
     DROPPING: [orderApiOptions.DELIVERY_ASSIGNED, orderApiOptions.DROPPING],
     COMPLETED: [orderApiOptions.COMPLETED],
     DECLINED: [orderApiOptions.REJECTED, orderApiOptions.CANCELLED]
+};
+
+export const pageOptions = {
+    PAGE: 1,
+    LIMIT: 200,
 };

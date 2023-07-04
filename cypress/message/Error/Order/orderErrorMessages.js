@@ -20,5 +20,5 @@ export const orderErrorMessages = {
     cantAccept: "You can't perform this action.",
     cantReAccept: "Cann't accept this order at this time.",
     cantChangeStatus: "You can't change status from this vendor.",
-
+    cantServiceThisOrder: "You can't service this order at this time.",
 };

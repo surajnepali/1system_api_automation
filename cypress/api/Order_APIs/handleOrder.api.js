@@ -56,3 +56,12 @@ export const vendorStartServicing = (orderId, token) => cy.api({
     },
     failOnStatusCode: false,
 });
+
+export const vendorFinishServicing = (orderId, token) => cy.api({
+    method: 'PATCH',
+    url: Cypress.env('apiUrl') + orderEndpoints.orderApi + '/' + orderId + orderEndpoints.readyToDeliver,
+    headers: {
+        'Authorization': 'Bearer ' + token,
+    },
+    failOnStatusCode: false,
+});
