@@ -1,21 +1,71 @@
 /// reference types="Cypress" />
 
-import { de } from "@faker-js/faker";
 import { acceptOrderByVendor, cancelOrderByUser, createOrder } from "../../api/Order_APIs/handleOrder.api";
-import { createOrderData } from "../../api/Order_APIs/order.data";
+import { createOrderData, orderAccessEmails } from "../../api/Order_APIs/order.data";
 import { vendorCreateData } from "../../api/Vendor_APIs/vendor.data";
 import loginApi from "../../api/login.api";
 import switchRoleApi from "../../api/switchRole.api";
 import { orderErrorMessages } from "../../message/Error/Order/orderErrorMessages";
 import { orderSuccessMessages } from "../../message/Successful/Order/orderSuccessMessages";
 import { userSuccessMessages } from "../../message/Successful/User/userSuccessMessages";
+import { vendorSuccessMessages } from "../../message/Successful/Vendor/vendorSuccessMessage";
+import getAllBranchesOfVendorApi from "../../api/Vendor_APIs/getAllBranchesOfVendor.api";
+import { getAllOfferingsOfBranch } from "../../api/Vendor_APIs/branchOffering.api";
+import SUCCESSFUL from "../../message/successfulMessage";
 
 let userToken, vendorToken;
-
-// Only for some time
-let branchId = 61, serviceId = 50, offeringId = 11, orderId;
+let branchId, serviceId, offeringId, orderId;
 
 describe('Cancel Order By User', () => {
+
+    describe('GET branchId, ServiceId, OfferingId', () => {
+
+        before(() => {
+            loginApi.loginUser(orderAccessEmails.approvedVendorEmail, Cypress.env('password'), 'email').then((response) => {
+                expect(response.status).to.eq(200);
+                expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                expect(response.body.data).to.have.property('token');
+                userToken = response.body.data.token;
+            });
+        });
+
+        it('should switch to vendor role', () => {
+            switchRoleApi.switchRole('vendor', userToken).then((response) => {
+                expect(response.status).to.eq(200);
+                expect(response.body).to.have.property('message', vendorSuccessMessages.switchedToVendor);
+                expect(response.body.data).to.have.property('token');
+                vendorToken = response.body.data.token;
+            });
+        });
+
+        it('should get all the branches of the vendor', () => {
+            getAllBranchesOfVendorApi.getAllBranchesOfVendor(vendorToken).then((response) => {
+                expect(response.status).to.eq(200);
+                expect(response.body).to.have.property('message', vendorSuccessMessages.retrievedAllBranches);
+                const branches = response.body.data.branches;
+                const randomIndex = Math.floor(Math.random() * branches.length);
+                cy.log('Random Index: ' + randomIndex);
+                const randomBranch = branches[randomIndex];
+                branchId = randomBranch.id;
+                cy.log('Branch ID: ' + branchId);
+            });
+        });
+
+        it('should get all the offerings of the branch', () => {
+            getAllOfferingsOfBranch(vendorToken, branchId).then((response) => {
+                expect(response.status).to.eq(200);
+                expect(response.body).to.have.property('message', vendorSuccessMessages.allOfferingsOfBranch);
+                const offerings = response.body.data.offerings;
+                const randomIndex = Math.floor(Math.random() * offerings.length);
+                serviceId = offerings[randomIndex].service_id;
+                cy.log('Service ID: ' + serviceId);
+                const randomOffering = offerings[randomIndex];
+                offeringId = randomOffering.id;
+                cy.log('Offering ID: ' + offeringId);
+            });
+        });
+
+    });
 
     describe('After Login', () => {
 
@@ -24,7 +74,7 @@ describe('Cancel Order By User', () => {
             describe('Order has accepted status in ready state', () => {
                 
                 before(() => {
-                    loginApi.loginUser(Cypress.env('userWithNoRole'), Cypress.env('password'), 'email').then((response) => {
+                    loginApi.loginUser(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
                         expect(response.body.data).to.have.property('token');
@@ -45,7 +95,7 @@ describe('Cancel Order By User', () => {
                 });
 
                 it('Vendor should be logged in', () => {
-                    loginApi.loginUser(vendorCreateData.approvedVendor, Cypress.env('password'), 'email').then((response) => {
+                    loginApi.loginUser(orderAccessEmails.approvedVendorEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
                         expect(response.body.data).to.have.property('token');
@@ -82,7 +132,7 @@ describe('Cancel Order By User', () => {
             describe('Order has initialized status in ready state', () => {
 
                 before(() => {
-                    loginApi.loginUser(Cypress.env('userWithNoRole'), Cypress.env('password'), 'email').then((response) => {
+                    loginApi.loginUser(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
                         expect(response.body.data).to.have.property('token');
@@ -116,7 +166,7 @@ describe('Cancel Order By User', () => {
         describe('Order is created by one customer and tries to cancel by another customer', () => {
                 
             before(() => {
-                loginApi.loginUser(Cypress.env('userWithNoRole'), Cypress.env('password'), 'email').then((response) => {
+                loginApi.loginUser(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
                     expect(response.body.data).to.have.property('token');
