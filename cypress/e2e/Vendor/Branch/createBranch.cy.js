@@ -174,6 +174,7 @@ describe('Create Branch', () => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', vendorSuccessMessages.branchCreated);
                     expect(response.body.data).to.have.property('branch');
+                    expect(response.body.data.branch).to.have.property('name', branchFakerData.name);
                     expect(response.body.data.branch).to.have.property('landmark', branchFakerData.landmark);
                     expect(response.body.data.branch).to.have.property('contact', branchFakerData.contact);
                     // expect(response.body.data.branch.location.coordinates[0]).to.have.property('longitude', branchFakerData.longitude);

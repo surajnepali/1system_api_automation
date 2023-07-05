@@ -40,6 +40,7 @@ export const vendorFakerData2 = {
 };
 
 export const branchFakerData = {
+    name :faker.company.name(),
     landmark :faker.location.secondaryAddress(),
     contact :faker.phone.number('415#######'),
     longitude :faker.location.longitude(),
