@@ -1,6 +1,6 @@
 const ERROR = {
     invalidEmail: 'email must be an email.',
-    invalidPurpose: 'purpose must be one of the following values: verifyEmail, forgotpassword.',
+    invalidPurpose: 'purpose must be one of the following values: verifyEmail, forgotpassword, changeLoginMethod.',
     invalidOtp: 'otp must be shorter than or equal to 4 characters.',
     invalidUsername: 'username can not contains other than letters or space.',
     invalidPassword: 'password must be longer than or equal to 8 characters.',
@@ -27,6 +27,7 @@ const ERROR = {
     vendorRoleNotApplied: 'You must be vendor to switch. Please apply for vendor to be vendor',
     emptyRole: 'role must be one of the following values: user, driver, vendor.',
     oldInvalidPassword: "Old Password don't matched",
+    notMatchedPassword: "OTP didn't matched. Please try again.",
     newPasswordSame: 'You must enter different password to change password.',
     unauthorized: 'Unauthorized access',
     // contactEmpty: 'contact must be longer than or equal to 10 characters.'
