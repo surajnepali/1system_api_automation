@@ -2,7 +2,7 @@
 
 import { driverRole } from "../../api/Driver_APIs/driver.data";
 import { createOrder } from "../../api/Order_APIs/handleOrder.api";
-import { createOrderData } from "../../api/Order_APIs/order.data";
+import { createOrderData, orderAccessEmails } from "../../api/Order_APIs/order.data";
 import loginApi from "../../api/login.api";
 import { orderErrorMessages } from "../../message/Error/Order/orderErrorMessages";
 import switchRoleApi from "../../api/switchRole.api";
@@ -30,7 +30,7 @@ describe('Create Order', () => {
         describe('If user tries to create order after switching to Driver role', () => {
 
             before(() => {
-                loginApi.loginUser(driverRole.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                loginApi.loginUser(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
                     expect(response.body.data).to.have.property('token');
@@ -60,7 +60,7 @@ describe('Create Order', () => {
         describe('If user tries to create order after switching to Vendor role', () => {
                 
             before(() => {
-                loginApi.loginUser(vendorCreateData.approvedVendor, Cypress.env('password'), 'email').then((response) => {
+                loginApi.loginUser(orderAccessEmails.approvedVendorEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
                     expect(response.body.data).to.have.property('token');
@@ -118,7 +118,7 @@ describe('Create Order', () => {
         describe('If user tries to create order being a Customer', () => {
 
             before(() => {
-                loginApi.loginUser(Cypress.env('userWithNoRole'), Cypress.env('password'), 'email').then((response) => {
+                loginApi.loginUser(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
                     expect(response.body.data).to.have.property('token');
@@ -321,7 +321,7 @@ describe('Create Order', () => {
                 const x = {...createOrderData, [var1]: 'abc', branch_id: branchId, service_id: serviceId, offering_id: offeringId};
                 createOrder(x, userToken).then((response) => { 
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', `${var1} ${orderErrorMessages.MustBeValidDate}`);
+                    expect(response.body).to.have.property('message', `${var1} ${orderErrorMessages.mustBeValidDate}`);
                 });
             });
 
@@ -349,7 +349,7 @@ describe('Create Order', () => {
                 const x = {...createOrderData, [var1]: 'abc', branch_id: branchId, service_id: serviceId, offering_id: offeringId};
                 createOrder(x, userToken).then((response) => { 
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', `${var1} ${orderErrorMessages.MustBeValidDate}`);
+                    expect(response.body).to.have.property('message', `${var1} ${orderErrorMessages.mustBeValidDate}`);
                 });
             });
 
@@ -438,7 +438,7 @@ describe('Create Order', () => {
                 const x = {...createOrderData, is_self_pickup: false, pickup_longitude: '', pickup_latitude: '', branch_id: branchId, service_id: serviceId, offering_id: offeringId};
                 createOrder(x, userToken).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', `${orderErrorMessages.pickupLocation} ${orderErrorMessages.IsRequired}`);
+                    expect(response.body).to.have.property('message', `Must have pickup ${orderErrorMessages.selfAssignedErrorr} pickup.`);
                 });
             });
 

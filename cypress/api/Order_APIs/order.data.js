@@ -2,6 +2,7 @@ import { faker } from "@faker-js/faker";
 
 export const createOrderData= {
     'total_price': faker.number.int({ min: 50, max: 500 }),
+    'weight': faker.number.int({ min: 1, max: 20 }),
     'pickup_longitude': faker.location.longitude(),
     'pickup_latitude': faker.location.latitude(),
     'dropoff_longitude': faker.location.longitude(),
@@ -16,9 +17,9 @@ export const createOrderData= {
 };
 
 export const orderAccessEmails = {
-    onlyCustomerEmail: 'lepoha7775@rockdian.com',
+    onlyCustomerEmail: 'xeticij858@eimatro.com',
     appliedVendorEmail: 'xekag24890@peogi.com',
-    approvedVendorEmail: 'pustesotru@gufum.com',
+    approvedVendorEmail: 'varzikolto@gufum.com',
     appliedDriverEmail: 'nebem35733@camplvad.com',
-    approvedDriverEmail: 'hicif13925@soremap.com',
+    approvedDriverEmail: 'nidoc72251@soremap.com',
 };
