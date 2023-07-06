@@ -71,3 +71,37 @@ export const editProfile = (editUserData, token) => cy.api({
     body: editUserData,
     failOnStatusCode: false,
 });
+
+export const login = (email, password, loginAgent) => cy.api({
+    method: 'POST',
+    url: Cypress.env('apiUrl') + ENDPOINTS.login,
+    body: {
+        email,
+        password,
+        loginAgent,
+    },
+    failOnStatusCode: false,
+});
+
+export const switchRole = (role, token) => cy.api({
+    method: 'POST',
+    url: Cypress.env('apiUrl') + ENDPOINTS.switchRole,
+    headers: {
+        'Authorization': 'Bearer ' + token,
+    },
+    body: {
+        role,
+    },
+    failOnStatusCode: false,
+});
+
+export const forgotPassword = (email, otp, password) => cy.api({
+    method: 'POST',
+    url: Cypress.env('apiUrl') + ENDPOINTS.forgotPassword,
+    body: {
+        email,
+        otp,
+        password,
+    },
+    failOnStatusCode: false,
+});

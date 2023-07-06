@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import register from '../../api/register.api';
+import { registerCustomerWithImage, setOTP, verifyOTP } from '../../api/Auth_APIs/handleAuth.api';
 import SUCCESSFUL from '../../message/successfulMessage';
 
 let otp;
@@ -8,7 +8,7 @@ describe('Register Customer', () => {
 
 
   it('Can send otp to new email', () => {
-    register.setOTP(Cypress.env('newEmail'), 'verifyEmail').then((response) => {
+    setOTP(Cypress.env('newEmail'), 'verifyEmail').then((response) => {
         expect(response.status).to.eq(200);
         expect(response.body).to.have.property('message',SUCCESSFUL.otpEmailSent);
         expect(response.body).to.have.property('data');
@@ -19,8 +19,7 @@ describe('Register Customer', () => {
     });
 
   it('Can verify otp with valid otp', () => {
-    register
-      .verifyOTP(Cypress.env('newEmail'), 'verifyEmail', otp)
+    verifyOTP(Cypress.env('newEmail'), 'verifyEmail', otp)
       .then((response) => {
         expect(response.status).to.eq(200);
         expect(response.body).to.have.property(
@@ -44,7 +43,7 @@ describe('Register Customer', () => {
         formData.append('profile_picture', blob, 'sample.jpg');
         formData.append('loginAgent', 'email');
 
-        register.registerCustomerWithImage(formData).then((response) => {
+        registerCustomerWithImage(formData).then((response) => {
           expect(response.status).to.eq(400);
         });
       });
@@ -63,7 +62,7 @@ describe('Register Customer', () => {
         formData.append('profile_picture', blob, 'person.jpg');
         formData.append('loginAgent', 'email');
 
-        register.registerCustomerWithImage(formData).then((response) => {
+        registerCustomerWithImage(formData).then((response) => {
           expect(response.status).to.eq(200);
         });
       });
