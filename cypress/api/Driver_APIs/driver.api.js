@@ -67,3 +67,12 @@ export const pickGig = (token, gigId) => cy.api({
     },
     failOnStatusCode: false,    
 });
+
+export const getVehicleTypes = (token) => cy.api({
+    method: 'GET',
+    url: Cypress.env('apiUrl') + driverEndpoints.vehicleTypes,
+    headers: {
+        'Authorization': 'Bearer ' + token,
+    },
+    failOnStatusCode: false,
+});

@@ -1,9 +1,8 @@
 /// <reference types="Cypress" />
 
-import { applyDriver } from "../../api/Driver_APIs/driver.api";
+import { login } from "../../api/Auth_APIs/handleAuth.api";
+import { applyDriver, getVehicleTypes } from "../../api/Driver_APIs/driver.api";
 import { driverRole } from "../../api/Driver_APIs/driver.data";
-import getVehicleTypesApi from "../../api/getVehicleTypes.api";
-import loginApi from "../../api/login.api";
 import SUCCESSFUL from "../../message/successfulMessage";
 
 let userToken;
@@ -14,7 +13,7 @@ describe('User apply for Driver API Testing', () => {
     describe('Return vehicle Types', () => {
 
         before(() => {
-            loginApi.loginUser(Cypress.env('registeredEmail'), Cypress.env('password'), 'email').then((response) => {
+            login(Cypress.env('registeredEmail'), Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                 expect(response.body).to.have.property('data');
@@ -24,7 +23,7 @@ describe('User apply for Driver API Testing', () => {
         });
 
         it('should select one random vehicle type', () => {
-            getVehicleTypesApi.getVehicleTypes(userToken).then((response) => {
+            getVehicleTypes(userToken).then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body).to.have.property('data');
                 expect(response.body.data).to.have.property('types');
@@ -42,7 +41,7 @@ describe('User apply for Driver API Testing', () => {
         describe('User has already applied for Driver Role and is approved', () => {
 
             before(() => {
-                loginApi.loginUser(driverRole.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                login(driverRole.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                     expect(response.body.data).to.have.property('token');
@@ -80,7 +79,7 @@ describe('User apply for Driver API Testing', () => {
         describe('User has not applied for Driver Role', () => {
 
             before(() => {
-                loginApi.loginUser(driverRole.freshEmail, Cypress.env('password'), 'email').then((response) => {
+                login(driverRole.freshEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', 'successful');
                     expect(response.body).to.have.property('data');
@@ -389,7 +388,7 @@ describe('User apply for Driver API Testing', () => {
         describe('User has already applied for Driver Role', () => {
             
             before(() => {
-                loginApi.loginUser(driverRole.appliedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                login(driverRole.appliedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                     expect(response.body.data).to.have.property('token');

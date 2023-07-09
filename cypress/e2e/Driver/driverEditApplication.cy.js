@@ -1,11 +1,11 @@
 /// <reference types="Cypress" />
 
 import { editDriverApplication } from "../../api/Driver_APIs/driver.api";
-import loginApi from "../../api/login.api";
 import { driverRole, editDriverApplicationData } from "../../api/Driver_APIs/driver.data";
 import SUCCESSFUL from "../../message/successfulMessage";
 import { driverErrorMessages } from "../../message/Error/Driver/driverErrorMessages";
 import getVehicleTypesApi from "../../api/getVehicleTypes.api";
+import { login } from "../../api/Auth_APIs/handleAuth.api";
 
 let userToken;
 let vehicleType = '';
@@ -17,7 +17,7 @@ describe('Driver Edit Application API Testing', () => {
         describe('User is an approved Driver and tries to edit the application', () => {
 
             before(() => {
-                loginApi.loginUser(driverRole.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                login(driverRole.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                     expect(response.body.data).to.have.property('token');
@@ -48,7 +48,7 @@ describe('Driver Edit Application API Testing', () => {
         describe('User has not applied for Driver and tries to edit the application', () => {
                 
             before(() => {
-                loginApi.loginUser(driverRole.freshEmail, Cypress.env('password'), 'email').then((response) => {
+                login(driverRole.freshEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                     expect(response.body.data).to.have.property('token');
@@ -68,7 +68,7 @@ describe('Driver Edit Application API Testing', () => {
         describe('User has applied for Driver and wants to edit the application', () => {
 
             before(() => {
-                loginApi.loginUser(driverRole.appliedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                login(driverRole.appliedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                     expect(response.body.data).to.have.property('token');

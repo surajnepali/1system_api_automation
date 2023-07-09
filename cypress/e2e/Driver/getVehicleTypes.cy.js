@@ -1,9 +1,9 @@
 /// <reference types="Cypress" />
 
-import login from "../../api/login.api";
-import getVehicleTypes from "../../api/getVehicleTypes.api";
 import ERROR from "../../message/errorMessage";
 import SUCCESSFUL from "../../message/successfulMessage";
+import { getVehicleTypes } from "../../api/Driver_APIs/driver.api";
+import { login } from "../../api/Auth_APIs/handleAuth.api";
 
 let userToken;
 
@@ -13,7 +13,7 @@ describe('Get Vehicle Types', () => {
             
         it('Should throw error message on trying to get vehicle types', () => {
     
-            getVehicleTypes.getVehicleTypes().then((response) => {
+            getVehicleTypes().then((response) => {
                 expect(response.status).to.eq(401);
                 expect(response.body).to.have.property('message', ERROR.unauthorized);
             });
@@ -26,7 +26,7 @@ describe('Get Vehicle Types', () => {
 
         beforeEach(() => {
 
-            login.loginUser(Cypress.env('registeredEmail'), Cypress.env('password'), 'email').then((response) => {
+            login(Cypress.env('registeredEmail'), Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                 expect(response.body).to.have.property('data');
@@ -37,7 +37,7 @@ describe('Get Vehicle Types', () => {
         });
 
         it('Should return all vehicle types', () => {
-            getVehicleTypes.getVehicleTypes(userToken).then((response) => {
+            getVehicleTypes(userToken).then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body).to.have.property('data');
                 expect(response.body.data).to.have.property('types');
