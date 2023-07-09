@@ -1,5 +1,6 @@
 /// <reference types="cypress" />
 
+import { login, switchRole } from "../../../api/Auth_APIs/handleAuth.api";
 import { getAllGigs, getGigDetails } from "../../../api/Driver_APIs/driver.api";
 import { driverRole } from "../../../api/Driver_APIs/driver.data";
 import loginApi from "../../../api/login.api";
@@ -21,7 +22,7 @@ describe('Get GIG Details API Testing', () => {
             describe('When user switches to driver role', () => {
 
                 before(() => {
-                    loginApi.loginUser(driverRole.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                    login(driverRole.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                         expect(response.body.data).to.have.property('token');
@@ -30,7 +31,7 @@ describe('Get GIG Details API Testing', () => {
                 });
 
                 it('should switch to driver role', () => {
-                    switchRoleApi.switchRole('driver', userToken).then((response) => {
+                    switchRole('driver', userToken).then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', driverSuccessMessages.roleSwitched);
                         expect(response.body.data).to.have.property('token');
@@ -67,7 +68,7 @@ describe('Get GIG Details API Testing', () => {
             describe('When user does not switch to driver role', () => {
 
                 before(() => {
-                    loginApi.loginUser(driverRole.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                    login(driverRole.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                         expect(response.body.data).to.have.property('token');
@@ -89,7 +90,7 @@ describe('Get GIG Details API Testing', () => {
         describe('User is a pending Driver and tries to get the GIG details', () => {
 
             before(() => {
-                loginApi.loginUser(driverRole.appliedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                login(driverRole.appliedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                     expect(response.body.data).to.have.property('token');
@@ -109,7 +110,7 @@ describe('Get GIG Details API Testing', () => {
         describe('User has not applied for Driver role yet', () => {
 
             before(() => {
-                loginApi.loginUser(driverRole.freshEmail, Cypress.env('password'), 'email').then((response) => {
+                login(driverRole.freshEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                     expect(response.body.data).to.have.property('token');
