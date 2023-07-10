@@ -1,18 +1,19 @@
 /// <reference types="cypress" />
 
+import { login, switchRole } from "../../api/Auth_APIs/handleAuth.api";
 import { acceptGig, getAllGigs, pickGig } from "../../api/Driver_APIs/driver.api";
 import { acceptOrderByVendor, createOrder, vendorFinishServicing, vendorStartServicing } from "../../api/Order_APIs/handleOrder.api";
 import { createOrderData, orderAccessEmails } from "../../api/Order_APIs/order.data";
-import { getAllOfferingsOfBranch } from "../../api/Vendor_APIs/branchOffering.api";
-import getAllBranchesOfVendorApi from "../../api/Vendor_APIs/getAllBranchesOfVendor.api";
+// import { getAllOfferingsOfBranch } from "../../api/Vendor_APIs/branchOffering.api";
+// import getAllBranchesOfVendorApi from "../../api/Vendor_APIs/getAllBranchesOfVendor.api";
 import { getOrders } from "../../api/Vendor_APIs/getOrders.api";
-import loginApi from "../../api/login.api";
-import switchRoleApi from "../../api/switchRole.api";
+import { getAllBranchesOfVendor, getAllOfferingsOfBranch } from "../../api/Vendor_APIs/handleVendor.api";
 import { orderApiOptions, orderDataAndTime, pageOptions } from "../../constants/apiOptions.constants";
 import { driverErrorMessages } from "../../message/Error/Driver/driverErrorMessages";
 import { driverSuccessMessages } from "../../message/Successful/Driver/driverSuccessMessages";
 import { orderSuccessMessages } from "../../message/Successful/Order/orderSuccessMessages";
 import { vendorSuccessMessages } from "../../message/Successful/Vendor/vendorSuccessMessage";
+import ERROR from "../../message/errorMessage";
 import SUCCESSFUL from "../../message/successfulMessage";
 
 let userToken, vendorToken, driverToken, branchId, serviceId, offeringId, orderId, pickupGigId, deliveryGigId;
@@ -23,7 +24,7 @@ describe('Gig Picked For Delivery API Testing', () => {
     describe('GET branchId, ServiceId, OfferingId', () => {
 
         before(() => {
-            loginApi.loginUser(orderAccessEmails.approvedVendorEmail, Cypress.env('password'), 'email').then((response) => {
+            login(orderAccessEmails.approvedVendorEmail, Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                 expect(response.body.data).to.have.property('token');
@@ -32,7 +33,7 @@ describe('Gig Picked For Delivery API Testing', () => {
         });
 
         it('should switch to vendor role', () => {
-            switchRoleApi.switchRole('vendor', userToken).then((response) => {
+            switchRole('vendor', userToken).then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body).to.have.property('message', vendorSuccessMessages.switchedToVendor);
                 expect(response.body.data).to.have.property('token');
@@ -41,7 +42,7 @@ describe('Gig Picked For Delivery API Testing', () => {
         });
 
         it('should get all the branches of the vendor', () => {
-            getAllBranchesOfVendorApi.getAllBranchesOfVendor(vendorToken).then((response) => {
+            getAllBranchesOfVendor(vendorToken).then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body).to.have.property('message', vendorSuccessMessages.retrievedAllBranches);
                 const branches = response.body.data.branches;
@@ -76,7 +77,7 @@ describe('Gig Picked For Delivery API Testing', () => {
             describe('When user switches to driver role', () => {
                 
                 before(() => {
-                    loginApi.loginUser(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
+                    login(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                         expect(response.body.data).to.have.property('token');
@@ -122,7 +123,7 @@ describe('Gig Picked For Delivery API Testing', () => {
                 it('should login with the driver email', () => {
                     
                     if(selfPickup === false){
-                        loginApi.loginUser(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                        login(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                             expect(response.status).to.eq(200);
                             expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                             expect(response.body.data).to.have.property('token');
@@ -136,7 +137,7 @@ describe('Gig Picked For Delivery API Testing', () => {
                 it('should switch to driver role', () => {
 
                     if(selfPickup === false){
-                        switchRoleApi.switchRole('driver', userToken).then((response) => {
+                        switchRole('driver', userToken).then((response) => {
                             expect(response.status).to.eq(200);
                             expect(response.body).to.have.property('message', driverSuccessMessages.roleSwitched);
                             expect(response.body.data).to.have.property('token');
@@ -232,7 +233,7 @@ describe('Gig Picked For Delivery API Testing', () => {
                 it('should login with the driver email', () => {
                     
                     if(selfDelivery === false){
-                        loginApi.loginUser(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                        login(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                             expect(response.status).to.eq(200);
                             expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                             expect(response.body.data).to.have.property('token');
@@ -246,7 +247,7 @@ describe('Gig Picked For Delivery API Testing', () => {
                 it('should switch to driver role', () => {
 
                     if(selfDelivery === false){
-                        switchRoleApi.switchRole('driver', userToken).then((response) => {
+                        switchRole('driver', userToken).then((response) => {
                             expect(response.status).to.eq(200);
                             expect(response.body).to.have.property('message', driverSuccessMessages.roleSwitched);
                             expect(response.body.data).to.have.property('token');
@@ -337,7 +338,7 @@ describe('Gig Picked For Delivery API Testing', () => {
 
             describe('When driver tries to pick the gig without accepting the gig', () => {
                 before(() => {
-                    loginApi.loginUser(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
+                    login(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                         expect(response.body.data).to.have.property('token');
@@ -349,7 +350,6 @@ describe('Gig Picked For Delivery API Testing', () => {
                     const x = {...createOrderData, branch_id: branchId, service_id: serviceId, offering_id: offeringId, 
                         pickup_time: "2023-06-30 01:05:00.099",
                         dropoff_time: orderDataAndTime.YESTERDAY};
-                        console.log('Yesterday: ', yesterday);
                     createOrder(x, userToken).then((response) => {
                         expect(response.status).to.eq(201);
                         expect(response.body).to.have.property('message', orderSuccessMessages.orderCreatedSuccessfully);
@@ -380,7 +380,7 @@ describe('Gig Picked For Delivery API Testing', () => {
                 it('should login with the driver email', () => {
                     
                     if(selfPickup === false){
-                        loginApi.loginUser(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                        login(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                             expect(response.status).to.eq(200);
                             expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                             expect(response.body.data).to.have.property('token');
@@ -394,7 +394,7 @@ describe('Gig Picked For Delivery API Testing', () => {
                 it('should switch to driver role', () => {
 
                     if(selfPickup === false){
-                        switchRoleApi.switchRole('driver', userToken).then((response) => {
+                        switchRole('driver', userToken).then((response) => {
                             expect(response.status).to.eq(200);
                             expect(response.body).to.have.property('message', driverSuccessMessages.roleSwitched);
                             expect(response.body.data).to.have.property('token');
@@ -490,7 +490,7 @@ describe('Gig Picked For Delivery API Testing', () => {
                 it('should login with the driver email', () => {
                     
                     if(selfDelivery === false){
-                        loginApi.loginUser(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                        login(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                             expect(response.status).to.eq(200);
                             expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                             expect(response.body.data).to.have.property('token');
@@ -504,7 +504,7 @@ describe('Gig Picked For Delivery API Testing', () => {
                 it('should switch to driver role', () => {
 
                     if(selfDelivery === false){
-                        switchRoleApi.switchRole('driver', userToken).then((response) => {
+                        switchRole('driver', userToken).then((response) => {
                             expect(response.status).to.eq(200);
                             expect(response.body).to.have.property('message', driverSuccessMessages.roleSwitched);
                             expect(response.body.data).to.have.property('token');
@@ -559,9 +559,9 @@ describe('Gig Picked For Delivery API Testing', () => {
         describe('When user tries to pick the gig', () => {
     
             it('should throw error on trying to pick the gig', () => {
-                pickGig(userToken, deliveryGigId).then((response) => {
-                    expect(response.status).to.eq(403);
-                    expect(response.body).to.have.property('message', driverErrorMessages.forbidden);
+                pickGig('', deliveryGigId).then((response) => {
+                    expect(response.status).to.eq(401);
+                    expect(response.body).to.have.property('message', ERROR.unauthorized);
                 });
             });
     

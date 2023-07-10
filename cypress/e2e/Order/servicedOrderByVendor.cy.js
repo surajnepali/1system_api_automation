@@ -3,18 +3,16 @@
 import { acceptGig, getAllGigs, pickGig } from "../../api/Driver_APIs/driver.api";
 import { acceptOrderByVendor, createOrder, vendorFinishServicing, vendorStartServicing } from "../../api/Order_APIs/handleOrder.api";
 import { createOrderData, orderAccessEmails } from "../../api/Order_APIs/order.data";
-import { getAllOfferingsOfBranch } from "../../api/Vendor_APIs/branchOffering.api";
-import getAllBranchesOfVendorApi from "../../api/Vendor_APIs/getAllBranchesOfVendor.api";
 import { getOrders } from "../../api/Vendor_APIs/getOrders.api";
-import loginApi from "../../api/login.api";
-import switchRoleApi from "../../api/switchRole.api";
-import { orderApiOptions, orderTabs, pageOptions } from "../../constants/apiOptions.constants";
+import { orderApiOptions, pageOptions } from "../../constants/apiOptions.constants";
 import { orderErrorMessages } from "../../message/Error/Order/orderErrorMessages";
 import { driverSuccessMessages } from "../../message/Successful/Driver/driverSuccessMessages";
 import { orderSuccessMessages } from "../../message/Successful/Order/orderSuccessMessages";
 import { vendorSuccessMessages } from "../../message/Successful/Vendor/vendorSuccessMessage";
 import SUCCESSFUL from "../../message/successfulMessage";
 import ERROR from "../../message/errorMessage";
+import { login, switchRole } from "../../api/Auth_APIs/handleAuth.api";
+import { getAllBranchesOfVendor, getAllOfferingsOfBranch } from "../../api/Vendor_APIs/handleVendor.api";
 
 let userToken, branchId, serviceId, offeringId, orderId, vendorToken, driverToken, gigId;
 let selfPickup;
@@ -24,7 +22,7 @@ describe('Serviced Order By Vendor API Testing', () => {
     describe('GET branchId, ServiceId, OfferingId', () => {
         
         before(() => {
-            loginApi.loginUser(orderAccessEmails.approvedVendorEmail, Cypress.env('password'), 'email').then((response) => {
+            login(orderAccessEmails.approvedVendorEmail, Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                 expect(response.body.data).to.have.property('token');
@@ -33,7 +31,7 @@ describe('Serviced Order By Vendor API Testing', () => {
         });
 
         it('should switch to vendor role', () => {
-            switchRoleApi.switchRole('vendor', userToken).then((response) => {
+            switchRole('vendor', userToken).then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body).to.have.property('message', vendorSuccessMessages.switchedToVendor);
                 expect(response.body.data).to.have.property('token');
@@ -42,7 +40,7 @@ describe('Serviced Order By Vendor API Testing', () => {
         });
 
         it('should get all the branches of the vendor', () => {
-            getAllBranchesOfVendorApi.getAllBranchesOfVendor(vendorToken).then((response) => {
+            getAllBranchesOfVendor(vendorToken).then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body).to.have.property('message', vendorSuccessMessages.retrievedAllBranches);
                 const branches = response.body.data.branches;
@@ -74,7 +72,7 @@ describe('Serviced Order By Vendor API Testing', () => {
 
                 describe('When user switches to vendor role', () => {
                     before(() => {
-                        loginApi.loginUser(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
+                        login(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                             expect(response.status).to.eq(200);
                             expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                             expect(response.body.data).to.have.property('token');
@@ -114,7 +112,7 @@ describe('Serviced Order By Vendor API Testing', () => {
                     it('should login with the driver email', () => {
                         
                         if(selfPickup === false){
-                            loginApi.loginUser(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                            login(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                                 expect(response.status).to.eq(200);
                                 expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                                 expect(response.body.data).to.have.property('token');
@@ -128,7 +126,7 @@ describe('Serviced Order By Vendor API Testing', () => {
                     it('should switch to driver role', () => {
 
                         if(selfPickup === false){
-                            switchRoleApi.switchRole('driver', userToken).then((response) => {
+                            switchRole('driver', userToken).then((response) => {
                                 expect(response.status).to.eq(200);
                                 expect(response.body).to.have.property('message', driverSuccessMessages.roleSwitched);
                                 expect(response.body.data).to.have.property('token');
@@ -237,7 +235,7 @@ describe('Serviced Order By Vendor API Testing', () => {
                 describe('When vendor tries to make the order serviced without servicing it', () => {
 
                     before(() => {
-                        loginApi.loginUser(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
+                        login(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                             expect(response.status).to.eq(200);
                             expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                             expect(response.body.data).to.have.property('token');
@@ -277,7 +275,7 @@ describe('Serviced Order By Vendor API Testing', () => {
                     it('should login with the driver email', () => {
                         
                         if(selfPickup === false){
-                            loginApi.loginUser(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                            login(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                                 expect(response.status).to.eq(200);
                                 expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                                 expect(response.body.data).to.have.property('token');
@@ -291,7 +289,7 @@ describe('Serviced Order By Vendor API Testing', () => {
                     it('should switch to driver role', () => {
 
                         if(selfPickup === false){
-                            switchRoleApi.switchRole('driver', userToken).then((response) => {
+                            switchRole('driver', userToken).then((response) => {
                                 expect(response.status).to.eq(200);
                                 expect(response.body).to.have.property('message', driverSuccessMessages.roleSwitched);
                                 expect(response.body.data).to.have.property('token');
@@ -382,7 +380,7 @@ describe('Serviced Order By Vendor API Testing', () => {
                 describe('Vendor tries to service the order without accepting the order', () => {
 
                     before(() => {
-                        loginApi.loginUser(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
+                        login(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                             expect(response.status).to.eq(200);
                             expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                             expect(response.body.data).to.have.property('token');

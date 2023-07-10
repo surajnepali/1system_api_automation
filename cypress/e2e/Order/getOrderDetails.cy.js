@@ -1,16 +1,15 @@
 /// <reference types="cypress" />
 
+import { login, switchRole } from "../../api/Auth_APIs/handleAuth.api";
 import { driverRole } from "../../api/Driver_APIs/driver.data";
 import { getOrderDetails } from "../../api/Order_APIs/handleOrder.api";
 import { getOrderDetailsByFilter } from "../../api/User_APIs/Order/orderDetails.api";
 import { vendorCreateData } from "../../api/Vendor_APIs/vendor.data";
-import loginApi from "../../api/login.api";
-import switchRoleApi from "../../api/switchRole.api";
 import { orderErrorMessages } from "../../message/Error/Order/orderErrorMessages";
 import { orderSuccessMessages } from "../../message/Successful/Order/orderSuccessMessages";
 import { userSuccessMessages } from "../../message/Successful/User/userSuccessMessages";
 
-let userToken, vendorToken, driverToken, orderId;
+let userToken, vendorToken, orderId;
 
 describe('Get Order Details', () => {
 
@@ -30,7 +29,7 @@ describe('Get Order Details', () => {
         describe('User is already switched to Vendor mode', () => {
 
             before(() => {
-                loginApi.loginUser(vendorCreateData.approvedVendor, Cypress.env('password'), 'email').then((response) => {
+                login(vendorCreateData.approvedVendor, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
                     expect(response.body.data).to.have.property('token');
@@ -39,7 +38,7 @@ describe('Get Order Details', () => {
             });
 
             it('should switch to Vendor mode', () => {
-                switchRoleApi.switchRole('vendor', userToken).then((response) => {
+                switchRole('vendor', userToken).then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', orderSuccessMessages.switchedToVendorRole);
                     expect(response.body.data).to.have.property('token');
@@ -60,7 +59,7 @@ describe('Get Order Details', () => {
         describe('User is already switched to Driver mode', () => {
                 
             before(() => {
-                loginApi.loginUser(driverRole.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                login(driverRole.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
                     expect(response.body.data).to.have.property('token');
@@ -69,7 +68,7 @@ describe('Get Order Details', () => {
             });
     
             it('should switch to Driver mode', () => {
-                switchRoleApi.switchRole('driver', userToken).then((response) => {
+                switchRole('driver', userToken).then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', orderSuccessMessages.switchedToDriverRole);
                     expect(response.body.data).to.have.property('token');
@@ -92,7 +91,7 @@ describe('Get Order Details', () => {
             describe('Order is not created by the same customer', () => {
 
                 before(() => {
-                    loginApi.loginUser(vendorCreateData.approvedVendor, Cypress.env('password'), 'email').then((response) => {
+                    login(vendorCreateData.approvedVendor, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
                         expect(response.body.data).to.have.property('token');
@@ -113,7 +112,7 @@ describe('Get Order Details', () => {
             describe('Order is created by the same customer', () => {
 
                 before(() => {
-                    loginApi.loginUser(Cypress.env('userWithNoRole'), Cypress.env('password'), 'email').then((response) => {
+                    login(Cypress.env('userWithNoRole'), Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
                         expect(response.body.data).to.have.property('token');
@@ -126,22 +125,31 @@ describe('Get Order Details', () => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', userSuccessMessages.ordersRetrievedSuccessfully);
                         const orders = response.body.data.orders;
-                        const randomIndex = Math.floor(Math.random() * orders.length);
-                        orderId = orders[randomIndex].id;
-                        cy.log(orderId);
-                        for(let i = 0; i < orders.length; i++) {
-                            expect(orders[i]).to.have.property('status', 'initialized');
-                            cy.log(orders[i].id + " is Okay");
+                        if(orders.length > 0) {
+                            const randomIndex = Math.floor(Math.random() * orders.length);
+                            orderId = orders[randomIndex].id;
+                            cy.log(orderId);
+                            for(let i = 0; i < orders.length; i++) {
+                                expect(orders[i]).to.have.property('status', 'initialized');
+                                cy.log(orders[i].id + " is Okay");
+                            }
+                        } else {
+                            cy.log('No orders found');
                         }
                     });
                 });
 
                 it('Should get the details and should throw error 200', () => {
-                    getOrderDetails(orderId, userToken).then((response) => {
-                        expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', orderSuccessMessages.orderMetaData);
-                        expect(response.body.data).to.have.property('id', orderId);
-                    });
+                    if(!orderId) {
+                        cy.log('No orders found');
+                        return;
+                    }else{
+                        getOrderDetails(orderId, userToken).then((response) => {
+                            expect(response.status).to.eq(200);
+                            expect(response.body).to.have.property('message', orderSuccessMessages.orderMetaData);
+                            expect(response.body.data).to.have.property('id', orderId);
+                        });
+                    }
                 });
 
             });

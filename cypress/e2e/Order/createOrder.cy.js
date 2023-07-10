@@ -1,15 +1,11 @@
 /// <reference types="Cypress" />
 
-import { driverRole } from "../../api/Driver_APIs/driver.data";
 import { createOrder } from "../../api/Order_APIs/handleOrder.api";
 import { createOrderData, orderAccessEmails } from "../../api/Order_APIs/order.data";
-import loginApi from "../../api/login.api";
 import { orderErrorMessages } from "../../message/Error/Order/orderErrorMessages";
-import switchRoleApi from "../../api/switchRole.api";
 import { orderSuccessMessages } from "../../message/Successful/Order/orderSuccessMessages";
-import { vendorCreateData } from "../../api/Vendor_APIs/vendor.data";
-import getAllBranchesOfVendorApi from "../../api/Vendor_APIs/getAllBranchesOfVendor.api";
-import { getAllOfferingsOfBranch } from "../../api/Vendor_APIs/branchOffering.api";
+import { login, switchRole } from "../../api/Auth_APIs/handleAuth.api";
+import { getAllBranchesOfVendor, getAllOfferingsOfBranch } from "../../api/Vendor_APIs/handleVendor.api";
 
 let userToken, vendorToken, driverToken, branchId, serviceId, offeringId;
 
@@ -30,7 +26,7 @@ describe('Create Order', () => {
         describe('If user tries to create order after switching to Driver role', () => {
 
             before(() => {
-                loginApi.loginUser(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                login(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
                     expect(response.body.data).to.have.property('token');
@@ -39,7 +35,7 @@ describe('Create Order', () => {
             });
 
             it('should switch to Driver role', () => {
-                switchRoleApi.switchRole('driver', userToken).then((response) => {
+                switchRole('driver', userToken).then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', orderSuccessMessages.switchedToDriverRole);
                     expect(response.body.data).to.have.property('token');
@@ -60,7 +56,7 @@ describe('Create Order', () => {
         describe('If user tries to create order after switching to Vendor role', () => {
                 
             before(() => {
-                loginApi.loginUser(orderAccessEmails.approvedVendorEmail, Cypress.env('password'), 'email').then((response) => {
+                login(orderAccessEmails.approvedVendorEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
                     expect(response.body.data).to.have.property('token');
@@ -69,7 +65,7 @@ describe('Create Order', () => {
             });
     
             it('should switch to Vendor role', () => {
-                switchRoleApi.switchRole('vendor', userToken).then((response) => {
+                switchRole('vendor', userToken).then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', orderSuccessMessages.switchedToVendorRole);
                     expect(response.body.data).to.have.property('token');
@@ -78,7 +74,7 @@ describe('Create Order', () => {
             });
 
             it('should get all the branches of the vendor', () => {
-                getAllBranchesOfVendorApi.getAllBranchesOfVendor(vendorToken).then((response) => {
+                getAllBranchesOfVendor(vendorToken).then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', orderSuccessMessages.retrievedAllBranches);
                     const branches = response.body.data.branches;
@@ -118,7 +114,7 @@ describe('Create Order', () => {
         describe('If user tries to create order being a Customer', () => {
 
             before(() => {
-                loginApi.loginUser(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
+                login(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
                     expect(response.body.data).to.have.property('token');

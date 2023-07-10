@@ -69,3 +69,12 @@ export const editOfferingFakerData = {
     description :faker.lorem.sentence(),
     service_id : '2',
 };
+
+export const createBranchFakerData = {
+    name :faker.company.name(),
+    landmark :faker.location.secondaryAddress(),
+    contact :faker.phone.number('415#######'),
+    longitude :faker.location.longitude(),
+    latitude :faker.location.latitude(),
+    place_id :'1234',
+};

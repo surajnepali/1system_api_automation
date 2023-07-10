@@ -1,20 +1,68 @@
 /// <reference types="Cypress" />
 
+import { login, switchRole } from "../../api/Auth_APIs/handleAuth.api";
 import { acceptOrderByVendor, createOrder } from "../../api/Order_APIs/handleOrder.api";
-import { createOrderData } from "../../api/Order_APIs/order.data";
-import { vendorCreateData } from "../../api/Vendor_APIs/vendor.data";
-import loginApi from "../../api/login.api";
-import switchRoleApi from "../../api/switchRole.api";
+import { createOrderData, orderAccessEmails } from "../../api/Order_APIs/order.data";
+import { getAllBranchesOfVendor, getAllOfferingsOfBranch } from "../../api/Vendor_APIs/handleVendor.api";
 import { orderErrorMessages } from "../../message/Error/Order/orderErrorMessages";
 import { orderSuccessMessages } from "../../message/Successful/Order/orderSuccessMessages";
 import { userSuccessMessages } from "../../message/Successful/User/userSuccessMessages";
+import { vendorSuccessMessages } from "../../message/Successful/Vendor/vendorSuccessMessage";
 
 let userToken, vendorToken;
 
 // Only for some time
-let branchId = 61, serviceId = 50, offeringId = 11, orderId;
+let branchId, serviceId, offeringId, orderId;
 
 describe('Accept Order By Vendor', () => {
+
+    describe('GET branchId, ServiceId, OfferingId', () => {
+        
+        before(() => {
+            login(orderAccessEmails.approvedVendorEmail, Cypress.env('password'), 'email').then((response) => {
+                expect(response.status).to.eq(200);
+                expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
+                expect(response.body.data).to.have.property('token');
+                userToken = response.body.data.token;
+            });
+        });
+
+        it('should switch to vendor role', () => {
+            switchRole('vendor', userToken).then((response) => {
+                expect(response.status).to.eq(200);
+                expect(response.body).to.have.property('message', vendorSuccessMessages.switchedToVendor);
+                expect(response.body.data).to.have.property('token');
+                vendorToken = response.body.data.token;
+            });
+        });
+
+        it('should get all the branches of the vendor', () => {
+            getAllBranchesOfVendor(vendorToken).then((response) => {
+                expect(response.status).to.eq(200);
+                expect(response.body).to.have.property('message', vendorSuccessMessages.retrievedAllBranches);
+                const branches = response.body.data.branches;
+                const randomIndex = Math.floor(Math.random() * branches.length);
+                cy.log('Random Index: ' + randomIndex);
+                const randomBranch = branches[randomIndex];
+                branchId = randomBranch.id;
+                cy.log('Branch ID: ' + branchId);
+            });
+        });
+
+        it('should get all the offerings of the branch', () => {
+            getAllOfferingsOfBranch(vendorToken, branchId).then((response) => {
+                expect(response.status).to.eq(200);
+                expect(response.body).to.have.property('message', vendorSuccessMessages.allOfferingsOfBranch);
+                const offerings = response.body.data.offerings;
+                const randomIndex = Math.floor(Math.random() * offerings.length);
+                serviceId = offerings[randomIndex].service_id;
+                cy.log(serviceId);
+                const randomOffering = offerings[randomIndex];
+                offeringId = randomOffering.id;
+                cy.log('Offering ID: ' + offeringId);
+            });
+        });
+    });
 
     describe('After Login', () => {
         
@@ -23,7 +71,7 @@ describe('Accept Order By Vendor', () => {
             describe('Order is accepted by the appropriate vendor', () => {
 
                 before(() => {
-                    loginApi.loginUser(Cypress.env('userWithNoRole'), Cypress.env('password'), 'email').then((response) => {
+                    login(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
                         expect(response.body.data).to.have.property('token');
@@ -45,7 +93,7 @@ describe('Accept Order By Vendor', () => {
                 });
 
                 it('Vendor should be logged in', () => {
-                    loginApi.loginUser(vendorCreateData.approvedVendor, Cypress.env('password'), 'email').then((response) => {
+                    login(orderAccessEmails.approvedVendorEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
                         expect(response.body.data).to.have.property('token');
@@ -55,7 +103,7 @@ describe('Accept Order By Vendor', () => {
 
                 it('should switch to vendor role', () => {
                     const var1 = 'vendor'
-                    switchRoleApi.switchRole('vendor', userToken).then((response) => {
+                    switchRole('vendor', userToken).then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', `${userSuccessMessages.roleSwitched} ${var1}`);
                         vendorToken = response.body.data.token;
@@ -76,7 +124,7 @@ describe('Accept Order By Vendor', () => {
             describe('Unappropriate vendor is trying to accept the order', () => {
                     
                 before(() => {
-                    loginApi.loginUser(Cypress.env('userWithNoRole'), Cypress.env('password'), 'email').then((response) => {
+                    login(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
                         expect(response.body.data).to.have.property('token');
@@ -98,7 +146,7 @@ describe('Accept Order By Vendor', () => {
                 });
     
                 it('Vendor should be logged in', () => {
-                    loginApi.loginUser(Cypress.env('userWithVendorRoleApproved'), Cypress.env('password'), 'email').then((response) => {
+                    login(Cypress.env('userWithVendorRoleApproved'), Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
                         expect(response.body.data).to.have.property('token');
@@ -108,7 +156,7 @@ describe('Accept Order By Vendor', () => {
     
                 it('should switch to vendor role', () => {
                     const var1 = 'vendor'
-                    switchRoleApi.switchRole('vendor', userToken).then((response) => {
+                    switchRole('vendor', userToken).then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', `${userSuccessMessages.roleSwitched} ${var1}`);
                         vendorToken = response.body.data.token;
@@ -131,7 +179,7 @@ describe('Accept Order By Vendor', () => {
             describe('Appropriate vendor is trying to accept the accepted order', () => {
 
                 before(() => {
-                    loginApi.loginUser(Cypress.env('userWithNoRole'), Cypress.env('password'), 'email').then((response) => {
+                    login(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
                         expect(response.body.data).to.have.property('token');
@@ -153,7 +201,7 @@ describe('Accept Order By Vendor', () => {
                 });
 
                 it('Vendor should be logged in', () => {
-                    loginApi.loginUser(vendorCreateData.approvedVendor, Cypress.env('password'), 'email').then((response) => {
+                    login(orderAccessEmails.approvedVendorEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
                         expect(response.body.data).to.have.property('token');
@@ -163,7 +211,7 @@ describe('Accept Order By Vendor', () => {
 
                 it('should switch to vendor role', () => {
                     const var1 = 'vendor'
-                    switchRoleApi.switchRole('vendor', userToken).then((response) => {
+                    switchRole('vendor', userToken).then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', `${userSuccessMessages.roleSwitched} ${var1}`);
                         vendorToken = response.body.data.token;
@@ -191,7 +239,7 @@ describe('Accept Order By Vendor', () => {
             describe('Unappropriate vendor is trying to accept the accepted order', () => {
 
                 before(() => {
-                    loginApi.loginUser(Cypress.env('userWithNoRole'), Cypress.env('password'), 'email').then((response) => {
+                    login(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
                         expect(response.body.data).to.have.property('token');
@@ -213,7 +261,7 @@ describe('Accept Order By Vendor', () => {
                 });
 
                 it('Vendor should be logged in', () => {
-                    loginApi.loginUser(vendorCreateData.approvedVendor, Cypress.env('password'), 'email').then((response) => {
+                    login(orderAccessEmails.approvedVendorEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
                         expect(response.body.data).to.have.property('token');
@@ -223,7 +271,7 @@ describe('Accept Order By Vendor', () => {
 
                 it('should switch to vendor role', () => {
                     const var1 = 'vendor'
-                    switchRoleApi.switchRole('vendor', userToken).then((response) => {
+                    switchRole('vendor', userToken).then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', `${userSuccessMessages.roleSwitched} ${var1}`);
                         vendorToken = response.body.data.token;
@@ -240,7 +288,7 @@ describe('Accept Order By Vendor', () => {
                 });
 
                 it('should login with another vendor account', () => {
-                    loginApi.loginUser(Cypress.env('userWithVendorRoleApproved'), Cypress.env('password'), 'email').then((response) => {
+                    login(Cypress.env('userWithVendorRoleApproved'), Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
                         expect(response.body.data).to.have.property('token');
@@ -250,7 +298,7 @@ describe('Accept Order By Vendor', () => {
 
                 it('should switch to vendor role', () => {
                     const var1 = 'vendor'
-                    switchRoleApi.switchRole('vendor', userToken).then((response) => {
+                    switchRole('vendor', userToken).then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', `${userSuccessMessages.roleSwitched} ${var1}`);
                         vendorToken = response.body.data.token;

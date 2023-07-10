@@ -4,9 +4,8 @@ import { login, switchRole } from "../../api/Auth_APIs/handleAuth.api";
 import { acceptGig, getAllGigs, pickGig } from "../../api/Driver_APIs/driver.api";
 import { acceptOrderByVendor, createOrder, vendorFinishServicing, vendorStartServicing } from "../../api/Order_APIs/handleOrder.api";
 import { createOrderData, orderAccessEmails } from "../../api/Order_APIs/order.data";
-import { getAllOfferingsOfBranch } from "../../api/Vendor_APIs/branchOffering.api";
-import getAllBranchesOfVendorApi from "../../api/Vendor_APIs/getAllBranchesOfVendor.api";
 import { getOrders } from "../../api/Vendor_APIs/getOrders.api";
+import { getAllBranchesOfVendor, getAllOfferingsOfBranch } from "../../api/Vendor_APIs/handleVendor.api";
 import { orderApiOptions, pageOptions } from "../../constants/apiOptions.constants";
 import { driverErrorMessages } from "../../message/Error/Driver/driverErrorMessages";
 import { driverSuccessMessages } from "../../message/Successful/Driver/driverSuccessMessages";
@@ -41,7 +40,7 @@ describe("Delivery Assigned By Vendor API Testing", () => {
         });
 
         it('should get all the branches of the vendor', () => {
-            getAllBranchesOfVendorApi.getAllBranchesOfVendor(vendorToken).then((response) => {
+            getAllBranchesOfVendor(vendorToken).then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body).to.have.property('message', vendorSuccessMessages.retrievedAllBranches);
                 const branches = response.body.data.branches;
