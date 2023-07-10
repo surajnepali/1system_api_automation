@@ -1,14 +1,16 @@
 /// <reference types="Cypress" />
 
-import editVendorApplication from "../../api/Vendor_APIs/editVendorApplication.api";
-import getApplicationDetails from "../../api/Vendor_APIs/getApplicationDetails.api";
+// import editVendorApplication from "../../api/Vendor_APIs/editVendorApplication.api";
+// import getApplicationDetails from "../../api/Vendor_APIs/getApplicationDetails.api";
+import { login } from "../../api/Auth_APIs/handleAuth.api";
+import { editVendorApplication, editVendorApplication2, editVendorApplication3, getApplicationDetails } from "../../api/Vendor_APIs/handleVendor.api";
 import { vendorCreateData, vendorFakerData, vendorFakerData2 } from "../../api/Vendor_APIs/vendor.data";
-import login from "../../api/login.api";
+// import login from "../../api/login.api";
 import vendorErrorMessages from "../../message/Error/Vendor/vendorErrorMessage";
 import { vendorSuccessMessages } from "../../message/Successful/Vendor/vendorSuccessMessage";
 import SUCCESSFUL from "../../message/successfulMessage";
 
-let branch;
+let branchId, userToken;
 
 // Can edit Company Name, State Id, and Company Email using this API
 describe("Edit Vendor Application (Company Name, State Id, and Company Email)", () => {
@@ -17,7 +19,7 @@ describe("Edit Vendor Application (Company Name, State Id, and Company Email)", 
             
         it('Should throw error message on trying to edit the vendor application', () => {
                     
-            editVendorApplication.editVendorApplication(vendorFakerData).then((response) => {
+            editVendorApplication(vendorFakerData, '').then((response) => {
                 expect(response.status).to.eq(401);
                 expect(response.body).to.have.property('message', vendorErrorMessages.unauthorized);
             });
@@ -28,15 +30,13 @@ describe("Edit Vendor Application (Company Name, State Id, and Company Email)", 
 
     describe("After Login", () => {
 
-        beforeEach(() => {
-            login.loginUser(vendorCreateData.appliedEmail, Cypress.env('password'), 'email').then((response) => {
+        before(() => {
+            login(vendorCreateData.appliedEmail, Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                 expect(response.body).to.have.property('data');
                 expect(response.body.data).to.have.property('token');
-                const token = response.body.data.token;
-                localStorage.setItem('token', token);
-                return token;
+                userToken = response.body.data.token;
             });
 
         });
@@ -45,7 +45,7 @@ describe("Edit Vendor Application (Company Name, State Id, and Company Email)", 
             
             const x = {...vendorFakerData, company_name: ''}
 
-            editVendorApplication.editVendorApplication(x).then((response) => {
+            editVendorApplication(x, userToken).then((response) => {
                 expect(response.status).to.eq(400);
                 expect(response.body).to.have.property('message', vendorErrorMessages.emptyCompanyName);
             });
@@ -55,7 +55,7 @@ describe("Edit Vendor Application (Company Name, State Id, and Company Email)", 
                 
             const x = {...vendorFakerData, state_id: ''}
 
-            editVendorApplication.editVendorApplication(x).then((response) => {
+            editVendorApplication(x, userToken).then((response) => {
                 expect(response.status).to.eq(400);
                 expect(response.body).to.have.property('message', vendorErrorMessages.emptyStateId);
             });
@@ -65,7 +65,7 @@ describe("Edit Vendor Application (Company Name, State Id, and Company Email)", 
                                     
             const x = {...vendorFakerData, company_email: ''}
                         
-            editVendorApplication.editVendorApplication(x).then((response) => {
+            editVendorApplication(x, userToken).then((response) => {
                 expect(response.status).to.eq(400);
                 expect(response.body).to.have.property('message', vendorErrorMessages.emptyCompanyEmail);
             });     
@@ -75,7 +75,7 @@ describe("Edit Vendor Application (Company Name, State Id, and Company Email)", 
                                                                             
             const x = {...vendorFakerData, company_email: 'invalidemail'}
                                                 
-            editVendorApplication.editVendorApplication(x).then((response) => {
+            editVendorApplication(x, userToken).then((response) => {
                 expect(response.status).to.eq(400);
                 expect(response.body).to.have.property('message', vendorErrorMessages.invalidCompanyEmail);
             });             
@@ -83,7 +83,7 @@ describe("Edit Vendor Application (Company Name, State Id, and Company Email)", 
 
         it("Should successfully edit the application details", () => {
                                                                                         
-            editVendorApplication.editVendorApplication(vendorFakerData).then((response) => {
+            editVendorApplication(vendorFakerData, userToken).then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body).to.have.property('message', vendorSuccessMessages.vendorApplicationEdited);
             }); 
@@ -97,33 +97,31 @@ describe("Edit Vendor Application (Landmark, Contact, Longitude, and Latitude)",
 
     describe("After Login", () => {
 
-        beforeEach(() => {
-            login.loginUser(vendorCreateData.appliedEmail, Cypress.env('password'), 'email').then((response) => {
+        before(() => {
+            login(vendorCreateData.appliedEmail, Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                 expect(response.body).to.have.property('data');
                 expect(response.body.data).to.have.property('token');
-                const token = response.body.data.token;
-                localStorage.setItem('token', token);
-                return token;
+                userToken = response.body.data.token;
             });
         });
 
         it("get details of the application", () => {
 
-            getApplicationDetails.getApplicationDetails().then((response) => {
+            getApplicationDetails(userToken).then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body.data.branch[0]).to.have.property('id');
-                branch = response.body.data.branch[0].id
-                cy.log(branch);
+                branchId = response.body.data.branch[0].id
+                cy.log(branchId);
             });
         });
 
         it("Should throw error message on leaving contact empty while editing", () => {
                     
-            const x = {...vendorFakerData2, contact: ''}
+            const emptyContactEditVendorApplication = {...vendorFakerData2, contact: ''}
     
-            editVendorApplication.editVendorApplication2(branch, x).then((response) => {
+            editVendorApplication2(branchId, {...emptyContactEditVendorApplication}, userToken).then((response) => {
                 expect(response.status).to.eq(400);
                 expect(response.body).to.have.property('message', vendorErrorMessages.emptyContact);
             });         
@@ -131,9 +129,9 @@ describe("Edit Vendor Application (Landmark, Contact, Longitude, and Latitude)",
 
         it("Should throw error message on leaving longitude empty while editing", () => {
                         
-            const x = {...vendorFakerData2, longitude: ''}
+            const emptyLongitudeEditVendorApplication = {...vendorFakerData2, longitude: ''}
         
-            editVendorApplication.editVendorApplication2(branch, x).then((response) => {
+            editVendorApplication2(branchId, emptyLongitudeEditVendorApplication, userToken).then((response) => {
                 expect(response.status).to.eq(400);
                 expect(response.body).to.have.property('message', vendorErrorMessages.emptyLongitude);
             });             
@@ -141,9 +139,9 @@ describe("Edit Vendor Application (Landmark, Contact, Longitude, and Latitude)",
 
         it("Should throw error message on leaving latitude empty while editing", () => {
                                 
-            const x = {...vendorFakerData2, latitude: ''}
+            const emptyLatitudeEditVendorApplication = {...vendorFakerData2, latitude: ''}
                 
-            editVendorApplication.editVendorApplication2(branch, x).then((response) => {
+            editVendorApplication2(branchId, emptyLatitudeEditVendorApplication, userToken).then((response) => {
                 expect(response.status).to.eq(400);
                 expect(response.body).to.have.property('message', vendorErrorMessages.emptyLatitude);
             });                     
@@ -151,9 +149,9 @@ describe("Edit Vendor Application (Landmark, Contact, Longitude, and Latitude)",
 
         it("Should throw error message on entering invalid contact while editing", () => {
                                             
-            const x = {...vendorFakerData2, contact: 'invalidcontact'}
+            const invalidContactEditVendorApplication = {...vendorFakerData2, contact: 'invalidcontact'}
                         
-            editVendorApplication.editVendorApplication2(branch, x).then((response) => {
+            editVendorApplication2(branchId, invalidContactEditVendorApplication, userToken).then((response) => {
                 expect(response.status).to.eq(400);
                 expect(response.body).to.have.property('message', vendorErrorMessages.invalidContact);
             });                             
@@ -161,9 +159,9 @@ describe("Edit Vendor Application (Landmark, Contact, Longitude, and Latitude)",
 
         it("Should throw error message on entering invalid longitude while editing", () => {
                                                         
-            const x = {...vendorFakerData2, longitude: 'invalidlongitude'}
+            const invalidLongitudeEditVendorApplication = {...vendorFakerData2, longitude: 'invalidlongitude'}
                             
-            editVendorApplication.editVendorApplication2(branch, x).then((response) => {
+            editVendorApplication2(branchId, invalidLongitudeEditVendorApplication, userToken).then((response) => {
                 expect(response.status).to.eq(400);
                 expect(response.body).to.have.property('message', vendorErrorMessages.invalidLongitude);
             });                                     
@@ -171,9 +169,9 @@ describe("Edit Vendor Application (Landmark, Contact, Longitude, and Latitude)",
 
         it("Should throw error message on entering invalid latitude while editing", () => {
                                                                             
-            const x = {...vendorFakerData2, latitude: 'invalidlatitude'}
+            const invalidLatitudeEditVendorApplication = {...vendorFakerData2, latitude: 'invalidlatitude'}
                                             
-            editVendorApplication.editVendorApplication2(branch, x).then((response) => {
+            editVendorApplication2(branchId, invalidLatitudeEditVendorApplication, userToken).then((response) => {
                 expect(response.status).to.eq(400);
                 expect(response.body).to.have.property('message', vendorErrorMessages.invalidLatitude);
             });                                                 
@@ -182,7 +180,7 @@ describe("Edit Vendor Application (Landmark, Contact, Longitude, and Latitude)",
         it("Should successfully edit the application details", () => {
             const x = {...vendorFakerData2, contact: '3456789012'}
 
-            editVendorApplication.editVendorApplication2(branch, x).then((response) => {
+            editVendorApplication2(branchId, x, userToken).then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body).to.have.property('message', vendorSuccessMessages.vendorApplicationEdited2);
             });
@@ -194,7 +192,7 @@ describe("Edit Vendor Application (Landmark, Contact, Longitude, and Latitude)",
 
         it('Should throw error message on trying to edit the vendor application', () => {
                         
-            editVendorApplication.editVendorApplication2(branch, vendorFakerData2).then((response) => {
+            editVendorApplication2(branchId, vendorFakerData2, '').then((response) => {
                 expect(response.status).to.eq(401);
                 expect(response.body).to.have.property('message', vendorErrorMessages.unauthorized);
             });
@@ -215,9 +213,9 @@ describe("Edit Vendor Application (Vendor Resgistration Documentation)", () => {
             .then((blob) => {
 
                 let formData = new FormData();
-                formData.append('document', blob, 'editVendorDocument.jpg');
+                formData.append('registration_document', blob, 'editVendorDocument.jpg');
 
-                editVendorApplication.editVendorApplication3(formData).then((response) => {
+                editVendorApplication3(formData, '').then((response) => {
                     expect(response.status).to.eq(401);
                 });
 
@@ -228,15 +226,13 @@ describe("Edit Vendor Application (Vendor Resgistration Documentation)", () => {
 
     describe("After Login", () => {
 
-        beforeEach(() => {
-            login.loginUser(vendorCreateData.appliedEmail, Cypress.env('password'), 'email').then((response) => {
+        before(() => {
+            login(vendorCreateData.appliedEmail, Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
                 expect(response.body).to.have.property('data');
                 expect(response.body.data).to.have.property('token');
-                const token = response.body.data.token;
-                localStorage.setItem('token', token);
-                return token;
+                userToken = response.body.data.token;
             });
         });
 
@@ -247,9 +243,9 @@ describe("Edit Vendor Application (Vendor Resgistration Documentation)", () => {
                 .then((blob) => {
     
                     let formData = new FormData();
-                    formData.append('document', blob, 'editVendorDocument.jpg');
+                    formData.append('registration_document', blob, 'editVendorDocument.jpg');
     
-                    editVendorApplication.editVendorApplication3(formData).then((response) => {
+                    editVendorApplication3(formData, userToken).then((response) => {
                         expect(response.status).to.eq(200);
                     });
     

@@ -3,14 +3,15 @@ import { faker } from "@faker-js/faker";
 export const vendorCreateData = {
     vendorName: "Vendor 1",
     vendorEmail: "random@gmail.com",
+    branchName: faker.company.name(),
     vendorStateId: "1234",
     vendorPlaceId: "1234",
-    vendorContact: "1234567890",
+    vendorContact: "12345678901",
     vendorLandmark: "3rd Floor of the Avengers building",
     vendorLongitude: "23.73647",
     vendorLatitude: "89.1973",
     applyForVendorEmail: "nebem35733@camplvad.com",
-    notAppliedEmail: "cacoto8214@soremap.com",
+    notAppliedEmail: "riteyo8875@eimatro.com",
     appliedEmail: "habiri9567@onlcool.com",
     approvedVendor: "kemoja5763@peogi.com"
 };

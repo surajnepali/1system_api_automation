@@ -2,43 +2,37 @@
 
 import ENDPOINTS from '../../constants/endpoints';
 
-export const applyForVendor = (formData) => cy.api({
+export const applyForVendor = (formData, token) => cy.api({
     method: 'POST',
     url: Cypress.env('apiUrl') + ENDPOINTS.applyForVendor,
     headers: {
-        'Authorization': 'Bearer ' + localStorage.getItem('token'),
+        'Authorization': 'Bearer ' + token,
         'content-type': 'multipart/form-data',
     },
     body: formData,
     failOnStatusCode: false,
 });
 
-export const createBranchOffering = ({ price, estimated_hour, description, service_id }, token, branchId) => cy.api({
+export const createBranchOffering = (createBranchOfferingData, token, branchId) => cy.api({
     method: 'POST',
     url: Cypress.env('apiUrl') + ENDPOINTS.createBranchOffer + branchId + '/offering',
     headers: {
         Authorization: 'Bearer ' + token,
     },
     body: {
-        price,
-        estimated_hour,
-        description,
-        service_id
+        createBranchOfferingData
     },
     failOnStatusCode: false,
 });
 
-export const editBranchOffering = ({price, estimated_hour, description, service_id}, token, branchId, offeringId) => cy.api({
+export const editBranchOffering = (editBranchOfferingData, token, branchId, offeringId) => cy.api({
     method: 'PATCH',
     url: Cypress.env('apiUrl') + ENDPOINTS.createBranchOffer + branchId + '/offering/' + offeringId,
     headers: {
         Authorization: 'Bearer ' + token,
     },
     body: {
-        price,
-        estimated_hour,
-        description,
-        service_id
+        editBranchOfferingData
     },
     failOnStatusCode: false,
 });
@@ -91,9 +85,7 @@ export const editVendorApplication = (editVendorApplicationData, token) => cy.ap
     headers: {
         'Authorization': 'Bearer ' + token,
     },
-    body: {
-        editVendorApplicationData,
-    },
+    body: editVendorApplicationData,
     failOnStatusCode: false,
 });
 
@@ -103,15 +95,13 @@ export const editVendorApplication2 = (branch, editVendorApplicationData, token)
     headers: {
         'Authorization': 'Bearer ' + token,
     },
-    body: {
-        editVendorApplicationData,
-    },
+    body: editVendorApplicationData,
     failOnStatusCode: false,
 });
 
 export const editVendorApplication3 = (formData, token) => cy.api({
     method: 'PATCH',
-    url: Cypress.env('apiUrl') + ENDPOINTS.editVendorApplication3,
+    url: Cypress.env('apiUrl') + ENDPOINTS.editVendorApplicationDocument,
     headers: {
         'Authorization': 'Bearer ' + token,
         'content-type': 'multipart/form-data',
