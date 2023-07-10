@@ -20,7 +20,7 @@ export const orderErrorMessages = {
     noOrderFound: 'No order found to reject',
     couldNotRejectOrder: "Can't reject this order at this time.",
     cantAccept: "You can't perform this action.",
-    cantReAccept: "Cann't accept this order at this time.",
+    cantReAccept: "Can't accept this order at this time.",
     cantChangeStatus: "You can't change status from this vendor.",
     cantServiceThisOrder: "You can't service this order at this time.",
     alreadyCompleted: "You can't perform any action to this order."

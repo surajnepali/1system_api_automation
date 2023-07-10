@@ -27,7 +27,7 @@ const ERROR = {
     vendorRoleNotApplied: 'You must be vendor to switch. Please apply for vendor to be vendor',
     emptyRole: 'role must be one of the following values: user, driver, vendor.',
     oldInvalidPassword: "Old Password don't matched",
-    notMatchedPassword: "OTP didn't matched. Please try again.",
+    notMatchedPassword: "Password not matched.",
     newPasswordSame: 'You must enter different password to change password.',
     unauthorized: 'Unauthorized access',
     // contactEmpty: 'contact must be longer than or equal to 10 characters.'
