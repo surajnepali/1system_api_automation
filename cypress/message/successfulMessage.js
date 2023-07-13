@@ -15,3 +15,13 @@ const SUCCESSFUL = {
 }
 
 export default SUCCESSFUL;
+
+export const commonSuccessMessages = {
+    sucessfulLogin: 'successful',
+    switchedTo: 'Successfully switched to',
+};
+
+export const vendorSuccessMessages = {
+    branchCreated: 'Successfully created new branch',
+    retrievedAllBranches: 'All branches of vendor',
+};

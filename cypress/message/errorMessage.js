@@ -35,3 +35,12 @@ const ERROR = {
 }
 
 export default ERROR;
+
+export const commonError = {
+    unauthorized: 'Unauthorized access',
+    forbidden: 'You are not allowed to perform this action with user mode.',
+    empty: "should not be empty.",
+    invalidContact: 'Enter valid',
+    lessthan10digit: 'must be longer than or equal to 10 characters.',
+    invalidLongLat: 'must be a number conforming to the specified constraints.'
+};

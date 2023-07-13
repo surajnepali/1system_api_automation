@@ -1,23 +1,22 @@
 /// <reference types="Cypress" />
 
-import getAllBranchesOfVendor from "../../../api/Vendor_APIs/getAllBranchesOfVendor.api";
+import { login, switchRole } from "../../../api/Auth_APIs/handleAuth.api";
+import { getAllBranchesOfVendor } from "../../../api/Vendor_APIs/handleVendor.api";
 import { vendorCreateData } from "../../../api/Vendor_APIs/vendor.data";
-import login from "../../../api/login.api";
-import switchRole from "../../../api/switchRole.api";
-import vendorErrorMessages from "../../../message/Error/Vendor/vendorErrorMessage";
 import { vendorSuccessMessages } from "../../../message/Successful/Vendor/vendorSuccessMessage";
-import SUCCESSFUL from "../../../message/successfulMessage";
+import { commonError } from "../../../message/errorMessage";
+import { commonSuccessMessages } from "../../../message/successfulMessage";
 
-let token = '';
+let userToken, vendorToken;
 
 describe('Get All Branches Of Vendor', () => {
 
     describe('Without Login', () => {
                 
             it('should throw status code of 401', () => {
-                getAllBranchesOfVendor.getAllBranchesOfVendor().then((response) => {
+                getAllBranchesOfVendor().then((response) => {
                     expect(response.status).to.eq(401);
-                    expect(response.body).to.have.property('message', vendorErrorMessages.unauthorized);
+                    expect(response.body).to.have.property('message', `${commonError.unauthorized}`);
                 });
             });
         
@@ -28,19 +27,19 @@ describe('Get All Branches Of Vendor', () => {
         describe('If user has not applied for the vendor', () => {
 
             before(() => {
-                login.loginUser(vendorCreateData.notAppliedEmail, Cypress.env('password'), 'email').then((response) => {
+                login(vendorCreateData.notAppliedEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('token');
-                    token = response.body.data.token;
+                    userToken = response.body.data.token;
                 });
             });
 
             it('should throw status code of 403', () => {
-                getAllBranchesOfVendor.getAllBranchesOfVendor(token).then((response) => {
+                getAllBranchesOfVendor(userToken).then((response) => {
                     expect(response.status).to.eq(403);
-                    expect(response.body).to.have.property('message', vendorErrorMessages.forbiddenFromUserMode);
+                    expect(response.body).to.have.property('message', `${commonError.forbidden}`);
                 });
             });
 
@@ -49,19 +48,19 @@ describe('Get All Branches Of Vendor', () => {
         describe('If user has applied for the vendor', () => {
                 
             before(() => {
-                login.loginUser(vendorCreateData.appliedEmail, Cypress.env('password'), 'email').then((response) => {
+                login(vendorCreateData.appliedEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('token');
-                    token = response.body.data.token;
+                    userToken = response.body.data.token;
                 });
             });
     
             it('should throw status code of 403', () => {
-                getAllBranchesOfVendor.getAllBranchesOfVendor(token).then((response) => {
+                getAllBranchesOfVendor(userToken).then((response) => {
                     expect(response.status).to.eq(403);
-                    expect(response.body).to.have.property('message', vendorErrorMessages.forbiddenFromUserMode);
+                    expect(response.body).to.have.property('message', commonError.forbidden);
                 });
             });
     
@@ -70,29 +69,30 @@ describe('Get All Branches Of Vendor', () => {
         describe('If user has been approved as a vendor', () => {
                         
             before(() => {
-                login.loginUser(vendorCreateData.approvedVendor, Cypress.env('password'), 'email')
+                login(vendorCreateData.approvedVendor, Cypress.env('password'), 'email')
                     .then((response) => {
                         expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                        expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                         expect(response.body).to.have.property('data');
                         expect(response.body.data).to.have.property('token');
-                        localStorage.setItem('token', response.body.data.token);
+                        userToken = response.body.data.token;
                     });
             });
 
             it("should switch to vendor's mode", () => {
-                switchRole.switchRole('vendor').then((response) => {
+                const role = 'vendor';
+                switchRole(role, userToken).then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', vendorSuccessMessages.switchedToVendor);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role}`);
                     expect(response.body.data).to.have.property('token');
-                    token = response.body.data.token;
+                    vendorToken = response.body.data.token;
                 });
             });
     
             it('should successfully get the list of branches of this vendor', () => {
-                getAllBranchesOfVendor.getAllBranchesOfVendor(token).then((response) => {
+                getAllBranchesOfVendor(vendorToken).then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', vendorSuccessMessages.retrievedAllBranches);
+                    expect(response.body).to.have.property('message', `${vendorSuccessMessages.retrievedAllBranches}`);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('branches');
                 });

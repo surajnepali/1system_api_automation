@@ -61,9 +61,7 @@ export const createBranch = (createBranchData, token) => cy.api({
     headers: {
         'Authorization': 'Bearer ' + token,
     },
-    body: {
-        createBranchData,
-    },
+    body: createBranchData,
     failOnStatusCode: false,
 });
 
@@ -73,9 +71,7 @@ export const editBranch = (editBranchData, token, branchId) => cy.api({
     headers: {
         'Authorization': 'Bearer ' + token,
     },
-    body: {
-        editBranchData,
-    },
+    body: editBranchData,
     failOnStatusCode: false,
 });
 
