@@ -42,5 +42,8 @@ export const commonError = {
     empty: "should not be empty.",
     invalidContact: 'Enter valid',
     lessthan10digit: 'must be longer than or equal to 10 characters.',
-    invalidLongLat: 'must be a number conforming to the specified constraints.'
+    invalid: 'must be a number conforming to the specified constraints.',
+    lessThan0: 'must not be less than 0.',
+    mustBeInteger: 'must be an integer number.',
+    lessThan8Characters: 'must be longer than or equal to 8 characters.',
 };

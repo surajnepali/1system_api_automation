@@ -117,7 +117,7 @@ describe('Edit Branch API Testing', () => {
                 const editBranchWithInvalidLongitude = {...editBranchFakerData, [longitude]: 'abcd'};
                 editBranch(editBranchWithInvalidLongitude, vendorToken, branchId).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', `${longitude} ${commonError.invalidLongLat}`);
+                    expect(response.body).to.have.property('message', `${longitude} ${commonError.invalid}`);
                 });
             });
 
@@ -135,7 +135,7 @@ describe('Edit Branch API Testing', () => {
                 const editBranchWithInvalidLatitude = {...editBranchFakerData, [latitude]: 'abcd'};
                 editBranch(editBranchWithInvalidLatitude, vendorToken, branchId).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', `${latitude} ${commonError.invalidLongLat}`);
+                    expect(response.body).to.have.property('message', `${latitude} ${commonError.invalid}`);
                 });
             });
 

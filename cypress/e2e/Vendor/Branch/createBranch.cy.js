@@ -137,7 +137,7 @@ describe('Create Branch', () => {
                 const createBranchWithInvalidLongitude = {...branchFakerData, [longitude]: 'abcd'};
                 createBranch(createBranchWithInvalidLongitude, vendorToken).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', `${longitude} ${commonError.invalidLongLat}`);
+                    expect(response.body).to.have.property('message', `${longitude} ${commonError.invalid}`);
                 });     
             });
 
@@ -155,7 +155,7 @@ describe('Create Branch', () => {
                 const createBranchWithInvalidLatitude = {...branchFakerData, [latitude]: 'abcd'};
                 createBranch(createBranchWithInvalidLatitude, vendorToken).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', `${latitude} ${commonError.invalidLongLat}`);
+                    expect(response.body).to.have.property('message', `${latitude} ${commonError.invalid}`);
                 });             
             });
 

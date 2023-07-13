@@ -19,9 +19,7 @@ export const createBranchOffering = (createBranchOfferingData, token, branchId) 
     headers: {
         Authorization: 'Bearer ' + token,
     },
-    body: {
-        createBranchOfferingData
-    },
+    body: createBranchOfferingData,
     failOnStatusCode: false,
 });
 
@@ -31,9 +29,7 @@ export const editBranchOffering = (editBranchOfferingData, token, branchId, offe
     headers: {
         Authorization: 'Bearer ' + token,
     },
-    body: {
-        editBranchOfferingData
-    },
+    body: editBranchOfferingData,
     failOnStatusCode: false,
 });
 

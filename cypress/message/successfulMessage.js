@@ -24,4 +24,9 @@ export const commonSuccessMessages = {
 export const vendorSuccessMessages = {
     branchCreated: 'Successfully created new branch',
     retrievedAllBranches: 'All branches of vendor',
+    retrievedServices: 'Successfully get service data',
+    detailsOfOffering: 'Offering details',
+    allOfferingsOfBranch: 'All the Offering from the branch',
+    serviceAdded: 'Successfully added service to this vendor',
+    offeringEdited: 'Edited successfully.',
 };

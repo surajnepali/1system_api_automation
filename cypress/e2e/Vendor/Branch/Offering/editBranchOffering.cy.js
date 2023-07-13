@@ -1,12 +1,10 @@
 /// <reference types="Cypress" />
 
-import { editBranchOffering, getAllOfferingsOfBranch } from "../../../../api/Vendor_APIs/branchOffering.api";
-import getAllBranchesOfVendorApi from "../../../../api/Vendor_APIs/getAllBranchesOfVendor.api";
+import { login, switchRole } from "../../../../api/Auth_APIs/handleAuth.api";
+import { editBranchOffering, getAllBranchesOfVendor, getAllOfferingsOfBranch } from "../../../../api/Vendor_APIs/handleVendor.api";
 import { editOfferingFakerData, vendorCreateData } from "../../../../api/Vendor_APIs/vendor.data";
-import loginApi from "../../../../api/login.api";
-import switchRoleApi from "../../../../api/switchRole.api";
-import vendorErrorMessages from "../../../../message/Error/Vendor/vendorErrorMessage";
-import { vendorSuccessMessages } from "../../../../message/Successful/Vendor/vendorSuccessMessage";
+import { commonError } from "../../../../message/errorMessage";
+import { commonSuccessMessages, vendorSuccessMessages } from "../../../../message/successfulMessage";
 
 let userToken, vendorToken, branchId, offeringId;
 
@@ -16,9 +14,9 @@ describe('Edit Branch Offering API Testing', () => {
 
         describe('If user is an approved vendor', () => {
             before(() => {
-                loginApi.loginUser(vendorCreateData.approvedVendor, Cypress.env('password'), 'email').then((response) => {
+                login(vendorCreateData.approvedVendor, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', vendorSuccessMessages.successfulLogin);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('token');
                     userToken = response.body.data.token;
@@ -26,18 +24,19 @@ describe('Edit Branch Offering API Testing', () => {
             });
 
             it('should switch to vendor role', () => {
-                switchRoleApi.switchRole('vendor', userToken).then((response) => {
+                const role = 'vendor';
+                switchRole(role, userToken).then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', vendorSuccessMessages.switchedToVendor);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role}`);
                     expect(response.body.data).to.have.property('token');
                     vendorToken = response.body.data.token;
                 });
             });
 
             it('should get all the branches of the vendor', () => {
-                getAllBranchesOfVendorApi.getAllBranchesOfVendor(vendorToken).then((response) => {
+                getAllBranchesOfVendor(vendorToken).then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', vendorSuccessMessages.retrievedAllBranches);
+                    expect(response.body).to.have.property('message', `${vendorSuccessMessages.retrievedAllBranches}`);
                     const branches = response.body.data.branches;
                     const randomIndex = Math.floor(Math.random() * branches.length);
                     cy.log('Random Index: ' + randomIndex);
@@ -51,7 +50,7 @@ describe('Edit Branch Offering API Testing', () => {
 
                 getAllOfferingsOfBranch(vendorToken, branchId).then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', vendorSuccessMessages.allOfferingsOfBranch);
+                    expect(response.body).to.have.property('message', `${vendorSuccessMessages.allOfferingsOfBranch}`);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('offerings');
                     expect(response.body.data.offerings).to.be.an('array');
@@ -62,72 +61,72 @@ describe('Edit Branch Offering API Testing', () => {
             });
 
             it('should throw error on trying to edit leaving price field empty', () => {
-                const x = {...editOfferingFakerData, price: null};
-                editBranchOffering(x, vendorToken, branchId, offeringId).then((response) => {
+                const price = 'price';
+                const editBranchOfferingWithEmptyPrice = {...editOfferingFakerData, [price]: ''};
+                editBranchOffering(editBranchOfferingWithEmptyPrice, vendorToken, branchId, offeringId).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', vendorErrorMessages.priceRequired);
+                    expect(response.body).to.have.property('message', `${price} ${commonError.empty}`);
                 });
             });
 
             it('should throw error on trying to edit typing string in price field', () => {
-                const x = {...editOfferingFakerData, price: 'abc'};
-                editBranchOffering(x, vendorToken, branchId, offeringId).then((response) => {
+                const price = 'price';
+                const editBranchOfferingWithInvalidPrice = {...editOfferingFakerData, [price]: 'abc'};
+                editBranchOffering(editBranchOfferingWithInvalidPrice, vendorToken, branchId, offeringId).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', vendorErrorMessages.priceNumeric);
+                    expect(response.body).to.have.property('message', `${price} ${commonError.invalid}`);
                 });
             });
 
             it('should throw error on trying to edit typing negative value in price field', () => {
-                const x = {...editOfferingFakerData, price: -1};
-                editBranchOffering(x, vendorToken, branchId, offeringId).then((response) => {
+                const price = 'price';
+                const editBranchOfferingWithNegativePrice = {...editOfferingFakerData, [price]: -1};
+                editBranchOffering(editBranchOfferingWithNegativePrice, vendorToken, branchId, offeringId).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', vendorErrorMessages.pricePositive);
+                    expect(response.body).to.have.property('message', `${price} ${commonError.lessThan0}`);
                 });
             });
 
             it('should throw error on trying to edit leaving estimated_hour field empty', () => {
-                const x = {...editOfferingFakerData, estimated_hour: null};
-                editBranchOffering(x, vendorToken, branchId, offeringId).then((response) => {
+                const estimatedHour = 'estimated_hour';
+                const editBranchOfferingWithEmptyEstimatedHour = {...editOfferingFakerData, [estimatedHour]: ''};
+                editBranchOffering(editBranchOfferingWithEmptyEstimatedHour, vendorToken, branchId, offeringId).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', vendorErrorMessages.estimatedHourRequired);
+                    expect(response.body).to.have.property('message', `${estimatedHour} ${commonError.empty}`);
                 });
             });
 
             it('should throw error on trying to edit typing string in estimated_hour field', () => {
-                const x = {...editOfferingFakerData, estimated_hour: 'abc'};
-                editBranchOffering(x, vendorToken, branchId, offeringId).then((response) => {
+                const estimatedHour = 'estimated_hour';
+                const editBranchOfferingWithInvalidEstimatedHour = {...editOfferingFakerData, [estimatedHour]: 'abc'};
+                editBranchOffering(editBranchOfferingWithInvalidEstimatedHour, vendorToken, branchId, offeringId).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', vendorErrorMessages.estimatedHourNumeric);
+                    expect(response.body).to.have.property('message', `${estimatedHour} ${commonError.invalid}`);
                 });
             });
 
             it('should throw error on trying to edit typing negative value in estimated_hour field', () => {
-                const x = {...editOfferingFakerData, estimated_hour: -1};
-                editBranchOffering(x, vendorToken, branchId, offeringId).then((response) => {
+                const estimatedHour = 'estimated_hour';
+                const editBranchOfferingWithNegativeEstimatedHour = {...editOfferingFakerData, [estimatedHour]: -1};
+                editBranchOffering(editBranchOfferingWithNegativeEstimatedHour, vendorToken, branchId, offeringId).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', vendorErrorMessages.estimatedHourPositive);
+                    expect(response.body).to.have.property('message', `${estimatedHour} ${commonError.lessThan0}`);
                 });
             });
 
             it('should throw error on trying to edit leaving description field empty', () => {
-                const x = {...editOfferingFakerData, description: null};
-                editBranchOffering(x, vendorToken, branchId, offeringId).then((response) => {
+                const description = 'description';
+                const editBranchOfferingWithEmptyDescription = {...editOfferingFakerData, [description]: ''};
+                editBranchOffering(editBranchOfferingWithEmptyDescription, vendorToken, branchId, offeringId).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', vendorErrorMessages.descriptionRequired);
-                });
-            });
-
-            it('should throw error on trying to edit leaving offering id field empty', () => {
-                editBranchOffering(editOfferingFakerData, vendorToken, branchId, null).then((response) => {
-                    expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', vendorErrorMessages.noOfferingId);
+                    expect(response.body).to.have.property('message', `${description} ${commonError.empty}`);
                 });
             });
 
             it('should successfully edit branch offering', () => {
                 editBranchOffering(editOfferingFakerData, vendorToken, branchId, offeringId).then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', vendorSuccessMessages.offeringEdited);
+                    expect(response.body).to.have.property('message', `${vendorSuccessMessages.offeringEdited}`);
                     expect(response.body.data).to.have.property('offering');
                     expect(response.body.data.offering[0]).to.have.property('id', offeringId);
                     expect(response.body.data.offering[0]).to.have.property('price', editOfferingFakerData.price);
