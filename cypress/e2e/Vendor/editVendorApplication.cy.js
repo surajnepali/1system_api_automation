@@ -1,11 +1,8 @@
 /// <reference types="Cypress" />
 
-// import editVendorApplication from "../../api/Vendor_APIs/editVendorApplication.api";
-// import getApplicationDetails from "../../api/Vendor_APIs/getApplicationDetails.api";
 import { login } from "../../api/Auth_APIs/handleAuth.api";
 import { editVendorApplication, editVendorApplication2, editVendorApplication3, getApplicationDetails } from "../../api/Vendor_APIs/handleVendor.api";
 import { vendorCreateData, vendorFakerData, vendorFakerData2 } from "../../api/Vendor_APIs/vendor.data";
-// import login from "../../api/login.api";
 import vendorErrorMessages from "../../message/Error/Vendor/vendorErrorMessage";
 import { vendorSuccessMessages } from "../../message/Successful/Vendor/vendorSuccessMessage";
 import SUCCESSFUL from "../../message/successfulMessage";
@@ -120,8 +117,9 @@ describe("Edit Vendor Application (Landmark, Contact, Longitude, and Latitude)",
         it("Should throw error message on leaving contact empty while editing", () => {
                     
             const emptyContactEditVendorApplication = {...vendorFakerData2, contact: ''}
+            
     
-            editVendorApplication2(branchId, {...emptyContactEditVendorApplication}, userToken).then((response) => {
+            editVendorApplication2(branchId, emptyContactEditVendorApplication, userToken).then((response) => {
                 expect(response.status).to.eq(400);
                 expect(response.body).to.have.property('message', vendorErrorMessages.emptyContact);
             });         
