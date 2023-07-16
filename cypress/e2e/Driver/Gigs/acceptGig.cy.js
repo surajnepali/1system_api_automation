@@ -2,20 +2,15 @@
 
 import { acceptGig, getAllGigs } from "../../../api/Driver_APIs/driver.api";
 import { createOrderData, orderAccessEmails } from "../../../api/Order_APIs/order.data";
-import { driverErrorMessages } from "../../../message/Error/Driver/driverErrorMessages";
-import { driverSuccessMessages } from "../../../message/Successful/Driver/driverSuccessMessages";
-import SUCCESSFUL from "../../../message/successfulMessage";
-import ERROR from "../../../message/errorMessage";
-import getAllBranchesOfVendorApi from "../../../api/Vendor_APIs/getAllBranchesOfVendor.api";
-import { vendorSuccessMessages } from "../../../message/Successful/Vendor/vendorSuccessMessage";
-import { getAllOfferingsOfBranch } from "../../../api/Vendor_APIs/branchOffering.api";
-import { orderSuccessMessages } from "../../../message/Successful/Order/orderSuccessMessages";
+import { commonSuccessMessages, driverSuccessMessages, orderSuccessMessages, vendorSuccessMessages } from "../../../message/successfulMessage";
+import { commonError, driverErrorMessages } from "../../../message/errorMessage";
 import { acceptOrderByVendor, createOrder } from "../../../api/Order_APIs/handleOrder.api";
 import { pageOptions } from "../../../constants/apiOptions.constants";
 import { login, switchRole } from "../../../api/Auth_APIs/handleAuth.api";
+import { getAllBranchesOfVendor, getAllOfferingsOfBranch } from "../../../api/Vendor_APIs/handleVendor.api";
 
 let userToken, driverToken, vendorToken;
-let gigId, branchId, offeringId, serviceId, orderId, selfPickup;
+let gigId, branchId, offeringId, serviceId, orderId, selfPickup, role;
 
 describe('Driver Accepts GIG API Testing', () => {
 
@@ -24,25 +19,26 @@ describe('Driver Accepts GIG API Testing', () => {
         before(() => {
             login(orderAccessEmails.approvedVendorEmail, Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                 expect(response.body.data).to.have.property('token');
                 userToken = response.body.data.token;
             });
         });
 
         it('should switch to vendor role', () => {
-            switchRole('vendor', userToken).then((response) => {
+            role = 'vendor';
+            switchRole(role, userToken).then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', vendorSuccessMessages.switchedToVendor);
+                expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role}`);
                 expect(response.body.data).to.have.property('token');
                 vendorToken = response.body.data.token;
             });
         });
 
         it('should get all the branches of the vendor', () => {
-            getAllBranchesOfVendorApi.getAllBranchesOfVendor(vendorToken).then((response) => {
+            getAllBranchesOfVendor(vendorToken).then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', vendorSuccessMessages.retrievedAllBranches);
+                expect(response.body).to.have.property('message', `${vendorSuccessMessages.retrievedAllBranches}`);
                 const branches = response.body.data.branches;
                 const randomIndex = Math.floor(Math.random() * branches.length);
                 cy.log('Random Index: ' + randomIndex);
@@ -55,7 +51,7 @@ describe('Driver Accepts GIG API Testing', () => {
         it('should get all the offerings of the branch', () => {
             getAllOfferingsOfBranch(vendorToken, branchId).then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', vendorSuccessMessages.allOfferingsOfBranch);
+                expect(response.body).to.have.property('message', `${vendorSuccessMessages.allOfferingsOfBranch}`);
                 const offerings = response.body.data.offerings;
                 const randomIndex = Math.floor(Math.random() * offerings.length);
                 serviceId = offerings[randomIndex].service_id;
@@ -76,7 +72,7 @@ describe('Driver Accepts GIG API Testing', () => {
                 before(() => {
                     login(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                        expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                         expect(response.body.data).to.have.property('token');
                         userToken = response.body.data.token;
                     });
@@ -88,7 +84,7 @@ describe('Driver Accepts GIG API Testing', () => {
                         dropoff_time: "2022-07-01 01:05:00.099"};
                     createOrder(x, userToken).then((response) => {
                         expect(response.status).to.eq(201);
-                        expect(response.body).to.have.property('message', orderSuccessMessages.orderCreatedSuccessfully);
+                        expect(response.body).to.have.property('message', `${orderSuccessMessages.successful}created`);
                         expect(response.body.data).to.have.property('order');
                         expect(response.body.data.order).to.have.property('id');
                         expect(response.body.data.order).to.have.property('branch_id', branchId);
@@ -103,7 +99,7 @@ describe('Driver Accepts GIG API Testing', () => {
                 it('Vendor should accept the order', () => {
                     acceptOrderByVendor(orderId, vendorToken).then((response) => {
                         expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', orderSuccessMessages.orderAcceptedByVendor);
+                        expect(response.body).to.have.property('message', `${orderSuccessMessages.successful}accepted`);
                         expect(response.body.data.order[0]).to.have.property('status', 'accepted');
                         cy.log('Order Status: ', response.body.data.order[0].status);
                         selfPickup = response.body.data.order[0].is_self_pickup;
@@ -115,7 +111,7 @@ describe('Driver Accepts GIG API Testing', () => {
                     if(selfPickup === false){
                         login(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                             expect(response.status).to.eq(200);
-                            expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                            expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                             expect(response.body.data).to.have.property('token');
                             userToken = response.body.data.token;
                         });
@@ -125,10 +121,11 @@ describe('Driver Accepts GIG API Testing', () => {
                 });
 
                 it('should switch to driver role', () => {
+                    role = 'driver';
                     if(selfPickup === false){
-                        switchRole('driver', userToken).then((response) => {
+                        switchRole(role, userToken).then((response) => {
                             expect(response.status).to.eq(200);
-                            expect(response.body).to.have.property('message', driverSuccessMessages.roleSwitched);
+                            expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role}`);
                             expect(response.body.data).to.have.property('token');
                             driverToken = response.body.data.token;
                         });
@@ -141,7 +138,7 @@ describe('Driver Accepts GIG API Testing', () => {
                     if(selfPickup === false){
                         getAllGigs(driverToken, pageOptions.PAGE, pageOptions.LIMIT).then((response) => {
                             expect(response.status).to.eq(200);
-                            expect(response.body).to.have.property('message', driverSuccessMessages.gigsRetrieved);
+                            expect(response.body).to.have.property('message', `${driverSuccessMessages.gigsRetrieved}`);
                             expect(response.body.data).to.have.property('gigs');
                             expect(response.body.data.gigs).to.be.an('array');
                             const gigs = response.body.data.gigs;
@@ -163,7 +160,7 @@ describe('Driver Accepts GIG API Testing', () => {
                     if(selfPickup === false){
                         acceptGig(driverToken, gigId).then((response) => {
                             expect(response.status).to.eq(200);
-                            expect(response.body).to.have.property('message', driverSuccessMessages.gigAccepted);
+                            expect(response.body).to.have.property('message', `${driverSuccessMessages.gigAccepted}`);
                         });
                     }else{
                         cy.log('Self Pickup is true, so no need to accept the gig')
@@ -177,7 +174,7 @@ describe('Driver Accepts GIG API Testing', () => {
                 before(() => {
                     login(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                        expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                         expect(response.body.data).to.have.property('token');
                         userToken = response.body.data.token;
                     });
@@ -189,7 +186,7 @@ describe('Driver Accepts GIG API Testing', () => {
                         dropoff_time: "2022-07-01 01:05:00.099"};
                     createOrder(x, userToken).then((response) => {
                         expect(response.status).to.eq(201);
-                        expect(response.body).to.have.property('message', orderSuccessMessages.orderCreatedSuccessfully);
+                        expect(response.body).to.have.property('message', `${orderSuccessMessages.successful}created`);
                         expect(response.body.data).to.have.property('order');
                         expect(response.body.data.order).to.have.property('id');
                         expect(response.body.data.order).to.have.property('branch_id', branchId);
@@ -205,7 +202,7 @@ describe('Driver Accepts GIG API Testing', () => {
                     if(selfPickup === false){
                         acceptGig(userToken, gigId).then((response) => {
                             expect(response.status).to.eq(403);
-                            expect(response.body).to.have.property('message', driverErrorMessages.forbidden);
+                            expect(response.body).to.have.property('message', `${commonError.forbidden}`);
                         });
                     }else{
                         cy.log('Self Pickup is true, so no need to accept the gig')
@@ -219,7 +216,7 @@ describe('Driver Accepts GIG API Testing', () => {
                 it('Vendor should accept the order', () => {
                     acceptOrderByVendor(orderId, vendorToken).then((response) => {
                         expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', orderSuccessMessages.orderAcceptedByVendor);
+                        expect(response.body).to.have.property('message', `${orderSuccessMessages.successful}accepted`);
                         expect(response.body.data.order[0]).to.have.property('status', 'accepted');
                         cy.log('Order Status: ', response.body.data.order[0].status)
                         selfPickup = response.body.data.order[0].is_self_pickup;
@@ -231,7 +228,7 @@ describe('Driver Accepts GIG API Testing', () => {
                     if(selfPickup === false){
                         login(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                             expect(response.status).to.eq(200);
-                            expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                            expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                             expect(response.body.data).to.have.property('token');
                             userToken = response.body.data.token;
                         });
@@ -241,10 +238,11 @@ describe('Driver Accepts GIG API Testing', () => {
                 });
 
                 it('should switch to driver role', () => {
+                    role = 'driver'
                     if(selfPickup === false){
-                        switchRole('driver', userToken).then((response) => {
+                        switchRole(role, userToken).then((response) => {
                             expect(response.status).to.eq(200);
-                            expect(response.body).to.have.property('message', driverSuccessMessages.roleSwitched);
+                            expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role}`);
                             expect(response.body.data).to.have.property('token');
                             driverToken = response.body.data.token;
                         });
@@ -257,7 +255,7 @@ describe('Driver Accepts GIG API Testing', () => {
                     if(selfPickup === false){
                         getAllGigs(driverToken, pageOptions.PAGE, pageOptions.LIMIT).then((response) => {
                             expect(response.status).to.eq(200);
-                            expect(response.body).to.have.property('message', driverSuccessMessages.gigsRetrieved);
+                            expect(response.body).to.have.property('message', `${driverSuccessMessages.gigsRetrieved}`);
                             expect(response.body.data).to.have.property('gigs');
                             expect(response.body.data.gigs).to.be.an('array');
                             const gigs = response.body.data.gigs;
@@ -279,7 +277,7 @@ describe('Driver Accepts GIG API Testing', () => {
                     if(selfPickup === false){
                         acceptGig(driverToken, gigId).then((response) => {
                             expect(response.status).to.eq(200);
-                            expect(response.body).to.have.property('message', driverSuccessMessages.gigAccepted);
+                            expect(response.body).to.have.property('message', `${driverSuccessMessages.gigAccepted}`);
                         });
                     }else{
                         cy.log('Self Pickup is true, so no need to accept the gig')
@@ -290,7 +288,7 @@ describe('Driver Accepts GIG API Testing', () => {
                     if(selfPickup === false){
                         acceptGig(driverToken, gigId).then((response) => {
                             expect(response.status).to.eq(400);
-                            expect(response.body).to.have.property('message', driverErrorMessages.noOrderFound);
+                            expect(response.body).to.have.property('message', `${driverErrorMessages.noOrderFound}`);
                         });
                     }else{
                         cy.log('Self Pickup is true, so no need to accept the gig')
@@ -304,7 +302,7 @@ describe('Driver Accepts GIG API Testing', () => {
                 before(() => {
                     login(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                        expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                         expect(response.body.data).to.have.property('token');
                         userToken = response.body.data.token;
                     });
@@ -316,7 +314,7 @@ describe('Driver Accepts GIG API Testing', () => {
                         dropoff_time: "2022-07-01 01:05:00.099"};
                     createOrder(x, userToken).then((response) => {
                         expect(response.status).to.eq(201);
-                        expect(response.body).to.have.property('message', orderSuccessMessages.orderCreatedSuccessfully);
+                        expect(response.body).to.have.property('message', `${orderSuccessMessages.successful}created`);
                         expect(response.body.data).to.have.property('order');
                         expect(response.body.data.order).to.have.property('id');
                         expect(response.body.data.order).to.have.property('branch_id', branchId);
@@ -331,7 +329,7 @@ describe('Driver Accepts GIG API Testing', () => {
                 it('Vendor should accept the order', () => {
                     acceptOrderByVendor(orderId, vendorToken).then((response) => {
                         expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', orderSuccessMessages.orderAcceptedByVendor);
+                        expect(response.body).to.have.property('message', `${orderSuccessMessages.successful}accepted`);
                         expect(response.body.data.order[0]).to.have.property('status', 'accepted');
                         cy.log('Order Status: ', response.body.data.order[0].status)
                         selfPickup = response.body.data.order[0].is_self_pickup;
@@ -343,7 +341,7 @@ describe('Driver Accepts GIG API Testing', () => {
                     if(selfPickup === false){
                         login(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                             expect(response.status).to.eq(200);
-                            expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                            expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                             expect(response.body.data).to.have.property('token');
                             userToken = response.body.data.token;
                         });
@@ -353,10 +351,11 @@ describe('Driver Accepts GIG API Testing', () => {
                 });
 
                 it('should switch to driver role', () => {
+                    role = 'driver';
                     if(selfPickup === false){
-                        switchRole('driver', userToken).then((response) => {
+                        switchRole(role, userToken).then((response) => {
                             expect(response.status).to.eq(200);
-                            expect(response.body).to.have.property('message', driverSuccessMessages.roleSwitched);
+                            expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role}`);
                             expect(response.body.data).to.have.property('token');
                             driverToken = response.body.data.token;
                         });
@@ -369,7 +368,7 @@ describe('Driver Accepts GIG API Testing', () => {
                     if(selfPickup === false){
                         getAllGigs(driverToken, pageOptions.PAGE, pageOptions.LIMIT).then((response) => {
                             expect(response.status).to.eq(200);
-                            expect(response.body).to.have.property('message', driverSuccessMessages.gigsRetrieved);
+                            expect(response.body).to.have.property('message', `${driverSuccessMessages.gigsRetrieved}`);
                             expect(response.body.data).to.have.property('gigs');
                             expect(response.body.data.gigs).to.be.an('array');
                             const gigs = response.body.data.gigs;
@@ -391,7 +390,7 @@ describe('Driver Accepts GIG API Testing', () => {
                     if(selfPickup === false){
                         acceptGig(driverToken, gigId).then((response) => {
                             expect(response.status).to.eq(200);
-                            expect(response.body).to.have.property('message', driverSuccessMessages.gigAccepted);
+                            expect(response.body).to.have.property('message', `${driverSuccessMessages.gigAccepted}`);
                         });
                     }else{
                         cy.log('Self Pickup is true, so no need to accept the gig')
@@ -402,7 +401,7 @@ describe('Driver Accepts GIG API Testing', () => {
                     if(selfPickup === false){
                         login(Cypress.env('userWithDriverRoleApproved'), Cypress.env('password'), 'email').then((response) => {
                             expect(response.status).to.eq(200);
-                            expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                            expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                             expect(response.body.data).to.have.property('token');
                             userToken = response.body.data.token;
                         });
@@ -412,10 +411,11 @@ describe('Driver Accepts GIG API Testing', () => {
                 });
 
                 it('should switch to driver role', () => {
+                    role = 'driver';
                     if(selfPickup === false){
-                        switchRole('driver', userToken).then((response) => {
+                        switchRole(role, userToken).then((response) => {
                             expect(response.status).to.eq(200);
-                            expect(response.body).to.have.property('message', driverSuccessMessages.roleSwitched);
+                            expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role}`);
                             expect(response.body.data).to.have.property('token');
                             driverToken = response.body.data.token;
                         });
@@ -428,7 +428,7 @@ describe('Driver Accepts GIG API Testing', () => {
                     if(selfPickup === false){
                     acceptGig(driverToken, gigId).then((response) => {
                         expect(response.status).to.eq(400);
-                        expect(response.body).to.have.property('message', driverErrorMessages.noOrderFound);
+                        expect(response.body).to.have.property('message', `${driverErrorMessages.noOrderFound}`);
                     });
                 }else{
                     cy.log('Self Pickup is true, so no need to switch to driver role');
@@ -444,7 +444,7 @@ describe('Driver Accepts GIG API Testing', () => {
             before(() => {
                 login(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body.data).to.have.property('token');
                     userToken = response.body.data.token;
                 });
@@ -456,7 +456,7 @@ describe('Driver Accepts GIG API Testing', () => {
                     dropoff_time: "2022-07-01 01:05:00.099"};
                 createOrder(x, userToken).then((response) => {
                     expect(response.status).to.eq(201);
-                    expect(response.body).to.have.property('message', orderSuccessMessages.orderCreatedSuccessfully);
+                    expect(response.body).to.have.property('message', `${orderSuccessMessages.successful}created`);
                     expect(response.body.data).to.have.property('order');
                     expect(response.body.data.order).to.have.property('id');
                     expect(response.body.data.order).to.have.property('branch_id', branchId);
@@ -471,7 +471,7 @@ describe('Driver Accepts GIG API Testing', () => {
             it('Vendor should accept the order', () => {
                 acceptOrderByVendor(orderId, vendorToken).then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', orderSuccessMessages.orderAcceptedByVendor);
+                    expect(response.body).to.have.property('message', `${orderSuccessMessages.successful}accepted`);
                     expect(response.body.data.order[0]).to.have.property('status', 'accepted');
                     cy.log('Order Status: ', response.body.data.order[0].status);
                     selfPickup = response.body.data.order[0].is_self_pickup;
@@ -483,7 +483,7 @@ describe('Driver Accepts GIG API Testing', () => {
                 if(selfPickup === false){
                     login(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                        expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                         expect(response.body.data).to.have.property('token');
                         userToken = response.body.data.token;
                     });
@@ -493,10 +493,11 @@ describe('Driver Accepts GIG API Testing', () => {
             });
 
             it('should switch to driver role', () => {
+                role = 'driver';
                 if(selfPickup === false){
-                    switchRole('driver', userToken).then((response) => {
+                    switchRole(role, userToken).then((response) => {
                         expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', driverSuccessMessages.roleSwitched);
+                        expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role}`);
                         expect(response.body.data).to.have.property('token');
                         driverToken = response.body.data.token;
                     });
@@ -509,7 +510,7 @@ describe('Driver Accepts GIG API Testing', () => {
                 if(selfPickup === false){
                     getAllGigs(driverToken, pageOptions.PAGE, pageOptions.LIMIT).then((response) => {
                         expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', driverSuccessMessages.gigsRetrieved);
+                        expect(response.body).to.have.property('message', `${driverSuccessMessages.gigsRetrieved}`);
                         expect(response.body.data).to.have.property('gigs');
                         expect(response.body.data.gigs).to.be.an('array');
                         const gigs = response.body.data.gigs;
@@ -531,7 +532,7 @@ describe('Driver Accepts GIG API Testing', () => {
                 if(selfPickup === false){
                 acceptGig(userToken, gigId).then((response) => {
                     expect(response.status).to.eq(403);
-                    expect(response.body).to.have.property('message', driverErrorMessages.forbidden);
+                    expect(response.body).to.have.property('message', `${commonError.forbidden}`);
                 });
             }else{
                 cy.log('Self Pickup is true, so no need to accept the gig');
@@ -545,7 +546,7 @@ describe('Driver Accepts GIG API Testing', () => {
             before(() => {
                 login(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body.data).to.have.property('token');
                     userToken = response.body.data.token;
                 });
@@ -557,7 +558,7 @@ describe('Driver Accepts GIG API Testing', () => {
                     dropoff_time: "2022-07-01 01:05:00.099"};
                 createOrder(x, userToken).then((response) => {
                     expect(response.status).to.eq(201);
-                    expect(response.body).to.have.property('message', orderSuccessMessages.orderCreatedSuccessfully);
+                    expect(response.body).to.have.property('message', `${orderSuccessMessages.successful}created`);
                     expect(response.body.data).to.have.property('order');
                     expect(response.body.data.order).to.have.property('id');
                     expect(response.body.data.order).to.have.property('branch_id', branchId);
@@ -572,7 +573,7 @@ describe('Driver Accepts GIG API Testing', () => {
             it('Vendor should accept the order', () => {
                 acceptOrderByVendor(orderId, vendorToken).then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', orderSuccessMessages.orderAcceptedByVendor);
+                    expect(response.body).to.have.property('message', `${orderSuccessMessages.successful}accepted`);
                     expect(response.body.data.order[0]).to.have.property('status', 'accepted');
                     cy.log('Order Status: ', response.body.data.order[0].status);
                     selfPickup = response.body.data.order[0].is_self_pickup;
@@ -584,7 +585,7 @@ describe('Driver Accepts GIG API Testing', () => {
                 if(selfPickup === false){
                     login(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                        expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                         expect(response.body.data).to.have.property('token');
                         userToken = response.body.data.token;
                     });
@@ -594,10 +595,11 @@ describe('Driver Accepts GIG API Testing', () => {
             });
 
             it('should switch to driver role', () => {
+                role = 'driver'
                 if(selfPickup === false){
-                    switchRole('driver', userToken).then((response) => {
+                    switchRole(role, userToken).then((response) => {
                         expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', driverSuccessMessages.roleSwitched);
+                        expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role}`);
                         expect(response.body.data).to.have.property('token');
                         driverToken = response.body.data.token;
                     });
@@ -610,7 +612,7 @@ describe('Driver Accepts GIG API Testing', () => {
                 if(selfPickup === false){
                     getAllGigs(driverToken, pageOptions.PAGE, pageOptions.LIMIT).then((response) => {
                         expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', driverSuccessMessages.gigsRetrieved);
+                        expect(response.body).to.have.property('message', `${driverSuccessMessages.gigsRetrieved}`);
                         expect(response.body.data).to.have.property('gigs');
                         expect(response.body.data.gigs).to.be.an('array');
                         const gigs = response.body.data.gigs;
@@ -632,7 +634,7 @@ describe('Driver Accepts GIG API Testing', () => {
                 if(selfPickup === false){
                     acceptGig(userToken, gigId).then((response) => {
                         expect(response.status).to.eq(403);
-                        expect(response.body).to.have.property('message', driverErrorMessages.forbidden);
+                        expect(response.body).to.have.property('message', `${commonError.forbidden}`);
                     });
                 }else{
                     cy.log('Self Pickup is true, so no need to accept the gig');
@@ -647,7 +649,7 @@ describe('Driver Accepts GIG API Testing', () => {
         it('should throw error on trying to accept the gig', () => {
             acceptGig('', gigId).then((response) => {
                 expect(response.status).to.eq(401);
-                expect(response.body).to.have.property('message', ERROR.unauthorized);
+                expect(response.body).to.have.property('message', `${commonError.unauthorized}`);
             });
         });
     });

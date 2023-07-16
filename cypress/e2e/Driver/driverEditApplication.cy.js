@@ -1,10 +1,9 @@
 /// <reference types="Cypress" />
 
-import { editDriverApplication } from "../../api/Driver_APIs/driver.api";
+import { editDriverApplication, getVehicleTypes } from "../../api/Driver_APIs/driver.api";
 import { driverRole, editDriverApplicationData } from "../../api/Driver_APIs/driver.data";
 import SUCCESSFUL from "../../message/successfulMessage";
 import { driverErrorMessages } from "../../message/Error/Driver/driverErrorMessages";
-import getVehicleTypesApi from "../../api/getVehicleTypes.api";
 import { login } from "../../api/Auth_APIs/handleAuth.api";
 
 let userToken;
@@ -26,7 +25,7 @@ describe('Driver Edit Application API Testing', () => {
             });
 
             it('Should return all vehicle types', () => {
-                getVehicleTypesApi.getVehicleTypes(userToken).then((response) => {
+                getVehicleTypes(userToken).then((response) => {
                     expect(response.status).to.eq(200);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('types');

@@ -51,3 +51,9 @@ export const commonError = {
 export const orderErrorMessages = {
     alreadyCompleted: "You can't perform any action to this order.",
 };
+
+export const driverErrorMessages = {
+    noOrderFound: 'No order found',
+    noGigFound: 'No Gig found.',
+    notAssignedGig: 'You are not assigned to this gig.'
+};

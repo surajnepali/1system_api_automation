@@ -3,7 +3,6 @@
 import { acceptGig, getAllGigs, pickGig } from "../../api/Driver_APIs/driver.api";
 import { acceptOrderByVendor, createOrder, vendorFinishServicing, vendorStartServicing } from "../../api/Order_APIs/handleOrder.api";
 import { createOrderData, orderAccessEmails } from "../../api/Order_APIs/order.data";
-import { getOrders } from "../../api/Vendor_APIs/getOrders.api";
 import { orderApiOptions, pageOptions } from "../../constants/apiOptions.constants";
 import { orderErrorMessages } from "../../message/Error/Order/orderErrorMessages";
 import { driverSuccessMessages } from "../../message/Successful/Driver/driverSuccessMessages";
@@ -12,7 +11,7 @@ import { vendorSuccessMessages } from "../../message/Successful/Vendor/vendorSuc
 import SUCCESSFUL from "../../message/successfulMessage";
 import ERROR from "../../message/errorMessage";
 import { login, switchRole } from "../../api/Auth_APIs/handleAuth.api";
-import { getAllBranchesOfVendor, getAllOfferingsOfBranch } from "../../api/Vendor_APIs/handleVendor.api";
+import { getAllBranchesOfVendor, getAllOfferingsOfBranch, getOrders } from "../../api/Vendor_APIs/handleVendor.api";
 
 let userToken, branchId, serviceId, offeringId, orderId, vendorToken, driverToken, gigId;
 let selfPickup;
