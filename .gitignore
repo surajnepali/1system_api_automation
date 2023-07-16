@@ -1,3 +1,8 @@
 node_modules
 cypress.env.json
 cypress/constants/endpoints.js
+cypress/api/Auth_APIs/auth.data.js
+cypress/api/Branch_APIs/branch.data.js
+cypress/api/Driver_APIs/driver.data.js
+cypress/api/Order_APIs/order.data.js
+cypress/api/Vendor_APIs/vendor.data.js
