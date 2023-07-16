@@ -1,6 +1,6 @@
 /// reference types = "cypress" />
 
-import ENDPOINTS from '../../constants/endpoints';
+import ENDPOINTS, { vendorEndpoints } from '../../constants/endpoints';
 
 export const applyForVendor = (formData, token) => cy.api({
     method: 'POST',
@@ -122,7 +122,7 @@ export const getApplicationDetails = (token) => cy.api({
 
 export const getOrders = (token, page, limit, orderTab, branchId) => cy.api({
     method: 'GET',
-    url: Cypress.env('apiUrl') + ENDPOINTS.getOrders + '?page=' + page + '&limit=' + limit + '&order_tab=' + orderTab + '&branch_id=' + branchId,
+    url: Cypress.env('apiUrl') + vendorEndpoints.getOrders + '?page=' + page + '&limit=' + limit + '&order_tab=' + orderTab + '&branch_id=' + branchId,
     headers: {
         'Authorization': 'Bearer ' + token,
     },

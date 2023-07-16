@@ -47,3 +47,7 @@ export const commonError = {
     mustBeInteger: 'must be an integer number.',
     lessThan8Characters: 'must be longer than or equal to 8 characters.',
 };
+
+export const orderErrorMessages = {
+    alreadyCompleted: "You can't perform any action to this order.",
+};

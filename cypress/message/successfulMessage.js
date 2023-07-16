@@ -30,3 +30,16 @@ export const vendorSuccessMessages = {
     serviceAdded: 'Successfully added service to this vendor',
     offeringEdited: 'Edited successfully.',
 };
+
+export const driverSuccessMessages = {
+    gigsRetrieved: 'Retrived gigs',
+    gigAccepted: 'Gig successfully Picked.',
+    gigPicked: 'Successfully picked item.',
+};
+
+export const orderSuccessMessages = {
+    successful: 'Successfully ',
+    orderRejectedByVendor: 'Order successfully rejected.',
+    getOrdersByVendor: 'Orders',
+    isNow: 'This order is now',
+};
