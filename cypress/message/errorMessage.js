@@ -38,7 +38,10 @@ export default ERROR;
 
 export const commonError = {
     unauthorized: 'Unauthorized access',
-    forbidden: 'You are not allowed to perform this action with user mode.',
+    oldInvalidPassword: "Old Password don't matched",
+    notMatchedPassword: "Password not matched.",
+    newPasswordSame: 'You must enter different password to change password.',
+    forbidden: 'You are not allowed to perform this action with',
     empty: "should not be empty.",
     invalidContact: 'Enter valid',
     lessthan10digit: 'must be longer than or equal to 10 characters.',
@@ -46,6 +49,8 @@ export const commonError = {
     lessThan0: 'must not be less than 0.',
     mustBeInteger: 'must be an integer number.',
     lessThan8Characters: 'must be longer than or equal to 8 characters.',
+    lessThanxCharacters: 'must be longer than or equal to ',
+    invalidUsername: 'username can not contains other than letters or space.',
 };
 
 export const orderErrorMessages = {

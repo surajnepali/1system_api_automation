@@ -202,7 +202,7 @@ describe('Driver Accepts GIG API Testing', () => {
                     if(selfPickup === false){
                         acceptGig(userToken, gigId).then((response) => {
                             expect(response.status).to.eq(403);
-                            expect(response.body).to.have.property('message', `${commonError.forbidden}`);
+                            expect(response.body).to.have.property('message', `${commonError.forbidden} user mode.`);
                         });
                     }else{
                         cy.log('Self Pickup is true, so no need to accept the gig')
@@ -532,7 +532,7 @@ describe('Driver Accepts GIG API Testing', () => {
                 if(selfPickup === false){
                 acceptGig(userToken, gigId).then((response) => {
                     expect(response.status).to.eq(403);
-                    expect(response.body).to.have.property('message', `${commonError.forbidden}`);
+                    expect(response.body).to.have.property('message', `${commonError.forbidden} user mode.`);
                 });
             }else{
                 cy.log('Self Pickup is true, so no need to accept the gig');
@@ -634,7 +634,7 @@ describe('Driver Accepts GIG API Testing', () => {
                 if(selfPickup === false){
                     acceptGig(userToken, gigId).then((response) => {
                         expect(response.status).to.eq(403);
-                        expect(response.body).to.have.property('message', `${commonError.forbidden}`);
+                        expect(response.body).to.have.property('message', `${commonError.forbidden} user mode.`);
                     });
                 }else{
                     cy.log('Self Pickup is true, so no need to accept the gig');

@@ -19,6 +19,8 @@ export default SUCCESSFUL;
 export const commonSuccessMessages = {
     sucessfulLogin: 'successful',
     switchedTo: 'Successfully switched to',
+    updated: 'Successfully updated',
+    profileInfo: 'User found',
 };
 
 export const vendorSuccessMessages = {
@@ -39,7 +41,12 @@ export const driverSuccessMessages = {
 
 export const orderSuccessMessages = {
     successful: 'Successfully ',
+    orderTracking: 'Order Tracking',
     orderRejectedByVendor: 'Order successfully rejected.',
     getOrdersByVendor: 'Orders',
     isNow: 'This order is now',
+};
+
+export const userSuccessMessages = {
+    orderRetrieved: 'Retrived Successfully',
 };

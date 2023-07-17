@@ -1,9 +1,10 @@
 /// <reference types="cypress" />
 
-import { editUserData } from '../../api/Auth_APIs/auth.data';
-import { editProfile, getProfile, login } from '../../api/Auth_APIs/handleAuth.api';
-import ERROR from '../../message/errorMessage';
-import SUCCESSFUL from '../../message/successfulMessage';
+import { editUserData } from '../../api/User_APIs/user.data';
+import { login } from '../../api/Auth_APIs/handleAuth.api';
+import { editProfile, getProfile} from '../../api/User_APIs/handleUser.api';
+import { commonError } from '../../message/errorMessage';
+import { commonSuccessMessages } from '../../message/successfulMessage';
 
 let contact, username, address, location;
 let userToken;
@@ -18,7 +19,7 @@ describe('Profile Info', () => {
                     
                     getProfile('').then((response) => {
                         expect(response.status).to.eq(401);
-                        expect(response.body).to.have.property('message', ERROR.unauthorized);
+                        expect(response.body).to.have.property('message', `${commonError.unauthorized}`);
                     });
     
             });
@@ -27,7 +28,7 @@ describe('Profile Info', () => {
                     
                     editProfile(editUserData, '').then((response) => {
                         expect(response.status).to.eq(401);
-                        expect(response.body).to.have.property('message', ERROR.unauthorized);
+                        expect(response.body).to.have.property('message', `${commonError.unauthorized}`);
                     });
     
             });
@@ -42,7 +43,7 @@ describe('Profile Info', () => {
                 
             login(Cypress.env('registeredEmail'), Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                 expect(response.body).to.have.property('data');
                 expect(response.body.data).to.have.property('token');
                 userToken = response.body.data.token;
@@ -53,7 +54,7 @@ describe('Profile Info', () => {
         it('Should get profile info', () => {
             getProfile(userToken).then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', SUCCESSFUL.profileInfo);
+                expect(response.body).to.have.property('message', `${commonSuccessMessages.profileInfo}`);
                 expect(response.body).to.have.property('data');
                 expect(response.body.data.user).to.have.property('contact');
                 expect(response.body.data.user).to.have.property('username');
@@ -78,7 +79,7 @@ describe('Profile Info', () => {
                     
             login(Cypress.env('registeredEmail'), Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                 expect(response.body).to.have.property('data');
                 expect(response.body.data).to.have.property('token');
                 userToken = response.body.data.token;
@@ -87,26 +88,29 @@ describe('Profile Info', () => {
         });
 
         it('Should throw error on leaving contact field empty', () => {
-            const detailWithEmptyContact = {...editUserData, contact: ''};
+            const contact = 'contact';
+            const detailWithEmptyContact = {...editUserData, [contact]: ''};
             editProfile(detailWithEmptyContact, userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', ERROR.emptyContact);
+                expect(response.body).to.have.property('message', `${contact} ${commonError.empty}`);
             });
         });
 
         it('Should throw error on entering invalid contact', () => {
-            const detailWithInvalidContact = {...editUserData, contact: '1234567890'};
+            const contact = 'contact';
+            const detailWithInvalidContact = {...editUserData, [contact]: '1234567890'};
             editProfile(detailWithInvalidContact, userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', ERROR.invalidContact);
+                expect(response.body).to.have.property('message', `${commonError.invalidContact} phone number.`);
             });
         });
 
         it('Should throw error on leaving username field empty', () => {
-            const detailWithEmptyUsername = {...editUserData, username: ''};
+            const userName = 'username';
+            const detailWithEmptyUsername = {...editUserData, [userName]: ''};
             editProfile(detailWithEmptyUsername, userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', ERROR.emptyUsername);
+                expect(response.body).to.have.property('message', `${userName} ${commonError.lessThanxCharacters}3 characters.`);
             });
         });
 
@@ -114,62 +118,68 @@ describe('Profile Info', () => {
             const detailWithInvalidUsername = {...editUserData, username: 'abcd123'};
             editProfile(detailWithInvalidUsername, userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', ERROR.invalidUsername);
+                expect(response.body).to.have.property('message', `${commonError.invalidUsername}`);
             });
         });
 
         it('Should throw error on leaving address field empty', () => {
-            const detailWithEmptyAddress = {...editUserData, address: ''};
+            const address = 'address';
+            const detailWithEmptyAddress = {...editUserData, [address]: ''};
             editProfile(detailWithEmptyAddress, userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', ERROR.emptyAddress);
+                expect(response.body).to.have.property('message', `${address} ${commonError.lessThanxCharacters}2 characters.`);
             });
         });
 
         it('Should throw error on entering less than 2 characters address', () => {
-            const detailWithInvalidAddress = {...editUserData, address: 'a'};
+            const address = 'address';
+            const detailWithInvalidAddress = {...editUserData, [address]: 'a'};
             editProfile(detailWithInvalidAddress, userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', ERROR.invalidAddress);
+                expect(response.body).to.have.property('message', `${address} ${commonError.lessThanxCharacters}2 characters.`);
             });
         });
 
         it('Should throw error on leaving longitude field empty', () => {
-            const detailWithEmptyLongitude = {...editUserData, longitude: ''};
+            const longitude = 'longitude';
+            const detailWithEmptyLongitude = {...editUserData, [longitude]: ''};
             editProfile(detailWithEmptyLongitude, userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', ERROR.emptyLongitude);
+                expect(response.body).to.have.property('message', `${longitude} ${commonError.empty}`);
             });
         });
 
         it('Should throw error on entering invalid longitude', () => {
-            const detailWithInvalidLongitude = {...editUserData, longitude: 'abcd123'};
+            const longitude = 'longitude';
+            const detailWithInvalidLongitude = {...editUserData, [longitude]: 'abcd123'};
             editProfile(detailWithInvalidLongitude, userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', ERROR.invalidLongitude);
+                expect(response.body).to.have.property('message', `${longitude} ${commonError.invalid}`);
             });
         });
 
         it('Should throw error on leaving latitude field empty', () => {
-            const detailWithEmptyLatitude = {...editUserData, latitude: ''};
+            const latitude = 'latitude';
+            const detailWithEmptyLatitude = {...editUserData, [latitude]: ''};
             editProfile(detailWithEmptyLatitude, userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', ERROR.emptyLatitude);
+                expect(response.body).to.have.property('message', `${latitude} ${commonError.empty}`);
             });
         });
 
         it('Should throw error on entering invalid latitude', () => {
-            const detailWithInvalidLatitude = {...editUserData, latitude: 'abcd123'};
+            const latitude = 'latitude';
+            const detailWithInvalidLatitude = {...editUserData, [latitude]: 'abcd123'};
             editProfile(detailWithInvalidLatitude, userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', ERROR.invalidLatitude);
+                expect(response.body).to.have.property('message', `${latitude} ${commonError.invalid}`);
             });
         });
 
         it('Should edit the user profile', () => {
             editProfile(editUserData, userToken).then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', SUCCESSFUL.profileInfoUpdated);
+                expect(response.body).to.have.property('message', `${commonSuccessMessages.updated}`);
                 expect(response.body).to.have.property('data');
             });
         });

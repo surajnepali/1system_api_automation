@@ -39,7 +39,7 @@ describe('Get All Branches Of Vendor', () => {
             it('should throw status code of 403', () => {
                 getAllBranchesOfVendor(userToken).then((response) => {
                     expect(response.status).to.eq(403);
-                    expect(response.body).to.have.property('message', `${commonError.forbidden}`);
+                    expect(response.body).to.have.property('message', `${commonError.forbidden} user mode.`);
                 });
             });
 

@@ -39,7 +39,7 @@ describe('Get Service Types', () => {
             it('should throw status code of 403', () => {
                 getServiceTypes(1, 10, userToken).then((response) => {
                     expect(response.status).to.eq(403);
-                    expect(response.body).to.have.property('message', `${commonError.forbidden}`);
+                    expect(response.body).to.have.property('message', `${commonError.forbidden} user mode.`);
                 });
             });
 
@@ -60,7 +60,7 @@ describe('Get Service Types', () => {
             it('should throw status code of 403', () => {
                 getServiceTypes(1, 10, userToken).then((response) => {
                     expect(response.status).to.eq(403);
-                    expect(response.body).to.have.property('message', `${commonError.forbidden}`);
+                    expect(response.body).to.have.property('message', `${commonError.forbidden} user mode.`);
                 });
             }); 
         });

@@ -157,7 +157,7 @@ describe('Edit Branch API Testing', () => {
             it('should throw status code of 403', () => {
                 editBranch(editBranchFakerData, userToken, branchId).then((response) => {
                     expect(response.status).to.eq(403);
-                    expect(response.body).to.have.property('message', `${commonError.forbidden}`);
+                    expect(response.body).to.have.property('message', `${commonError.forbidden} user mode.`);
                 });
                 
             });

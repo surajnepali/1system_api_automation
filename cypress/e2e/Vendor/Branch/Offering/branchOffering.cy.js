@@ -205,7 +205,7 @@ describe('Create Branch Offering API Testing', () => {
                 const createBranchOffer = {...createOfferingFakerData, service_id : serviceId};
                 createBranchOffering(createBranchOffer, userToken, branchId).then((response) => {
                     expect(response.status).to.eq(403);
-                    expect(response.body).to.have.property('message', `${commonError.forbidden}`);
+                    expect(response.body).to.have.property('message', `${commonError.forbidden} user mode.`);
                 });
             });
                 
@@ -227,7 +227,7 @@ describe('Create Branch Offering API Testing', () => {
                     const createBranchOffer = {...createOfferingFakerData, service_id : serviceId};
                     createBranchOffering(createBranchOffer, userToken, branchId).then((response) => {
                         expect(response.status).to.eq(403);
-                        expect(response.body).to.have.property('message', `${commonError.forbidden}`);
+                        expect(response.body).to.have.property('message', `${commonError.forbidden} user mode.`);
                     });
                 });
     
@@ -266,7 +266,7 @@ describe('Get All Offering of a Branch API Testing', () => {
             it('should throw error on getting all branch offerings', () => {
                 getAllOfferingsOfBranch(userToken, branchId).then((response) => {
                     expect(response.status).to.eq(403);
-                    expect(response.body).to.have.property('message', `${commonError.forbidden}`);
+                    expect(response.body).to.have.property('message', `${commonError.forbidden} user mode.`);
                 });
             });
                     
@@ -287,7 +287,7 @@ describe('Get All Offering of a Branch API Testing', () => {
             it('should throw error on getting all branch offerings', () => {
                 getAllOfferingsOfBranch(userToken, branchId).then((response) => {
                     expect(response.status).to.eq(403);
-                    expect(response.body).to.have.property('message', `${commonError.forbidden}`);
+                    expect(response.body).to.have.property('message', `${commonError.forbidden} user mode.`);
                 });
             });
                 
@@ -363,7 +363,7 @@ describe('Get details of a service offered API Testing', () => {
             it('should throw error on getting details of a service offered', () => {
                 getAOffering(userToken, branchId, offeringId).then((response) => {
                     expect(response.status).to.eq(403);
-                    expect(response.body).to.have.property('message', `${commonError.forbidden}`);
+                    expect(response.body).to.have.property('message', `${commonError.forbidden} user mode.`);
                 });
             });
                         
@@ -384,7 +384,7 @@ describe('Get details of a service offered API Testing', () => {
             it('should throw error on getting details of a service offered', () => {
                 getAOffering(userToken, branchId, offeringId).then((response) => {
                     expect(response.status).to.eq(403);
-                    expect(response.body).to.have.property('message', `${commonError.forbidden}`);
+                    expect(response.body).to.have.property('message', `${commonError.forbidden}user mode.`);
                 });
             });
 

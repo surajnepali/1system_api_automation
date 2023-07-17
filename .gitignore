@@ -6,3 +6,4 @@ cypress/api/Branch_APIs/branch.data.js
 cypress/api/Driver_APIs/driver.data.js
 cypress/api/Order_APIs/order.data.js
 cypress/api/Vendor_APIs/vendor.data.js
+cypress/api/User_APIs/user.data.js
