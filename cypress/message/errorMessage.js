@@ -47,14 +47,20 @@ export const commonError = {
     lessthan10digit: 'must be longer than or equal to 10 characters.',
     invalid: 'must be a number conforming to the specified constraints.',
     lessThan0: 'must not be less than 0.',
+    lessThan1: 'must not be less than 1.',
+    lessThan: 'must not be less than',
+    greaterThan: 'must not be greater than',
     mustBeInteger: 'must be an integer number.',
     lessThan8Characters: 'must be longer than or equal to 8 characters.',
     lessThanxCharacters: 'must be longer than or equal to ',
     invalidUsername: 'username can not contains other than letters or space.',
+    mustBeValidDate: 'must be a valid ISO 8601 date string.',
 };
 
 export const orderErrorMessages = {
     alreadyCompleted: "You can't perform any action to this order.",
+    selfAssignedErrorr: 'location & time if you are not self assigned for',
+    selfAssignedError: 'location and time if you are not self assigned for',
 };
 
 export const driverErrorMessages = {
