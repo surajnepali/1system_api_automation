@@ -76,3 +76,22 @@ export const getVehicleTypes = (token) => cy.api({
     },
     failOnStatusCode: false,
 });
+
+export const createBidding = (token, gigId, createBiddingData) => cy.api({
+    method: 'PUT',
+    url: Cypress.env('apiUrl') + driverEndpoints.gig + '/' + gigId + driverEndpoints.bidding,
+    headers:{
+        'Authorization': 'Bearer ' + token,
+    },
+    body: createBiddingData,
+    failOnStatusCode: false,
+});
+
+export const getBiddingDetails = (token, gigId) => cy.api({
+    method: 'GET',
+    url: Cypress.env('apiUrl') + driverEndpoints.gig + '/' + gigId + driverEndpoints.bidding,
+    headers:{
+        'Authorization': 'Bearer ' + token,
+    },
+    failOnStatusCode: false,
+});

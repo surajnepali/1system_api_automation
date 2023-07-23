@@ -37,6 +37,9 @@ export const driverSuccessMessages = {
     gigsRetrieved: 'Retrived gigs',
     gigAccepted: 'Gig successfully Picked.',
     gigPicked: 'Successfully picked item.',
+    bidPlaced: 'Successfully placed bidding.',
+    bidUpdated: 'Successfully updated bidding.',
+    bidRetrieved: 'Successfully Retrieve',
 };
 
 export const orderSuccessMessages = {
