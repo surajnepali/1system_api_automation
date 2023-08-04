@@ -60,3 +60,21 @@ export const getOrderTrackingById = (orderId, token) => cy.api({
     },
     failOnStatusCode: false,
 });
+
+export const viewBiddings = (orderId, gigType, page, limit, token) => cy.api({
+    method: 'GET',
+    url: Cypress.env('apiUrl') + userEndpoints.getAllOrderDetails + '/' + orderId + '/bidding?gig_type=' + gigType + '&page=' + page + '&limit=' + limit,
+    headers: {
+        'Authorization': 'Bearer ' + token,
+    },
+    failOnStatusCode: false,
+});
+
+export const acceptBid = (orderId, bidId, gigType, token) => cy.api({
+    method: 'PATCH',
+    url: Cypress.env('apiUrl') + userEndpoints.getAllOrderDetails + '/' + orderId + '/bidding/' + bidId + '/accept?gig_type=' + gigType,
+    headers: {
+        'Authorization': 'Bearer ' + token,
+    },
+    failOnStatusCode: false,
+});

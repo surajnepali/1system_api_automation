@@ -52,4 +52,6 @@ export const orderSuccessMessages = {
 
 export const userSuccessMessages = {
     orderRetrieved: 'Retrived Successfully',
+    biddingRetrieved: 'Retrived bidding',
+    bidAccepted: 'Successfully updated'
 };

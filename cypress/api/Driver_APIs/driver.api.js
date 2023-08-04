@@ -17,7 +17,7 @@ export const editDriverApplication = (editDriverApplication, token) => cy.api({
     headers: {
         'Authorization': 'Bearer ' + token,
     },
-    body: {...editDriverApplication},
+    body: editDriverApplication,
     failOnStatusCode: false,
 });
 
@@ -77,13 +77,15 @@ export const getVehicleTypes = (token) => cy.api({
     failOnStatusCode: false,
 });
 
-export const createBidding = (token, gigId, createBiddingData) => cy.api({
+export const createBidding = (token, gigId, bidOption) => cy.api({
     method: 'PUT',
     url: Cypress.env('apiUrl') + driverEndpoints.gig + '/' + gigId + driverEndpoints.bidding,
     headers:{
         'Authorization': 'Bearer ' + token,
     },
-    body: createBiddingData,
+    body: {
+        ask_price: bidOption,
+    },
     failOnStatusCode: false,
 });
 

@@ -5,11 +5,13 @@ import { driverRole } from "../../api/Driver_APIs/driver.data";
 import { getOrderDetails } from "../../api/Order_APIs/handleOrder.api";
 import { getOrderDetailsByFilter } from "../../api/User_APIs/handleUser.api";
 import { vendorCreateData } from "../../api/Vendor_APIs/vendor.data";
-import { orderErrorMessages } from "../../message/Error/Order/orderErrorMessages";
-import { orderSuccessMessages } from "../../message/Successful/Order/orderSuccessMessages";
+// import { orderErrorMessages } from "../../message/Error/Order/orderErrorMessages";
+// import { orderSuccessMessages } from "../../message/Successful/Order/orderSuccessMessages";
 import { userSuccessMessages } from "../../message/Successful/User/userSuccessMessages";
+import { commonError, orderErrorMessages } from "../../message/errorMessage";
+import { commonSuccessMessages } from "../../message/successfulMessage";
 
-let userToken, vendorToken, orderId;
+let userToken, vendorToken, orderId, role;
 
 describe('Get Order Details', () => {
 
@@ -18,7 +20,7 @@ describe('Get Order Details', () => {
         it('Should return 401 Unauthorized', () => {
             getOrderDetails('54').then((response) => {
                 expect(response.status).to.eq(401);
-                expect(response.body).to.have.property('message', orderErrorMessages.unauthorized);
+                expect(response.body).to.have.property('message', `${commonError.unauthorized}`);
             });
         });
     
@@ -31,26 +33,26 @@ describe('Get Order Details', () => {
             before(() => {
                 login(vendorCreateData.approvedVendor, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body.data).to.have.property('token');
                     userToken = response.body.data.token;    
                 });
             });
 
             it('should switch to Vendor mode', () => {
-                switchRole('vendor', userToken).then((response) => {
+                role = 'vendor';
+                switchRole(role, userToken).then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', orderSuccessMessages.switchedToVendorRole);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role}`);
                     expect(response.body.data).to.have.property('token');
                     vendorToken = response.body.data.token;
                 });
             });
 
             it('Should not get the details and should throw error 403', () => {
-                const var1 = 'vendor mode';
                 getOrderDetails('54', vendorToken).then((response) => {
                     expect(response.status).to.eq(403);
-                    expect(response.body).to.have.property('message', `${orderErrorMessages.forbidden} ${var1}.`);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role} mode.`);
                 });
             });
 
@@ -61,26 +63,26 @@ describe('Get Order Details', () => {
             before(() => {
                 login(driverRole.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body.data).to.have.property('token');
                     userToken = response.body.data.token;   
                 });
             });
     
             it('should switch to Driver mode', () => {
-                switchRole('driver', userToken).then((response) => {
+                role = 'driver';
+                switchRole(role, userToken).then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', orderSuccessMessages.switchedToDriverRole);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role}`);
                     expect(response.body.data).to.have.property('token');
                     vendorToken = response.body.data.token;
                 });
             });
     
             it('Should not get the details and should throw error 403', () => {
-                const var1 = 'driver mode';
                 getOrderDetails('54', vendorToken).then((response) => {
                     expect(response.status).to.eq(403);
-                    expect(response.body).to.have.property('message', `${orderErrorMessages.forbidden} ${var1}.`);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role} mode.`);
                 });
             });
     
@@ -93,7 +95,7 @@ describe('Get Order Details', () => {
                 before(() => {
                     login(vendorCreateData.approvedVendor, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
+                        expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                         expect(response.body.data).to.have.property('token');
                         userToken = response.body.data.token;   
                     });
@@ -114,7 +116,7 @@ describe('Get Order Details', () => {
                 before(() => {
                     login(Cypress.env('userWithNoRole'), Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', orderSuccessMessages.successfulLogin);
+                        expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                         expect(response.body.data).to.have.property('token');
                         userToken = response.body.data.token;   
                     });

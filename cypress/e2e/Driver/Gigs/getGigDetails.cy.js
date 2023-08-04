@@ -57,8 +57,8 @@ describe('Get GIG Details API Testing', () => {
                         expect(response.body.data.gig).to.be.an('object');
                         expect(response.body.data.gig).to.have.property('gig_id', gigId);
                         const gigBiddingOptions = response.body.data.gig.bidding_options;
-                        const randomBid = gigBiddingOptions[Math.floor(Math.random() * gigBiddingOptions.length)];
-                        cy.log("Bid Option", randomBid);
+                        const randomBidOption = gigBiddingOptions[Math.floor(Math.random() * gigBiddingOptions.length)];
+                        cy.log("Bid Option", randomBidOption);
 
                     });
                 });

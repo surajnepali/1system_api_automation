@@ -1,8 +1,7 @@
 /// <reference types="Cypress" />
 
 import { login, switchRole } from "../../../../api/Auth_APIs/handleAuth.api";
-import { createBidding, getAllGigs, getBiddingDetails } from "../../../../api/Driver_APIs/driver.api";
-import { createBidData } from "../../../../api/Driver_APIs/driver.data";
+import { createBidding, getAllGigs, getBiddingDetails, getGigDetails } from "../../../../api/Driver_APIs/driver.api";
 import { acceptOrderByVendor, createOrder } from "../../../../api/Order_APIs/handleOrder.api";
 import { createOrderData, orderAccessEmails } from "../../../../api/Order_APIs/order.data";
 import { getAllBranchesOfVendor, getAllOfferingsOfBranch } from "../../../../api/Vendor_APIs/handleVendor.api";
@@ -11,7 +10,7 @@ import { commonError } from "../../../../message/errorMessage";
 import { commonSuccessMessages, driverSuccessMessages, orderSuccessMessages, vendorSuccessMessages } from "../../../../message/successfulMessage";
 
 let userToken, vendorToken, driverToken;
-let gigId = 1, branchId, orderId, offeringId, biddingId, serviceId, selfPickup, role;
+let gigId = 1, branchId, orderId, offeringId, biddingId, serviceId, selfPickup, role, randomBidOption;
 
 describe('Create New Bidding API Testing', () => {
 
@@ -159,15 +158,33 @@ describe('Create New Bidding API Testing', () => {
                         }
                     });
 
+                    it('should get gig details', () => {
+                        if(selfPickup === false){
+                            getGigDetails(driverToken, gigId).then((response) => {
+                                expect(response.status).to.eq(200);
+                                expect(response.body).to.have.property('message', `${driverSuccessMessages.gigsRetrieved}`);
+                                expect(response.body.data).to.have.property('gig');
+                                expect(response.body.data.gig).to.be.an('object');
+                                expect(response.body.data.gig).to.have.property('gig_id', gigId);
+                                const gigBiddingOptions = response.body.data.gig.bidding_options;
+                                randomBidOption = gigBiddingOptions[Math.floor(Math.random() * gigBiddingOptions.length)];
+                                cy.log("Bid Option", randomBidOption);
+        
+                            });
+                        }else{
+                            cy.log('Self Pickup is true, so no need to get gig details')
+                        }
+                    });
+
                     it('should create bidding successfully', () => {
                         if(selfPickup === false){
-                            createBidding(driverToken, gigId, createBidData).then((response) => {
+                            createBidding(driverToken, gigId, randomBidOption).then((response) => {
                                 expect(response.status).to.eq(200);
                                 expect(response.body).to.have.property('message', `${driverSuccessMessages.bidPlaced}`);
                                 expect(response.body.data).to.have.property('bidding');
                                 expect(response.body.data.bidding).to.have.property('id');
                                 expect(response.body.data.bidding).to.have.property('gig_id', gigId);
-                                expect(response.body.data.bidding).to.have.property('ask_price', createBidData.ask_price);
+                                expect(response.body.data.bidding).to.have.property('ask_price', randomBidOption);
                                 expect(response.body.data.bidding).to.have.property('status', orderApiOptions.PLACED);
                                 biddingId = response.body.data.bidding.id;
                                 cy.log('Bidding ID: ' + biddingId);
@@ -224,37 +241,15 @@ describe('Create New Bidding API Testing', () => {
                         }
                     });
 
-                    it('should get all the gigs', () => {
-                        if(selfPickup === false){
-                            getAllGigs(driverToken, pageOptions.PAGE, pageOptions.LIMIT).then((response) => {
-                                expect(response.status).to.eq(200);
-                                expect(response.body).to.have.property('message', `${driverSuccessMessages.gigsRetrieved}`);
-                                expect(response.body.data).to.have.property('gigs');
-                                expect(response.body.data.gigs).to.be.an('array');
-                                const gigs = response.body.data.gigs;
-                                for(let i = 0; i < gigs.length; i++) {
-                                    if(gigs[i].order_id === orderId) {
-                                        gigId = gigs[i].gig_id;
-                                        cy.log('Gig ID: ' + gigId);
-                                        cy.log('Gig Status: ' + gigs[i].gig_type);
-                                        break;
-                                    }
-                                }
-                            });
-                        }else{
-                            cy.log('Self Pickup is true, so no need to get all the gigs')
-                        }
-                    });
-
                     it('should create bidding successfully', () => {
                         if(selfPickup === false){
-                            createBidding(driverToken, gigId, createBidData).then((response) => {
+                            createBidding(driverToken, gigId, randomBidOption).then((response) => {
                                 expect(response.status).to.eq(200);
                                 expect(response.body).to.have.property('message', `${driverSuccessMessages.bidPlaced}`);
                                 expect(response.body.data).to.have.property('bidding');
                                 expect(response.body.data.bidding).to.have.property('id');
                                 expect(response.body.data.bidding).to.have.property('gig_id', gigId);
-                                expect(response.body.data.bidding).to.have.property('ask_price', createBidData.ask_price);
+                                expect(response.body.data.bidding).to.have.property('ask_price', randomBidOption);
                                 expect(response.body.data.bidding).to.have.property('status', orderApiOptions.PLACED);
                                 biddingId = response.body.data.bidding.id;
                                 cy.log('Bidding ID: ' + biddingId);
