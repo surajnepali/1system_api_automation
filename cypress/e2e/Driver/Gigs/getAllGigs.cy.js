@@ -1,14 +1,12 @@
 /// <reference types="Cypress" />
 
 import { getAllGigs } from "../../../api/Driver_APIs/driver.api";
-import { driverRole } from "../../../api/Driver_APIs/driver.data";
-import { driverErrorMessages } from "../../../message/Error/Driver/driverErrorMessages";
-import { driverSuccessMessages } from "../../../message/Successful/Driver/driverSuccessMessages";
-import SUCCESSFUL from "../../../message/successfulMessage";
-import ERROR from "../../../message/errorMessage";
 import { login, switchRole } from "../../../api/Auth_APIs/handleAuth.api";
+import { orderAccessEmails } from "../../../api/Order_APIs/order.data";
+import { commonSuccessMessages, driverSuccessMessages } from "../../../message/successfulMessage";
+import { commonError } from "../../../message/errorMessage";
 
-let userToken, driverToken;
+let userToken, driverToken, role;
 
 describe('Driver Get All GIGS API Testing', () => {
 
@@ -17,18 +15,19 @@ describe('Driver Get All GIGS API Testing', () => {
         describe("When an user has not applied for a driver", () => {
 
             before(() => {
-                login(driverRole.freshEmail, Cypress.env('password'), 'email').then((response) => {
+                login(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body.data).to.have.property('token');
                     userToken = response.body.data.token;
                 });
             });
 
             it('should throw error when user tries to get all gigs', () => {
+                role = 'user';
                 getAllGigs(userToken, 1, 20).then((response) => {
                     expect(response.status).to.eq(403);
-                    expect(response.body).to.have.property('message', driverErrorMessages.forbidden);
+                    expect(response.body).to.have.property('message', `${commonError.forbidden} ${role} mode.`);
                 });
             });
 
@@ -37,9 +36,9 @@ describe('Driver Get All GIGS API Testing', () => {
         describe("When an user has applied for a driver", () => {
 
             before(() => {
-                login(driverRole.appliedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                login(orderAccessEmails.appliedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body.data).to.have.property('token');
                     userToken = response.body.data.token;
                 });
@@ -48,7 +47,7 @@ describe('Driver Get All GIGS API Testing', () => {
             it('should throw error when user tries to get all gigs', () => {
                 getAllGigs(userToken, 1, 20).then((response) => {
                     expect(response.status).to.eq(403);
-                    expect(response.body).to.have.property('message', driverErrorMessages.forbidden);
+                    expect(response.body).to.have.property('message', `${commonError.forbidden} ${role} mode.`);
                 });
             });
 
@@ -57,18 +56,19 @@ describe('Driver Get All GIGS API Testing', () => {
         describe("When an user has been approved for a driver", () => {
 
             before(() => {
-                login(driverRole.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                login(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body.data).to.have.property('token');
                     userToken = response.body.data.token;
                 });
             });
 
             it('should switch to driver role', () => {
-                switchRole('driver', userToken).then((response) => {
+                role = 'driver';
+                switchRole(role, userToken).then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', driverSuccessMessages.roleSwitched);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role}`);
                     expect(response.body.data).to.have.property('token');
                     driverToken = response.body.data.token;
                 });
@@ -77,7 +77,7 @@ describe('Driver Get All GIGS API Testing', () => {
             it('should successfully retireve the gigs', () => {
                 getAllGigs(driverToken, 1, 100).then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', driverSuccessMessages.gigsRetrieved);
+                    expect(response.body).to.have.property('message', `${driverSuccessMessages.gigsRetrieved}`);
                 });
             });
 
@@ -90,7 +90,7 @@ describe('Driver Get All GIGS API Testing', () => {
         it('should throw error when user tries to get all gigs', () => {
             getAllGigs('', 1, 20).then((response) => {
                 expect(response.status).to.eq(401);
-                expect(response.body).to.have.property('message', ERROR.unauthorized);
+                expect(response.body).to.have.property('message', `${commonError.unauthorized}`);
             });
         });
 

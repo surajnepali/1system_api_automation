@@ -61,6 +61,7 @@ export const orderErrorMessages = {
     alreadyCompleted: "You can't perform any action to this order.",
     selfAssignedErrorr: 'location & time if you are not self assigned for',
     selfAssignedError: 'location and time if you are not self assigned for',
+    detailsNotFound: "Can't find the order details.",
 };
 
 export const driverErrorMessages = {

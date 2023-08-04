@@ -7,7 +7,7 @@ import { getAllBranchesOfVendor, getAllOfferingsOfBranch } from "../../api/Vendo
 import { commonError, orderErrorMessages } from "../../message/errorMessage";
 import { commonSuccessMessages, orderSuccessMessages, vendorSuccessMessages } from "../../message/successfulMessage";
 
-let userToken, vendorToken, driverToken, branchId, serviceId, offeringId, role;
+let userToken, vendorToken, driverToken, branchId, serviceId, offeringId, role, selfPickup, selfDelivery;
 
 describe('Create Order', () => {
 
@@ -124,29 +124,29 @@ describe('Create Order', () => {
             });
 
             it('should throw error when total is empty', () => {
-                const TotalPrice = 'total_price'
-                const createOrderWithEmptyTotalPrice = {...createOrderData, [TotalPrice]: '', branch_id: branchId, service_id: serviceId, offering_id: offeringId};
+                const estimatedPrice = 'estimated_price'
+                const createOrderWithEmptyTotalPrice = {...createOrderData, [estimatedPrice]: '', branch_id: branchId, service_id: serviceId, offering_id: offeringId};
                 createOrder(createOrderWithEmptyTotalPrice, userToken).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', `${TotalPrice} ${commonError.empty}`);
+                    expect(response.body).to.have.property('message', `${estimatedPrice} ${commonError.empty}`);
                 });
             });
 
             it('should throw error when total is not a number', () => {
-                const TotalPrice = 'total_price'
-                const createOrderWithInvalidTotalPrice = {...createOrderData, [TotalPrice]: 'abc', branch_id: branchId, service_id: serviceId, offering_id: offeringId};
+                const estimatedPrice = 'estimated_price'
+                const createOrderWithInvalidTotalPrice = {...createOrderData, [estimatedPrice]: 'abc', branch_id: branchId, service_id: serviceId, offering_id: offeringId};
                 createOrder(createOrderWithInvalidTotalPrice, userToken).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', `${TotalPrice} ${commonError.invalid}`);
+                    expect(response.body).to.have.property('message', `${estimatedPrice} ${commonError.invalid}`);
                 });
             });
 
             it('should throw error when total is negative', () => {
-                const TotalPrice = 'total_price'
-                const createOrderWithNegativeTotalPrice = {...createOrderData, [TotalPrice]: -1, branch_id: branchId, service_id: serviceId, offering_id: offeringId};
+                const estimatedPrice = 'estimated_price'
+                const createOrderWithNegativeTotalPrice = {...createOrderData, [estimatedPrice]: -1, branch_id: branchId, service_id: serviceId, offering_id: offeringId};
                 createOrder(createOrderWithNegativeTotalPrice, userToken).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', `${TotalPrice} ${commonError.lessThan} 0.`);
+                    expect(response.body).to.have.property('message', `${estimatedPrice} ${commonError.lessThan} 0.`);
                 });
             });
             
