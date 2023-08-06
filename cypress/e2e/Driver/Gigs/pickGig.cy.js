@@ -2,6 +2,7 @@
 
 const jwt = require('jsonwebtoken');
 
+import '../../../support/Commands/Gigs/pickGig.commands';
 import { createBidding, getAllGigs, getGigDetails, pickGig } from "../../../api/Driver_APIs/driver.api";
 import { acceptOrderByVendor, createOrder } from "../../../api/Order_APIs/handleOrder.api";
 import { createOrderData, orderAccessEmails } from "../../../api/Order_APIs/order.data";

@@ -23,3 +23,18 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+Cypress.Commands.add('setVendorToken', (token) => {
+    cy.wrap(token).as('vendorToken');
+});
+  
+
+Cypress.Commands.add('myModuleCreateVendorToken', () => {
+    // Implement the logic to create the vendor token specifically for "pickGigForVendor"
+    // For example, you can use a test user account, or generate a token specifically for the vendor role in your application
+    // Replace the following line with the actual logic to create a vendor token
+    const vendorToken = 'your_generated_vendor_token';
+  
+    // Set the vendor token as an alias to be used in other tests
+    cy.wrap(vendorToken).as('vendorToken');
+  });

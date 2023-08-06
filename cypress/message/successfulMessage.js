@@ -17,6 +17,8 @@ const SUCCESSFUL = {
 export default SUCCESSFUL;
 
 export const commonSuccessMessages = {
+    otpEmailSent: 'OTP send successfully! Check out your email',
+    otpVerified: 'OTP matched',
     sucessfulLogin: 'successful',
     switchedTo: 'Successfully switched to',
     updated: 'Successfully updated',
