@@ -62,6 +62,9 @@ export const orderErrorMessages = {
     selfAssignedErrorr: 'location & time if you are not self assigned for',
     selfAssignedError: 'location and time if you are not self assigned for',
     detailsNotFound: "Can't find the order details.",
+    cantServiceThisOrder: "You can't service this order at this time.",
+    cantChangeStatus: "You can't change status from this vendor.",
+    cantAcceptBid: "Can't accept bidding right now."
 };
 
 export const driverErrorMessages = {
