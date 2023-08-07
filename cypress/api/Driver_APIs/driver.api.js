@@ -70,7 +70,7 @@ export const pickGig = (token, gigId) => cy.api({
 
 export const getVehicleTypes = (token) => cy.api({
     method: 'GET',
-    url: Cypress.env('apiUrl') + driverEndpoints.vehicleTypes,
+    url: Cypress.env('apiUrl') + driverEndpoints.getVehicleTypes,
     headers: {
         'Authorization': 'Bearer ' + token,
     },
@@ -95,5 +95,16 @@ export const getBiddingDetails = (token, gigId) => cy.api({
     headers:{
         'Authorization': 'Bearer ' + token,
     },
+    failOnStatusCode: false,
+});
+
+export const orderDroppedbyDriver = (gigId, formData, token) => cy.api({
+    method: 'PATCH',
+    url: Cypress.env('apiUrl') + driverEndpoints.gig + '/' + gigId + driverEndpoints.dropped,
+    headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': 'Bearer ' + token,
+    },
+    body: formData,
     failOnStatusCode: false,
 });

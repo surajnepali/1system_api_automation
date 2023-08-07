@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-import { orderEndpoints } from "../../constants/endpoints";
+import { driverEndpoints, orderEndpoints } from "../../constants/endpoints";
 
 export const createOrder = (orderData, token) => cy.api({
     method: 'POST',

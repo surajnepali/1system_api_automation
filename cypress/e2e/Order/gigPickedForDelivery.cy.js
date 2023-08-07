@@ -677,7 +677,7 @@ describe('Create Bidding For Delivery API Testing', () => {
                 });
               } 
             }else{
-                cy.log('Self Pickup is true, so no need to pick the gig')
+                cy.log('Self Delivery is true, so no need to pick the gig')
             }
         });
 
