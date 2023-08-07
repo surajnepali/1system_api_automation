@@ -3,7 +3,7 @@
 import { login } from "../../api/Auth_APIs/handleAuth.api";
 import { applyDriver, getVehicleTypes } from "../../api/Driver_APIs/driver.api";
 import { driverRole } from "../../api/Driver_APIs/driver.data";
-import SUCCESSFUL from "../../message/successfulMessage";
+import { commonSuccessMessages } from "../../message/successfulMessage";
 
 let userToken;
 let driverType = 'car';
@@ -15,7 +15,7 @@ describe('User apply for Driver API Testing', () => {
         before(() => {
             login(Cypress.env('registeredEmail'), Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                 expect(response.body).to.have.property('data');
                 expect(response.body.data).to.have.property('token');
                 userToken = response.body.data.token;
@@ -43,7 +43,7 @@ describe('User apply for Driver API Testing', () => {
             before(() => {
                 login(driverRole.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body.data).to.have.property('token');
                     userToken = response.body.data.token;
                 });
@@ -65,6 +65,8 @@ describe('User apply for Driver API Testing', () => {
                                 formData.append('state_id', 12);
                                 formData.append('license_back', blob1, 'driverBack.jpg');
                                 formData.append('license_front', blob2, 'driverFront.jpg');
+                                formData.append('work_type', 'full_time');
+                                formData.append('contact', 4157637461);
 
                                 applyDriver(formData, userToken).then((response) => {
                                     expect(response.status).to.eq(400);
@@ -79,9 +81,9 @@ describe('User apply for Driver API Testing', () => {
         describe('User has not applied for Driver Role', () => {
 
             before(() => {
-                login(driverRole.freshEmail, Cypress.env('password'), 'email').then((response) => {
+                login(Cypress.env('newEmail'), Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', 'successful');
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('token');
                     userToken = response.body.data.token;
@@ -104,6 +106,8 @@ describe('User apply for Driver API Testing', () => {
                                 formData.append('state_id', 12);
                                 formData.append('license_back', blob1, 'driverBack.jpg');
                                 formData.append('license_front', blob2, 'driverFront.jpg');
+                                formData.append('work_type', 'full_time');
+                                formData.append('contact', 4157637461);
 
                                 applyDriver(formData, userToken).then((response) => {
                                     expect(response.status).to.eq(400);
@@ -129,6 +133,8 @@ describe('User apply for Driver API Testing', () => {
                                 formData.append('state_id', 12);
                                 formData.append('license_back', blob1, 'driverBack.jpg');
                                 formData.append('license_front', blob2, 'driverFront.jpg');
+                                formData.append('work_type', 'full_time');
+                                formData.append('contact', 4157637461);
 
                                 applyDriver(formData, userToken).then((response) => {
                                     expect(response.status).to.eq(400);
@@ -154,6 +160,8 @@ describe('User apply for Driver API Testing', () => {
                                 formData.append('state_id', 12);
                                 formData.append('license_back', blob1, 'driverBack.jpg');
                                 formData.append('license_front', blob2, 'driverFront.jpg');
+                                formData.append('work_type', 'full_time');
+                                formData.append('contact', 4157637461);
 
                                 applyDriver(formData, userToken).then((response) => {
                                     expect(response.status).to.eq(400);
@@ -179,6 +187,8 @@ describe('User apply for Driver API Testing', () => {
                                 formData.append('state_id', 12);
                                 formData.append('license_back', blob1, 'driverBack.jpg');
                                 formData.append('license_front', blob2, 'driverFront.jpg');
+                                formData.append('work_type', 'full_time');
+                                formData.append('contact', 4157637461);
 
                                 applyDriver(formData, userToken).then((response) => {
                                     expect(response.status).to.eq(400);
@@ -204,6 +214,8 @@ describe('User apply for Driver API Testing', () => {
                                 formData.append('state_id', 12);
                                 formData.append('license_back', blob1, 'driverBack.jpg');
                                 formData.append('license_front', blob2, 'driverFront.jpg');
+                               formData.append('work_type', 'full_time');
+                                formData.append('contact', 4157637461);
 
                                 applyDriver(formData, userToken).then((response) => {
                                     expect(response.status).to.eq(400);
@@ -229,6 +241,8 @@ describe('User apply for Driver API Testing', () => {
                                 formData.append('state_id', 12);
                                 formData.append('license_back', blob1, 'driverBack.jpg');
                                 formData.append('license_front', blob2, 'driverFront.jpg');
+                                formData.append('work_type', 'full_time');
+                                formData.append('contact', 4157637461);
 
                                 applyDriver(formData, userToken).then((response) => {
                                     expect(response.status).to.eq(400);
@@ -254,6 +268,8 @@ describe('User apply for Driver API Testing', () => {
                                 formData.append('state_id', '');
                                 formData.append('license_back', blob1, 'driverBack.jpg');
                                 formData.append('license_front', blob2, 'driverFront.jpg');
+                                formData.append('work_type', 'full_time');
+                                formData.append('contact', 4157637461);
 
                                 applyDriver(formData, userToken).then((response) => {
                                     expect(response.status).to.eq(400);
@@ -276,6 +292,8 @@ describe('User apply for Driver API Testing', () => {
                         formData.append('state_id', 12);
                         formData.append('license_back', '');
                         formData.append('license_front', blob2, 'driverFront.jpg');
+                        formData.append('work_type', 'full_time');
+                        formData.append('contact', 4157637461);
 
                         applyDriver(formData, userToken).then((response) => {
                             expect(response.status).to.eq(400);
@@ -300,6 +318,8 @@ describe('User apply for Driver API Testing', () => {
                                 formData.append('state_id', 12);
                                 formData.append('license_back', blob1, 'sample.jpg');
                                 formData.append('license_front', blob2, 'driverFront.jpg');
+                                formData.append('work_type', 'full_time');
+                                formData.append('contact', 4157637461);
 
                                 applyDriver(formData, userToken).then((response) => {
                                     expect(response.status).to.eq(400);
@@ -325,6 +345,8 @@ describe('User apply for Driver API Testing', () => {
                                 formData.append('state_id', 12);
                                 formData.append('license_back', blob1, 'driverBack.jpg');
                                 formData.append('license_front', '');
+                                formData.append('work_type', 'full_time');
+                                formData.append('contact', 4157637461);
 
                                 applyDriver(formData, userToken).then((response) => {
                                     expect(response.status).to.eq(400);
@@ -350,6 +372,8 @@ describe('User apply for Driver API Testing', () => {
                                 formData.append('state_id', 12);
                                 formData.append('license_back', blob1, 'driverBack.jpg');
                                 formData.append('license_front', blob2, 'sample.jpg');
+                                formData.append('work_type', 'full_time');
+                                formData.append('contact', 4157637461);
 
                                 applyDriver(formData, userToken).then((response) => {
                                     expect(response.status).to.eq(400);
@@ -375,6 +399,8 @@ describe('User apply for Driver API Testing', () => {
                                 formData.append('state_id', 12);
                                 formData.append('license_back', blob1, 'driverBack.jpg');
                                 formData.append('license_front', blob2, 'driverFront.jpg');
+                                formData.append('work_type', 'full_time');
+                                formData.append('contact', 4157637461);
 
                                 applyDriver(formData, userToken).then((response) => {
                                     expect(response.status).to.eq(200);
@@ -390,7 +416,7 @@ describe('User apply for Driver API Testing', () => {
             before(() => {
                 login(driverRole.appliedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body.data).to.have.property('token');
                     userToken = response.body.data.token;
                 });
@@ -412,6 +438,8 @@ describe('User apply for Driver API Testing', () => {
                                 formData.append('state_id', 12);
                                 formData.append('license_back', blob1, 'driverBack.jpg');
                                 formData.append('license_front', blob2, 'driverFront.jpg');
+                                formData.append('work_type', 'full_time');
+                                formData.append('contact', 4157637461);
 
                                 applyDriver(formData, userToken).then((response) => {
                                     expect(response.status).to.eq(400);

@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 
 import { registerCustomerWithImage, setOTP, verifyOTP } from '../../api/Auth_APIs/handleAuth.api';
-import SUCCESSFUL from '../../message/successfulMessage';
+import { commonSuccessMessages } from '../../message/successfulMessage';
 
 let otp;
 describe('Register Customer', () => {
@@ -10,7 +10,7 @@ describe('Register Customer', () => {
   it('Can send otp to new email', () => {
     setOTP(Cypress.env('newEmail'), 'verifyEmail').then((response) => {
         expect(response.status).to.eq(200);
-        expect(response.body).to.have.property('message',SUCCESSFUL.otpEmailSent);
+        expect(response.body).to.have.property('message', `${commonSuccessMessages.otpEmailSent}`);
         expect(response.body).to.have.property('data');
         expect(response.body.data).to.have.property('otp');
         otp = response.body.data.otp;
@@ -22,10 +22,7 @@ describe('Register Customer', () => {
     verifyOTP(Cypress.env('newEmail'), 'verifyEmail', otp)
       .then((response) => {
         expect(response.status).to.eq(200);
-        expect(response.body).to.have.property(
-          'message',
-          SUCCESSFUL.otpVerified
-        );
+        expect(response.body).to.have.property('message', `${commonSuccessMessages.otpVerified}`);
       });
   });
 
@@ -45,6 +42,7 @@ describe('Register Customer', () => {
 
         registerCustomerWithImage(formData).then((response) => {
           expect(response.status).to.eq(400);
+          console.log(response.body);
         });
       });
   });
