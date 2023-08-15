@@ -38,12 +38,11 @@ export default ERROR;
 
 export const commonError = {
     unauthorized: 'Unauthorized access',
-    oldInvalidPassword: "Old Password don't matched",
-    notMatchedPassword: "Password not matched.",
     newPasswordSame: 'You must enter different password to change password.',
     forbidden: 'You are not allowed to perform this action with',
     empty: "should not be empty.",
     invalidContact: 'Enter valid',
+    invalidEmail: 'email must be an email.',
     lessthan10digit: 'must be longer than or equal to 10 characters.',
     invalid: 'must be a number conforming to the specified constraints.',
     lessThan0: 'must not be less than 0.',
@@ -51,10 +50,15 @@ export const commonError = {
     lessThan: 'must not be less than',
     greaterThan: 'must not be greater than',
     mustBeInteger: 'must be an integer number.',
+    mustBeEmail: 'must be an email.',
     lessThan8Characters: 'must be longer than or equal to 8 characters.',
     lessThanxCharacters: 'must be longer than or equal to ',
-    invalidUsername: 'username can not contains other than letters or space.',
     mustBeValidDate: 'must be a valid ISO 8601 date string.',
+    userNotExist: 'No info found. Please register.',
+    userNotFound: 'User not found. Please register',
+    lessThan4Characters: 'must be shorter than or equal to 4 characters.',
+    moreThan2Characters: 'must be longer than or equal to 2 characters.',
+    moreThan3Characters: 'must be longer than or equal to 3 characters.',
 };
 
 export const orderErrorMessages = {
@@ -64,11 +68,29 @@ export const orderErrorMessages = {
     detailsNotFound: "Can't find the order details.",
     cantServiceThisOrder: "You can't service this order at this time.",
     cantChangeStatus: "You can't change status from this vendor.",
-    cantAcceptBid: "Can't accept bidding right now."
+    cantAcceptBid: "Can't accept bidding right now.",
+    nothingToReject: 'No order found to reject',
+    couldNotCancel: "You cann't cancel your order at this point.",
 };
 
 export const driverErrorMessages = {
     noOrderFound: 'No order found',
     noGigFound: 'No Gig found.',
     notAssignedGig: 'You are not assigned to this gig.'
+};
+
+export const authErrorMessages = {
+    oldInvalidPassword: "Old Password don't matched",
+    notMatchedPassword: "Password not matched.",
+    userNotExist: 'No info found. Please register.',
+    userNotFound: 'User not found. Please register',
+    lessThan8Characters: 'must be longer than or equal to 8 characters.',
+    invalidOtp: 'otp must be shorter than or equal to 4 characters.',
+    invalidEmail: 'email must be an email.',
+    invalidPurpose: 'purpose must be one of the following values: verifyEmail, forgotpassword, changeLoginMethod.',
+    invalidUsername: 'username can not contains other than letters or space.',
+};
+
+export const userErrorMessages = {
+    notAppliedYet: 'Please apply for',
 };

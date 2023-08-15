@@ -1,11 +1,11 @@
 /// <reference types="Cypress" />
 
+import { roleEmail } from "../../api/Auth_APIs/auth.data";
 import { login } from "../../api/Auth_APIs/handleAuth.api";
 import { editVendorApplication, editVendorApplication2, editVendorApplication3, getApplicationDetails } from "../../api/Vendor_APIs/handleVendor.api";
 import { vendorCreateData, vendorFakerData, vendorFakerData2 } from "../../api/Vendor_APIs/vendor.data";
-import vendorErrorMessages from "../../message/Error/Vendor/vendorErrorMessage";
-import { vendorSuccessMessages } from "../../message/Successful/Vendor/vendorSuccessMessage";
-import SUCCESSFUL from "../../message/successfulMessage";
+import { commonError } from "../../message/errorMessage";
+import SUCCESSFUL, { commonSuccessMessages, vendorSuccessMessages } from "../../message/successfulMessage";
 
 let branchId, userToken;
 
@@ -18,7 +18,7 @@ describe("Edit Vendor Application (Company Name, State Id, and Company Email)", 
                     
             editVendorApplication(vendorFakerData, '').then((response) => {
                 expect(response.status).to.eq(401);
-                expect(response.body).to.have.property('message', vendorErrorMessages.unauthorized);
+                expect(response.body).to.have.property('message', `${commonError.unauthorized}`);
             });
         
         });
@@ -28,9 +28,9 @@ describe("Edit Vendor Application (Company Name, State Id, and Company Email)", 
     describe("After Login", () => {
 
         before(() => {
-            login(vendorCreateData.appliedEmail, Cypress.env('password'), 'email').then((response) => {
+            login(roleEmail.vendorAppliedEmail, Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                 expect(response.body).to.have.property('data');
                 expect(response.body.data).to.have.property('token');
                 userToken = response.body.data.token;
@@ -44,7 +44,7 @@ describe("Edit Vendor Application (Company Name, State Id, and Company Email)", 
 
             editVendorApplication(x, userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', vendorErrorMessages.emptyCompanyName);
+                expect(response.body).to.have.property('message', `company_name ${commonError.empty}`);
             });
         });
 
@@ -54,7 +54,7 @@ describe("Edit Vendor Application (Company Name, State Id, and Company Email)", 
 
             editVendorApplication(x, userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', vendorErrorMessages.emptyStateId);
+                expect(response.body).to.have.property('message', `state_id ${commonError.empty}`);
             });
         });
 
@@ -64,7 +64,7 @@ describe("Edit Vendor Application (Company Name, State Id, and Company Email)", 
                         
             editVendorApplication(x, userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', vendorErrorMessages.emptyCompanyEmail);
+                expect(response.body).to.have.property('message', `company_email ${commonError.empty}`);
             });     
         });
 
@@ -74,7 +74,7 @@ describe("Edit Vendor Application (Company Name, State Id, and Company Email)", 
                                                 
             editVendorApplication(x, userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', vendorErrorMessages.invalidCompanyEmail);
+                expect(response.body).to.have.property('message', `company_email ${commonError.mustBeEmail}`);
             });             
         });
 
@@ -82,7 +82,7 @@ describe("Edit Vendor Application (Company Name, State Id, and Company Email)", 
                                                                                         
             editVendorApplication(vendorFakerData, userToken).then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', vendorSuccessMessages.vendorApplicationEdited);
+                expect(response.body).to.have.property('message', `${vendorSuccessMessages.vendorApplicationEdited}`);
             }); 
         });
 
@@ -95,9 +95,9 @@ describe("Edit Vendor Application (Landmark, Contact, Longitude, and Latitude)",
     describe("After Login", () => {
 
         before(() => {
-            login(vendorCreateData.appliedEmail, Cypress.env('password'), 'email').then((response) => {
+            login(roleEmail.vendorAppliedEmail, Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                 expect(response.body).to.have.property('data');
                 expect(response.body.data).to.have.property('token');
                 userToken = response.body.data.token;
@@ -121,7 +121,7 @@ describe("Edit Vendor Application (Landmark, Contact, Longitude, and Latitude)",
     
             editVendorApplication2(branchId, emptyContactEditVendorApplication, userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', vendorErrorMessages.emptyContact);
+                expect(response.body).to.have.property('message', `contact ${commonError.empty}`);
             });         
         });
 
@@ -131,7 +131,7 @@ describe("Edit Vendor Application (Landmark, Contact, Longitude, and Latitude)",
         
             editVendorApplication2(branchId, emptyLongitudeEditVendorApplication, userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', vendorErrorMessages.emptyLongitude);
+                expect(response.body).to.have.property('message', `longitude ${commonError.empty}`);
             });             
         });
 
@@ -141,7 +141,7 @@ describe("Edit Vendor Application (Landmark, Contact, Longitude, and Latitude)",
                 
             editVendorApplication2(branchId, emptyLatitudeEditVendorApplication, userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', vendorErrorMessages.emptyLatitude);
+                expect(response.body).to.have.property('message',`latitude ${commonError.empty}`);
             });                     
         });
 
@@ -151,7 +151,7 @@ describe("Edit Vendor Application (Landmark, Contact, Longitude, and Latitude)",
                         
             editVendorApplication2(branchId, invalidContactEditVendorApplication, userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', vendorErrorMessages.invalidContact);
+                expect(response.body).to.have.property('message', `${commonError.invalidContact} phone number.`);
             });                             
         });
 
@@ -161,7 +161,7 @@ describe("Edit Vendor Application (Landmark, Contact, Longitude, and Latitude)",
                             
             editVendorApplication2(branchId, invalidLongitudeEditVendorApplication, userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', vendorErrorMessages.invalidLongitude);
+                expect(response.body).to.have.property('message', `longitude ${commonError.invalid}`);
             });                                     
         });
 
@@ -171,7 +171,7 @@ describe("Edit Vendor Application (Landmark, Contact, Longitude, and Latitude)",
                                             
             editVendorApplication2(branchId, invalidLatitudeEditVendorApplication, userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', vendorErrorMessages.invalidLatitude);
+                expect(response.body).to.have.property('message', `latitude ${commonError.invalid}`);
             });                                                 
         });
 
@@ -180,7 +180,7 @@ describe("Edit Vendor Application (Landmark, Contact, Longitude, and Latitude)",
 
             editVendorApplication2(branchId, x, userToken).then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', vendorSuccessMessages.vendorApplicationEdited2);
+                expect(response.body).to.have.property('message', `${vendorSuccessMessages.applicationRetrieved}`);
             });
         });
 
@@ -192,7 +192,7 @@ describe("Edit Vendor Application (Landmark, Contact, Longitude, and Latitude)",
                         
             editVendorApplication2(branchId, vendorFakerData2, '').then((response) => {
                 expect(response.status).to.eq(401);
-                expect(response.body).to.have.property('message', vendorErrorMessages.unauthorized);
+                expect(response.body).to.have.property('message', `${commonError.unauthorized}`);
             });
 
         });
@@ -225,9 +225,9 @@ describe("Edit Vendor Application (Vendor Resgistration Documentation)", () => {
     describe("After Login", () => {
 
         before(() => {
-            login(vendorCreateData.appliedEmail, Cypress.env('password'), 'email').then((response) => {
+            login(roleEmail.vendorAppliedEmail, Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                 expect(response.body).to.have.property('data');
                 expect(response.body.data).to.have.property('token');
                 userToken = response.body.data.token;

@@ -108,3 +108,30 @@ export const orderDroppedbyDriver = (gigId, formData, token) => cy.api({
     body: formData,
     failOnStatusCode: false,
 });
+
+export const activeGigs = (page, limit, token) => cy.api({
+    method: 'GET',
+    url: Cypress.env('apiUrl') + driverEndpoints.gig + '?page=' + page + '&limit=' + limit + '&is_active=true',
+    headers: {
+        'Authorization': 'Bearer ' + token,
+    },
+    failOnStatusCode: false,
+});
+
+export const completedGigs = (page, limit, token) => cy.api({
+    method: 'GET',
+    url: Cypress.env('apiUrl') + driverEndpoints.gig + '?page=' + page + '&limit=' + limit + '&is_completed=true',
+    headers: {
+        'Authorization': 'Bearer ' + token,
+    },
+    failOnStatusCode: false,
+});
+
+export const getBiddings = (page, limit, token) => cy.api({
+    method: 'GET',
+    url: Cypress.env('apiUrl') + driverEndpoints.gig + driverEndpoints.bidding + '?status[]=placed&page=' + page + '&limit=' + limit + '&is_applied=true',
+    headers: {
+        'Authorization': 'Bearer ' + token,
+    },
+    failOnStatusCode: false,
+});

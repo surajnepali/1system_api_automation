@@ -3,9 +3,8 @@
 import { login } from "../../api/Auth_APIs/handleAuth.api";
 import { getApplicationDetails } from "../../api/Vendor_APIs/handleVendor.api";
 import { vendorCreateData } from "../../api/Vendor_APIs/vendor.data";
-import vendorErrorMessages from "../../message/Error/Vendor/vendorErrorMessage";
-import { vendorSuccessMessages } from "../../message/Successful/Vendor/vendorSuccessMessage";
-import SUCCESSFUL from "../../message/successfulMessage";
+import { commonError, userErrorMessages } from "../../message/errorMessage";
+import { commonSuccessMessages, vendorSuccessMessages } from "../../message/successfulMessage";
 
 let userToken;
 
@@ -16,7 +15,7 @@ describe("Get Application Details", () => {
         it('Should throw error message on trying to get the details of the vendor', () => {         
             getApplicationDetails('').then((response) => {
                 expect(response.status).to.eq(401);
-                expect(response.body).to.have.property('message', vendorErrorMessages.unauthorized);
+                expect(response.body).to.have.property('message', `${commonError.unauthorized}`);
             });
         });
 
@@ -30,7 +29,7 @@ describe("Get Application Details", () => {
     
                 login(vendorCreateData.notAppliedEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('token');
                     userToken = response.body.data.token;
@@ -41,7 +40,7 @@ describe("Get Application Details", () => {
             it('Should throw error message', () => {          
                 getApplicationDetails(userToken).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', vendorErrorMessages.hasNotAppliedYet);
+                    expect(response.body).to.have.property('message', `${userErrorMessages.notAppliedYet} vendor.`);
                 });
             });
         });
@@ -52,7 +51,7 @@ describe("Get Application Details", () => {
                                     
                 login(vendorCreateData.approvedVendor, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('token');
                     userToken = response.body.data.token;
@@ -63,7 +62,7 @@ describe("Get Application Details", () => {
             it('Should show the application details which is going to be used in Legal Documents Page', () => {                        
                 getApplicationDetails(userToken).then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', vendorSuccessMessages.dataRetrieved);
+                    expect(response.body).to.have.property('message', `${vendorSuccessMessages.dataRetrieved}`);
                 }); 
             });
         });
@@ -74,7 +73,7 @@ describe("Get Application Details", () => {
                                     
                 login(vendorCreateData.appliedEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('token');
                     userToken = response.body.data.token;
@@ -85,7 +84,7 @@ describe("Get Application Details", () => {
             it('Should return the application details of the vendor', () => {         
                 getApplicationDetails(userToken).then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', vendorSuccessMessages.dataRetrieved);
+                    expect(response.body).to.have.property('message', `${vendorSuccessMessages.dataRetrieved}`);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('company_name');
                     expect(response.body.data).to.have.property('state_id');

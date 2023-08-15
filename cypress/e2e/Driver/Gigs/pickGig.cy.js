@@ -2,7 +2,6 @@
 
 const jwt = require('jsonwebtoken');
 
-import '../../../support/Commands/Gigs/pickGig.commands';
 import { createBidding, getAllGigs, getGigDetails, pickGig } from "../../../api/Driver_APIs/driver.api";
 import { acceptOrderByVendor, createOrder } from "../../../api/Order_APIs/handleOrder.api";
 import { createOrderData, orderAccessEmails } from "../../../api/Order_APIs/order.data";
@@ -86,9 +85,7 @@ describe('Driver Pick GIG API Testing', () => {
                 });
 
                 it('should create order successfully', () => {
-                    const createOrderNewData = {...createOrderData, branch_id: branchId, service_id: serviceId, offering_id: offeringId, 
-                        pickup_time: "2023-08-04 01:05:00.099",
-                        dropoff_time: "2023-08-04 02:05:00.099"};
+                    const createOrderNewData = {...createOrderData, branch_id: branchId, service_id: serviceId, offering_id: offeringId};
                     createOrder(createOrderNewData, mainUserToken).then((response) => {
                         expect(response.status).to.eq(201);
                         expect(response.body).to.have.property('message', `${orderSuccessMessages.successful}created`);
