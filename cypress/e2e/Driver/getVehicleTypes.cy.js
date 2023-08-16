@@ -1,9 +1,10 @@
 /// <reference types="Cypress" />
 
-import ERROR from "../../message/errorMessage";
-import SUCCESSFUL from "../../message/successfulMessage";
+import { commonError } from "../../message/errorMessage";
+import { commonSuccessMessages } from "../../message/successfulMessage";
 import { getVehicleTypes } from "../../api/Driver_APIs/driver.api";
 import { login } from "../../api/Auth_APIs/handleAuth.api";
+import { orderAccessEmails } from "../../api/Order_APIs/order.data";
 
 let userToken;
 
@@ -15,7 +16,7 @@ describe('Get Vehicle Types', () => {
     
             getVehicleTypes().then((response) => {
                 expect(response.status).to.eq(401);
-                expect(response.body).to.have.property('message', ERROR.unauthorized);
+                expect(response.body).to.have.property('message', `${commonError.unauthorized}`);
             });
     
         });
@@ -24,11 +25,11 @@ describe('Get Vehicle Types', () => {
 
     describe('Get Vehicle Types After Successful Login', () => {
 
-        beforeEach(() => {
+        before(() => {
 
-            login(Cypress.env('registeredEmail'), Cypress.env('password'), 'email').then((response) => {
+            login(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                 expect(response.body).to.have.property('data');
                 expect(response.body.data).to.have.property('token');
                 userToken = response.body.data.token;

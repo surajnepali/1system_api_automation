@@ -1,10 +1,11 @@
 /// <reference types="Cypress" />
 
 import { editDriverApplication, getVehicleTypes } from "../../api/Driver_APIs/driver.api";
-import { driverRole, editDriverApplicationData } from "../../api/Driver_APIs/driver.data";
-import SUCCESSFUL from "../../message/successfulMessage";
-import { driverErrorMessages } from "../../message/Error/Driver/driverErrorMessages";
+import { editDriverApplicationData } from "../../api/Driver_APIs/driver.data";
+import { commonSuccessMessages } from "../../message/successfulMessage";
 import { login } from "../../api/Auth_APIs/handleAuth.api";
+import { commonError, userErrorMessages } from "../../message/errorMessage";
+import { roleEmail } from "../../api/Auth_APIs/auth.data";
 
 let userToken;
 let vehicleType = '';
@@ -16,9 +17,9 @@ describe('Driver Edit Application API Testing', () => {
         describe('User is an approved Driver and tries to edit the application', () => {
 
             before(() => {
-                login(driverRole.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                login(roleEmail.approvedDriver, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body.data).to.have.property('token');
                     userToken = response.body.data.token;
                });
@@ -39,7 +40,7 @@ describe('Driver Edit Application API Testing', () => {
                 const x = {...editDriverApplicationData, vehicle_type: vehicleType};
                 editDriverApplication(x, userToken).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', driverErrorMessages.alreadyVerified);
+                    expect(response.body).to.have.property('message', `${userErrorMessages.alreadyVerified} driver role. ${userErrorMessages.pleaseSwitch} driver role.`);
                 });
             });
         });
@@ -47,9 +48,9 @@ describe('Driver Edit Application API Testing', () => {
         describe('User has not applied for Driver and tries to edit the application', () => {
                 
             before(() => {
-                login(driverRole.freshEmail, Cypress.env('password'), 'email').then((response) => {
+                login(roleEmail.noRoleEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body.data).to.have.property('token');
                     userToken = response.body.data.token;
                 });
@@ -59,7 +60,7 @@ describe('Driver Edit Application API Testing', () => {
                 const x = {...editDriverApplicationData, vehicle_type: vehicleType};
                 editDriverApplication(x, userToken).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', driverErrorMessages.notApplied);
+                    expect(response.body).to.have.property('message', `${userErrorMessages.notApplied} driver`);
                 });
             });
         });
@@ -67,9 +68,9 @@ describe('Driver Edit Application API Testing', () => {
         describe('User has applied for Driver and wants to edit the application', () => {
 
             before(() => {
-                login(driverRole.appliedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                login(roleEmail.driverAppliedEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body.data).to.have.property('token');
                     userToken = response.body.data.token;
                 });
@@ -80,7 +81,7 @@ describe('Driver Edit Application API Testing', () => {
                 const x = {...editDriverApplicationData, vehicle_type: vehicleType, [var1]: ''};
                 editDriverApplication(x, userToken).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', `${var1} ${driverErrorMessages.emptyField}`);
+                    expect(response.body).to.have.property('message', `${var1} ${commonError.empty}`);
                 });
             });
 
@@ -89,7 +90,7 @@ describe('Driver Edit Application API Testing', () => {
                 const x = {...editDriverApplicationData, vehicle_type: vehicleType, [var1]: 123};
                 editDriverApplication(x, userToken).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', `${var1} ${driverErrorMessages.invalidData}`);
+                    expect(response.body).to.have.property('message', `${var1} ${commonError.moreThan2Characters}`);
                 });
             });
 
@@ -98,7 +99,7 @@ describe('Driver Edit Application API Testing', () => {
                 const x = {...editDriverApplicationData, vehicle_type: vehicleType, [var1]: ''};
                 editDriverApplication(x, userToken).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', `${var1} ${driverErrorMessages.emptyField}`);
+                    expect(response.body).to.have.property('message', `${var1} ${commonError.empty}`);
                 });
             });
 
@@ -107,7 +108,7 @@ describe('Driver Edit Application API Testing', () => {
                 const x = {...editDriverApplicationData, [var1]: ''};
                 editDriverApplication(x, userToken).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', `${var1} ${driverErrorMessages.emptyField}`);
+                    expect(response.body).to.have.property('message', `${var1} ${commonError.empty}`);
                 });
             });
 
@@ -116,7 +117,7 @@ describe('Driver Edit Application API Testing', () => {
                 const x = {...editDriverApplicationData, [var1]: 123};
                 editDriverApplication(x, userToken).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', `${driverErrorMessages.invalidVehicleType}`);
+                    expect(response.body).to.have.property('message', `${var1} ${commonError.mustBeString}`);
                 });
             });
 
@@ -125,7 +126,7 @@ describe('Driver Edit Application API Testing', () => {
                 const x = {...editDriverApplicationData, vehicle_type: vehicleType, [var1]: ''};
                 editDriverApplication(x, userToken).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', `${var1} ${driverErrorMessages.emptyField}`);
+                    expect(response.body).to.have.property('message', `${var1} ${commonError.empty}`);
                 });
             });
 
@@ -134,7 +135,7 @@ describe('Driver Edit Application API Testing', () => {
                 const x = {...editDriverApplicationData, vehicle_type: vehicleType, [var1]: 123};
                 editDriverApplication(x, userToken).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', `${var1} ${driverErrorMessages.invalidData}`);
+                    expect(response.body).to.have.property('message', `${var1} ${commonError.moreThan2Characters}`);
                 });
             });
 
@@ -143,7 +144,7 @@ describe('Driver Edit Application API Testing', () => {
                 const x = {...editDriverApplicationData, vehicle_type: vehicleType, [var1]: ''};
                 editDriverApplication(x, userToken).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', `${var1} ${driverErrorMessages.emptyField}`);
+                    expect(response.body).to.have.property('message', `${var1} ${commonError.empty}`);
                 });
             });
 
@@ -152,7 +153,7 @@ describe('Driver Edit Application API Testing', () => {
                 const x = {...editDriverApplicationData, vehicle_type: vehicleType, [var1]: 123};
                 editDriverApplication(x, userToken).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', `${var1} ${driverErrorMessages.invalidData}`);
+                    expect(response.body).to.have.property('message', `${var1} ${commonError.moreThan2Characters}`);
                 });
             });
 
@@ -161,7 +162,7 @@ describe('Driver Edit Application API Testing', () => {
                 const x = {...editDriverApplicationData, vehicle_type: vehicleType, [var1]: ''};
                 editDriverApplication(x, userToken).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', `${var1} ${driverErrorMessages.emptyField}`);
+                    expect(response.body).to.have.property('message', `${var1} ${commonError.empty}`);
                 });
             });
 
@@ -170,7 +171,7 @@ describe('Driver Edit Application API Testing', () => {
                 const x = {...editDriverApplicationData, vehicle_type: vehicleType, [var1]: 123};
                 editDriverApplication(x, userToken).then((response) => {
                     expect(response.status).to.eq(400);
-                    expect(response.body).to.have.property('message', `${var1} ${driverErrorMessages.invalidData}`);
+                    expect(response.body).to.have.property('message', `${var1} ${commonError.moreThan2Characters}`);
                 });
             });
 
@@ -181,9 +182,9 @@ describe('Driver Edit Application API Testing', () => {
     describe('Without Login', () => {
 
         it('should throw error 401', () => {
-            editDriverApplication(editDriverApplicationData, null).then((response) => {
+            editDriverApplication(editDriverApplicationData, '').then((response) => {
                 expect(response.status).to.eq(401);
-                expect(response.body).to.have.property('message', 'Unauthorized access');
+                expect(response.body).to.have.property('message', commonError.unauthorized);
             });
         });
     });

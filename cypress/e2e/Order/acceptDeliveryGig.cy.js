@@ -1,20 +1,17 @@
 /// <reference types="Cypress" />
 
 import { login, switchRole } from "../../api/Auth_APIs/handleAuth.api";
-import { acceptGig, getAllGigs, pickGig } from "../../api/Driver_APIs/driver.api";
+import { createBidding, getAllGigs, getGigDetails, pickGig } from "../../api/Driver_APIs/driver.api";
 import { acceptOrderByVendor, createOrder, vendorFinishServicing, vendorStartServicing } from "../../api/Order_APIs/handleOrder.api";
 import { createOrderData, orderAccessEmails } from "../../api/Order_APIs/order.data";
+import { acceptBid, viewBiddings } from "../../api/User_APIs/handleUser.api";
 import { getAllBranchesOfVendor, getAllOfferingsOfBranch, getOrders } from "../../api/Vendor_APIs/handleVendor.api";
 import { orderApiOptions, pageOptions } from "../../constants/apiOptions.constants";
-import { driverErrorMessages } from "../../message/Error/Driver/driverErrorMessages";
-import { driverSuccessMessages } from "../../message/Successful/Driver/driverSuccessMessages";
-import { orderSuccessMessages } from "../../message/Successful/Order/orderSuccessMessages";
-import { vendorSuccessMessages } from "../../message/Successful/Vendor/vendorSuccessMessage";
-import ERROR from "../../message/errorMessage";
-import SUCCESSFUL from "../../message/successfulMessage";
+import { commonError, driverErrorMessages, orderErrorMessages } from "../../message/errorMessage";
+import { commonSuccessMessages, driverSuccessMessages, orderSuccessMessages, userSuccessMessages, vendorSuccessMessages } from "../../message/successfulMessage";
 
-let userToken, vendorToken, driverToken, branchId, serviceId, offeringId, orderId, pickupGigId, deliveryGigId;
-let selfPickup, selfDelivery;
+let userToken, vendorToken, driverToken, branchId, serviceId, offeringId, orderId, role;
+let selfPickup, selfDelivery, randomBidOption, mainUserToken, gigId, gigType, randomBidId;
 
 describe("Delivery Assigned By Vendor API Testing", () => {
 
@@ -23,16 +20,17 @@ describe("Delivery Assigned By Vendor API Testing", () => {
         before(() => {
             login(orderAccessEmails.approvedVendorEmail, Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                 expect(response.body.data).to.have.property('token');
                 userToken = response.body.data.token;
             });
         });
 
         it('should switch to vendor role', () => {
-            switchRole('vendor', userToken).then((response) => {
+            role = 'vendor';
+            switchRole(role, userToken).then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', vendorSuccessMessages.switchedToVendor);
+                expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role}`);
                 expect(response.body.data).to.have.property('token');
                 vendorToken = response.body.data.token;
             });
@@ -41,7 +39,7 @@ describe("Delivery Assigned By Vendor API Testing", () => {
         it('should get all the branches of the vendor', () => {
             getAllBranchesOfVendor(vendorToken).then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', vendorSuccessMessages.retrievedAllBranches);
+                expect(response.body).to.have.property('message', `${vendorSuccessMessages.retrievedAllBranches}`);
                 const branches = response.body.data.branches;
                 const randomIndex = Math.floor(Math.random() * branches.length);
                 cy.log('Random Index: ' + randomIndex);
@@ -76,9 +74,9 @@ describe("Delivery Assigned By Vendor API Testing", () => {
                 before(() => {
                     login(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                        expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                         expect(response.body.data).to.have.property('token');
-                        userToken = response.body.data.token;
+                        mainUserToken = response.body.data.token;
                     });
                 });
 
@@ -86,13 +84,9 @@ describe("Delivery Assigned By Vendor API Testing", () => {
                     const x = {...createOrderData, branch_id: branchId, service_id: serviceId, offering_id: offeringId, 
                         pickup_time: "2023-06-30 01:05:00.099",
                         dropoff_time: "2023-07-03 08:30:00.099"};
-                        const now = new Date();
-                        const yesterday = new Date(now - 86400000);
-                        const tomorrow = new Date(now + 86400000);
-                        console.log('Yesterday: ', yesterday);
-                    createOrder(x, userToken).then((response) => {
+                    createOrder(x, mainUserToken).then((response) => {
                         expect(response.status).to.eq(201);
-                        expect(response.body).to.have.property('message', orderSuccessMessages.orderCreatedSuccessfully);
+                        expect(response.body).to.have.property('message', `${orderSuccessMessages.successful}created`);
                         expect(response.body.data).to.have.property('order');
                         expect(response.body.data.order).to.have.property('id');
                         expect(response.body.data.order).to.have.property('branch_id', branchId);
@@ -107,7 +101,7 @@ describe("Delivery Assigned By Vendor API Testing", () => {
                 it('Vendor should accept the order', () => {
                     acceptOrderByVendor(orderId, vendorToken).then((response) => {
                         expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', orderSuccessMessages.orderAcceptedByVendor);
+                        expect(response.body).to.have.property('message', `${orderSuccessMessages.successful}accepted`);
                         expect(response.body.data.order[0]).to.have.property('status', orderApiOptions.ACCEPTED);
                         cy.log('Order Status: ', response.body.data.order[0].status)
                         selfPickup = response.body.data.order[0].is_self_pickup;
@@ -122,7 +116,7 @@ describe("Delivery Assigned By Vendor API Testing", () => {
                     if(selfPickup === false){
                         login(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                             expect(response.status).to.eq(200);
-                            expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                            expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                             expect(response.body.data).to.have.property('token');
                             userToken = response.body.data.token;
                         });
@@ -133,10 +127,11 @@ describe("Delivery Assigned By Vendor API Testing", () => {
 
                 it('should switch to driver role', () => {
 
+                    role = 'driver';
                     if(selfPickup === false){
-                        switchRole('driver', userToken).then((response) => {
+                        switchRole(role, userToken).then((response) => {
                             expect(response.status).to.eq(200);
-                            expect(response.body).to.have.property('message', driverSuccessMessages.roleSwitched);
+                            expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role}`);
                             expect(response.body.data).to.have.property('token');
                             driverToken = response.body.data.token;
                         });
@@ -150,15 +145,16 @@ describe("Delivery Assigned By Vendor API Testing", () => {
                     if(selfPickup === false){
                         getAllGigs(driverToken, pageOptions.PAGE, pageOptions.LIMIT).then((response) => {
                             expect(response.status).to.eq(200);
-                            expect(response.body).to.have.property('message', driverSuccessMessages.gigsRetrieved);
+                            expect(response.body).to.have.property('message', `${driverSuccessMessages.gigsRetrieved}`);
                             expect(response.body.data).to.have.property('gigs');
                             expect(response.body.data.gigs).to.be.an('array');
                             const gigs = response.body.data.gigs;
                             for(let i = 0; i < gigs.length; i++) {
                                 if(gigs[i].order_id === orderId && gigs[i].gig_type === 'pickup') {
-                                    pickupGigId = gigs[i].gig_id;
-                                    cy.log('Gig ID: ' + pickupGigId);
+                                    gigId = gigs[i].gig_id;
+                                    cy.log('Gig ID: ' + gigId);
                                     cy.log('Gig Status: ' + gigs[i].gig_type);
+                                    gigType = gigs[i].gig_type;
                                     break;
                                 }
                             }
@@ -168,23 +164,68 @@ describe("Delivery Assigned By Vendor API Testing", () => {
                     }
                 });
 
-                it('should accept the gig', () => {
-
-                    if(selfPickup === false){
-                        acceptGig(driverToken, pickupGigId).then((response) => {
+                it('should get gig details', () => {
+                    if (selfPickup === false) {
+                        getGigDetails(driverToken, gigId).then((response) => {
                             expect(response.status).to.eq(200);
-                            expect(response.body).to.have.property('message', driverSuccessMessages.gigAccepted);
+                            expect(response.body).to.have.property('message', `${driverSuccessMessages.gigsRetrieved}`);
+                            expect(response.body.data).to.have.property('gig');
+                            expect(response.body.data.gig).to.be.an('object');
+                            expect(response.body.data.gig).to.have.property('gig_id', gigId);
+                            const gigBiddingOptions = response.body.data.gig.bidding_options;
+                            randomBidOption = gigBiddingOptions[Math.floor(Math.random() * gigBiddingOptions.length)];
+                            cy.log('Bid Option' + randomBidOption);
                         });
-                    }else{
-                        cy.log('Self Pickup is true, so no need to accept the gig')
+                    } else {
+                        cy.log('Self Pickup is true, so no need to get gig details');
+                    }
+                });
+
+                it('should create bidding successfully', () => {
+                    if (selfPickup === false) {
+                        createBidding(driverToken, gigId, randomBidOption).then((response) => {
+                            expect(response.status).to.eq(200);
+                            expect(response.body).to.have.property('message', `${driverSuccessMessages.bidPlaced}`);
+                            expect(response.body.data).to.have.property('bidding');
+                            expect(response.body.data.bidding).to.have.property('id');
+                            expect(response.body.data.bidding).to.have.property('gig_id', gigId);
+                            expect(response.body.data.bidding).to.have.property('ask_price', randomBidOption);
+                            expect(response.body.data.bidding).to.have.property('status', orderApiOptions.PLACED);
+                        });
+                    } else {
+                        cy.log('Self Pickup is true, so no need to create bidding');
+                    }
+                });
+
+                it('should view the list of biddings by the user', () => {
+                    if (selfPickup === false) {
+                        viewBiddings(orderId, gigType, pageOptions.PAGE, pageOptions.LIMIT, mainUserToken).then((response) => {
+                            expect(response.status).to.eq(200);
+                            expect(response.body).to.have.property('message', `${userSuccessMessages.biddingRetrieved}`);
+                            const bids = response.body.data.biddings;
+                            randomBidId = bids[Math.floor(Math.random() * bids.length)].id;
+                            cy.log('Bid ID: ' + randomBidId);
+                        });
+                    } else {
+                        cy.log('Self Pickup is true, so no need to get bidding details');
+                    }
+                });
+
+                it('should accept a bid successfully', () => {
+                    if (selfPickup === false) {
+                        acceptBid(orderId, randomBidId, gigType, mainUserToken).then((response) => {
+                            cy.log(orderId);
+                            expect(response.status).to.eq(200);
+                            expect(response.body).to.have.property('message', `${userSuccessMessages.bidAccepted}`);
+                        });
                     }
                 });
 
                 it('should pick the gig', () => {
                     if(selfPickup === false){
-                        pickGig(driverToken, pickupGigId).then((response) => {
+                        pickGig(driverToken, gigId).then((response) => {
                             expect(response.status).to.eq(200);
-                            expect(response.body).to.have.property('message', driverSuccessMessages.gigPicked);
+                            expect(response.body).to.have.property('message', `${driverSuccessMessages.gigPicked}`);
                         });
                     }else{
                         cy.log('Self Pickup is true, so no need to pick the gig')
@@ -216,14 +257,14 @@ describe("Delivery Assigned By Vendor API Testing", () => {
                 it('should start servicing by the vendor', () => {
                     vendorStartServicing(orderId, vendorToken).then((response) => {
                         expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', orderSuccessMessages.isNowServicing);
+                        expect(response.body).to.have.property('message', `${orderSuccessMessages.isNow} in servicing.`);
                     });
                 });
 
                 it('should finish the servicing by the vendor', () => {
                     vendorFinishServicing(orderId, vendorToken).then((response) => {
                         expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', orderSuccessMessages.isNowReadyToDeliver);
+                        expect(response.body).to.have.property('message', `${orderSuccessMessages.isNow} ready..`);
                     });
                 });
 
@@ -232,7 +273,7 @@ describe("Delivery Assigned By Vendor API Testing", () => {
                     if(selfDelivery === false){
                         login(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
                             expect(response.status).to.eq(200);
-                            expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                            expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                             expect(response.body.data).to.have.property('token');
                             userToken = response.body.data.token;
                         });
@@ -242,11 +283,11 @@ describe("Delivery Assigned By Vendor API Testing", () => {
                 });
 
                 it('should switch to driver role', () => {
-
+                    role = 'driver';
                     if(selfDelivery === false){
-                        switchRole('driver', userToken).then((response) => {
+                        switchRole(role, userToken).then((response) => {
                             expect(response.status).to.eq(200);
-                            expect(response.body).to.have.property('message', driverSuccessMessages.roleSwitched);
+                            expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role}`);
                             expect(response.body.data).to.have.property('token');
                             driverToken = response.body.data.token;
                         });
@@ -266,9 +307,10 @@ describe("Delivery Assigned By Vendor API Testing", () => {
                             const gigs = response.body.data.gigs;
                             for(let i = 0; i < gigs.length; i++) {
                                 if(gigs[i].order_id === orderId && gigs[i].gig_type === 'delivery') {
-                                    deliveryGigId = gigs[i].gig_id;
-                                    cy.log('Gig ID: ' + deliveryGigId);
+                                    gigId = gigs[i].gig_id;
+                                    cy.log('Gig ID: ' + gigId);
                                     cy.log('Gig Status: ' + gigs[i].gig_type);
+                                    gigType = gigs[i].gig_type;
                                     break;
                                 }
                             }
@@ -278,57 +320,73 @@ describe("Delivery Assigned By Vendor API Testing", () => {
                     }
                 });
 
-                it('should accept the gig', () => {
-
-                    if(selfDelivery === false){
-                        acceptGig(driverToken, deliveryGigId).then((response) => {
+                it('should get gig details', () => {
+                    if (selfPickup === false) {
+                        getGigDetails(driverToken, gigId).then((response) => {
                             expect(response.status).to.eq(200);
-                            expect(response.body).to.have.property('message', driverSuccessMessages.gigAccepted);
+                            expect(response.body).to.have.property('message', `${driverSuccessMessages.gigsRetrieved}`);
+                            expect(response.body.data).to.have.property('gig');
+                            expect(response.body.data.gig).to.be.an('object');
+                            expect(response.body.data.gig).to.have.property('gig_id', gigId);
+                            const gigBiddingOptions = response.body.data.gig.bidding_options;
+                            randomBidOption = gigBiddingOptions[Math.floor(Math.random() * gigBiddingOptions.length)];
+                            cy.log('Bid Option' + randomBidOption);
                         });
-                    }else{
-                        cy.log('Self Delivery is true, so no need to accept the gig')
+                    } else {
+                        cy.log('Self Pickup is true, so no need to get gig details');
+                    }
+                });
+
+                it('should create bidding successfully', () => {
+                    if (selfPickup === false) {
+                        createBidding(driverToken, gigId, randomBidOption).then((response) => {
+                            expect(response.status).to.eq(200);
+                            expect(response.body).to.have.property('message', `${driverSuccessMessages.bidPlaced}`);
+                            expect(response.body.data).to.have.property('bidding');
+                            expect(response.body.data.bidding).to.have.property('id');
+                            expect(response.body.data.bidding).to.have.property('gig_id', gigId);
+                            expect(response.body.data.bidding).to.have.property('ask_price', randomBidOption);
+                            expect(response.body.data.bidding).to.have.property('status', orderApiOptions.PLACED);
+                        });
+                    } else {
+                        cy.log('Self Pickup is true, so no need to create bidding');
+                    }
+                });
+
+                it('should view the list of biddings by the user', () => {
+                    if (selfPickup === false) {
+                        viewBiddings(orderId, gigType, pageOptions.PAGE, pageOptions.LIMIT, mainUserToken).then((response) => {
+                            expect(response.status).to.eq(200);
+                            expect(response.body).to.have.property('message', `${userSuccessMessages.biddingRetrieved}`);
+                            const bids = response.body.data.biddings;
+                            randomBidId = bids[Math.floor(Math.random() * bids.length)].id;
+                            cy.log('Bid ID: ' + randomBidId);
+                        });
+                    } else {
+                        cy.log('Self Pickup is true, so no need to get bidding details');
+                    }
+                });
+
+                it('should accept a bid successfully', () => {
+                    if (selfPickup === false) {
+                        acceptBid(orderId, randomBidId, gigType, mainUserToken).then((response) => {
+                            cy.log(orderId);
+                            expect(response.status).to.eq(200);
+                            expect(response.body).to.have.property('message', `${userSuccessMessages.bidAccepted}`);
+                        });
                     }
                 });
 
             });
 
-            describe('When another driver tries to accept the already accepted gig', () => {
-
-                it('should login with the another driver email', () => {
-                    login(Cypress.env('userWithDriverRoleApproved'), Cypress.env('password'), 'email').then((response) => {
-                        expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
-                        expect(response.body.data).to.have.property('token');
-                        userToken = response.body.data.token;
-                    });   
-                });
-
-                it('should switch to driver role', () => {
-                    switchRole('driver', userToken).then((response) => {
-                        expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', driverSuccessMessages.roleSwitched);
-                        expect(response.body.data).to.have.property('token');
-                        driverToken = response.body.data.token;
-                    });   
-                });
-
-                it('should throw error on trying to accept the gig', () => {
-                    acceptGig(driverToken, deliveryGigId).then((response) => {
-                        expect(response.status).to.eq(400);
-                        expect(response.body).to.have.property('message', driverErrorMessages.noOrderFound);
-                    });
-                });
-
-            });
-
-            describe('When driver tries to make the gig accept which is already accepted', () => {
+            describe('When user tries to make the gig accept which is already accepted', () => {
 
                 it('should throw an error on trying to accept the gig', () => {
 
                     if(selfDelivery === false){
-                        acceptGig(driverToken, deliveryGigId).then((response) => {
+                        acceptBid(orderId, randomBidId, gigType, mainUserToken).then((response) => {
                             expect(response.status).to.eq(400);
-                            expect(response.body).to.have.property('message', driverErrorMessages.noOrderFound);
+                            expect(response.body).to.have.property('message', `${orderErrorMessages.cantAcceptBid}`);
                         });
                     }else{
                         cy.log('Self Delivery is true, so no need to re-accept the gig')
@@ -337,20 +395,35 @@ describe("Delivery Assigned By Vendor API Testing", () => {
 
             });
 
-            describe('When user doesnot switch to driver role', () => {
+            describe('When user switch to driver role', () => {
 
                 it('should throw an error on trying to accept the gig', () => {
 
                     if(selfDelivery === false){
-                        acceptGig(userToken, deliveryGigId).then((response) => {
+                        acceptBid(orderId, randomBidId, gigType, driverToken).then((response) => {
                             expect(response.status).to.eq(403   );
-                            expect(response.body).to.have.property('message', driverErrorMessages.forbidden);
+                            expect(response.body).to.have.property('message', `${commonError.forbidden} driver mode.`);
                         });
                     }else{
                         cy.log('Self Delivery is true, so no need to accept the gig')
                     }
                 });
 
+            });
+
+            describe('When user switch to vendor role', () => {
+
+                it('should throw an error on trying to accept the gig', () => {
+
+                    if(selfDelivery === false){
+                        acceptBid(orderId, randomBidId, gigType, vendorToken).then((response) => {
+                            expect(response.status).to.eq(403   );
+                            expect(response.body).to.have.property('message', `${commonError.forbidden} vendor mode.`);
+                        });
+                    }else{
+                        cy.log('Self Delivery is true, so no need to accept the gig')
+                    }
+                });
 
             });
 
@@ -361,9 +434,9 @@ describe("Delivery Assigned By Vendor API Testing", () => {
     describe('Without Login', () => {
             
         it('should throw an error on trying to accept the gig', () => {
-            acceptGig('', deliveryGigId).then((response) => {
+            acceptBid(orderId, randomBidId, gigType, '').then((response) => {
                 expect(response.status).to.eq(401);
-                expect(response.body).to.have.property('message', ERROR.unauthorized);
+                expect(response.body).to.have.property('message', `${commonError.unauthorized}`);
             });
         });
     

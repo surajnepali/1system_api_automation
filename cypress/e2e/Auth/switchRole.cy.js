@@ -1,17 +1,18 @@
 /// <reference types="Cypress" />
 
+import { roleEmail } from "../../api/Auth_APIs/auth.data";
 import { login, switchRole } from "../../api/Auth_APIs/handleAuth.api";
-import ERROR from "../../message/errorMessage";
-import SUCCESSFUL from "../../message/successfulMessage";
+import { commonError, userErrorMessages } from "../../message/errorMessage";
+import { authSuccessMessages, commonSuccessMessages } from "../../message/successfulMessage";
 
-let userToken;
+let userToken, role;
 
 describe('Switch Role', () => {
 
     describe('When user has not applied for any role', () => {
 
         before(() => {
-            login(Cypress.env('userWithNoRole'), Cypress.env('password'), 'email').then((response) => {
+            login(roleEmail.noRoleEmail, Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body.data).to.have.property('token');
                 userToken = response.body.data.token;
@@ -22,21 +23,21 @@ describe('Switch Role', () => {
         it('should throw error on trying to switch without role', () => {
             switchRole('', userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', ERROR.emptyRole);
+                expect(response.body).to.have.property('message', `${commonError.emptyRole}`);
             });
         });
             
         it('should throw error on trying to switch to driver role', () => {
             switchRole('driver', userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', ERROR.driverRoleNotApplied);
+                expect(response.body).to.have.property('message', `${userErrorMessages.driverRoleNotApplied}`);
             });
         });
 
         it('should throw error on trying to switch to vendor role', () => {
             switchRole('vendor', userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', ERROR.vendorRoleNotApplied);
+                expect(response.body).to.have.property('message', `${userErrorMessages.vendorRoleNotApplied}`);
             });
         });
 
@@ -45,7 +46,7 @@ describe('Switch Role', () => {
     describe('When user has applied for driver role only', () => {
         
         before(() => {
-            login(Cypress.env('userAppliedForDriverOnly'), Cypress.env('password'), 'email').then((response) => {
+            login(roleEmail.appliedForDriverOnly, Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body.data).to.have.property('token');
                 userToken = response.body.data.token;
@@ -53,16 +54,17 @@ describe('Switch Role', () => {
         });
 
         it('should throw warning message on trying to switch driver role', () => {
-            switchRole('driver', userToken).then((response) => {
+            role = 'driver'
+            switchRole(role, userToken).then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', SUCCESSFUL.driverApplicationInReview);
+                expect(response.body).to.have.property('message', `${authSuccessMessages.applicationInReview} ${role} after being verified.`);
             });
         });
 
         it('should throw error on trying to switch to vendor role', () => {
             switchRole('vendor', userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', ERROR.vendorRoleNotApplied);
+                expect(response.body).to.have.property('message', `${userErrorMessages.vendorRoleNotApplied}`);
             });
         });
 
@@ -71,7 +73,7 @@ describe('Switch Role', () => {
     describe('When user has applied for vendor role only', () => {
             
         before(() => {
-            login(Cypress.env('userAppliedForVendorOnly'), Cypress.env('password'), 'email').then((response) => {
+            login(roleEmail.appliedForVendorOnly, Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body.data).to.have.property('token');
                 userToken = response.body.data.token;
@@ -81,14 +83,15 @@ describe('Switch Role', () => {
         it('should throw error on trying to switch to driver role', () => {
             switchRole('driver', userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', ERROR.driverRoleNotApplied);
+                expect(response.body).to.have.property('message', `${userErrorMessages.driverRoleNotApplied}`);
             });
         });
     
         it('should throw warning message on trying to switch vendor role', () => {
-            switchRole('vendor', userToken).then((response) => {
+            role = 'vendor'
+            switchRole(role, userToken).then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', SUCCESSFUL.vendorApplicationInReview);
+                expect(response.body).to.have.property('message', `${authSuccessMessages.applicationInReview} ${role} after being verified.`);
             });
         });
 
@@ -97,7 +100,7 @@ describe('Switch Role', () => {
     describe('When user has applied for both driver and vendor role', () => {
                 
         before(() => {
-            login(Cypress.env('userAppliedForBothRoles'), Cypress.env('password'), 'email').then((response) => {
+            login(roleEmail.appliedForBothRoles, Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body.data).to.have.property('token');
                 userToken = response.body.data.token;
@@ -105,16 +108,18 @@ describe('Switch Role', () => {
         });
         
         it('should throw warning message on trying to switch driver role', () => {
-            switchRole('driver', userToken).then((response) => {
+            role = 'driver'
+            switchRole(role, userToken).then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', SUCCESSFUL.driverApplicationInReview);
+                expect(response.body).to.have.property('message', `${authSuccessMessages.applicationInReview} ${role} after being verified.`);
             });
         });
     
         it('should throw warning message on trying to switch vendor role', () => {
-            switchRole('vendor', userToken).then((response) => {
+            role = 'vendor'
+            switchRole(role, userToken).then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', SUCCESSFUL.vendorApplicationInReview);
+                expect(response.body).to.have.property('message', `${authSuccessMessages.applicationInReview} ${role} after being verified.`);
             });
         });
     
@@ -123,7 +128,7 @@ describe('Switch Role', () => {
     describe("When user's driver role only is approved", () => {
 
         before(() => {
-            login(Cypress.env('userWithDriverRoleApproved'), Cypress.env('password'), 'email').then((response) => {
+            login(roleEmail.driverRoleApprovedOnly, Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body.data).to.have.property('token');
                 userToken = response.body.data.token;
@@ -131,16 +136,17 @@ describe('Switch Role', () => {
         });
 
         it('should switch to driver role', () => {
-            switchRole('driver', userToken).then((response) => {
+            role = 'driver'
+            switchRole(role, userToken).then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', SUCCESSFUL.driverRoleSwitched);
+                expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role}`);
             });
         });
 
         it('should throw error on trying to switch to vendor role', () => {
             switchRole('vendor', userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', ERROR.vendorRoleNotApplied);
+                expect(response.body).to.have.property('message', `${userErrorMessages.vendorRoleNotApplied}`);
             });
         });
 
@@ -149,7 +155,7 @@ describe('Switch Role', () => {
     describe("When user's vendor role only is approved", () => {
     
         before(() => {
-            login(Cypress.env('userWithVendorRoleApproved'), Cypress.env('password'), 'email').then((response) => {
+            login(roleEmail.vendorRoleApprovedOnly, Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body.data).to.have.property('token');
                 userToken = response.body.data.token;
@@ -159,14 +165,15 @@ describe('Switch Role', () => {
         it('should throw error on trying to switch to driver role', () => {
             switchRole('driver', userToken).then((response) => {
                 expect(response.status).to.eq(400);
-                expect(response.body).to.have.property('message', ERROR.driverRoleNotApplied);
+                expect(response.body).to.have.property('message', `${userErrorMessages.driverRoleNotApplied}`);
             });
         });
     
         it('should switch to vendor role', () => {
-            switchRole('vendor', userToken).then((response) => {
+            role = 'vendor'
+            switchRole(role, userToken).then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', SUCCESSFUL.vendorRoleSwitched);
+                expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role}`);
             });
         });
     
@@ -176,7 +183,7 @@ describe('Switch Role', () => {
     describe('When user has applied for vendor role and driver application is approved', () => {
 
         before(() => {
-            login(Cypress.env('userWithDriverRoleApprovedAndVendorRoleApplied'), Cypress.env('password'), 'email').then((response) => {
+            login(roleEmail.vendorAppliedDriverApproved, Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body.data).to.have.property('token');
                 userToken = response.body.data.token;
@@ -184,16 +191,18 @@ describe('Switch Role', () => {
         });
 
         it('should switch to driver role', () => {
-            switchRole('driver', userToken).then((response) => {
+            role = 'driver'
+            switchRole(role, userToken).then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', SUCCESSFUL.driverRoleSwitched);
+                expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role}`);
             });
         });
 
         it('should throw warning message on trying to switch to vendor role', () => {
-            switchRole('vendor', userToken).then((response) => {
+            role = 'vendor'
+            switchRole(role, userToken).then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', SUCCESSFUL.vendorApplicationInReview);
+                expect(response.body).to.have.property('message', `${authSuccessMessages.applicationInReview} ${role} after being verified.`);
             });
         });
 
@@ -202,7 +211,7 @@ describe('Switch Role', () => {
     describe('When user has applied for driver role and vendor application is approved', () => {
       
         before(() => {
-            login(Cypress.env('userWithVendorRoleApprovedAndDriverRoleApplied'), Cypress.env('password'), 'email').then((response) => {
+            login(roleEmail.driverAppliedVendorApproved, Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body.data).to.have.property('token');
                 userToken = response.body.data.token;
@@ -210,16 +219,18 @@ describe('Switch Role', () => {
         });
 
         it('should throw warning message on trying to switch to driver role', () => {
-            switchRole('driver', userToken).then((response) => {
+            role = 'driver'
+            switchRole(role, userToken).then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', SUCCESSFUL.driverApplicationInReview);
+                expect(response.body).to.have.property('message', `${authSuccessMessages.applicationInReview} ${role} after being verified.`);
             });
         });
 
         it('should switch to vendor role', () => {
-            switchRole('vendor', userToken).then((response) => {
+            role = 'vendor'
+            switchRole(role, userToken).then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', SUCCESSFUL.vendorRoleSwitched);
+                expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role}`);
             });
         });
 
@@ -229,7 +240,7 @@ describe('Switch Role', () => {
     describe('When user has both roles: driver and vendor are approved', () => {
     
         before(() => {
-            login(Cypress.env('userWithBothRolesApproved'), Cypress.env('password'), 'email').then((response) => {
+            login(roleEmail.bothRolesApproved, Cypress.env('password'), 'email').then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body.data).to.have.property('token');
                 userToken = response.body.data.token;
@@ -237,16 +248,18 @@ describe('Switch Role', () => {
         });
     
         it('should switch to driver role', () => {
-            switchRole('driver', userToken).then((response) => {
+            role = 'driver'
+            switchRole(role, userToken).then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', SUCCESSFUL.driverRoleSwitched);
+                expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role}`);
             });
         });
     
         it('should switch to vendor role', () => {
-            switchRole('vendor', userToken).then((response) => {
+            role = 'vendor'
+            switchRole(role, userToken).then((response) => {
                 expect(response.status).to.eq(200);
-                expect(response.body).to.have.property('message', SUCCESSFUL.vendorRoleSwitched);
+                expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role}`);
             });
         });
     

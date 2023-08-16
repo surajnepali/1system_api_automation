@@ -1,9 +1,9 @@
 /// <reference types="Cypress" />
 
+import { roleEmail } from "../../api/Auth_APIs/auth.data";
 import { login } from "../../api/Auth_APIs/handleAuth.api";
 import { editDriverApplicationDocs } from "../../api/Driver_APIs/driver.api";
-import { driverRole } from "../../api/Driver_APIs/driver.data";
-import SUCCESSFUL from "../../message/successfulMessage";
+import { commonSuccessMessages } from "../../message/successfulMessage";
 
 let userToken;
 
@@ -14,9 +14,9 @@ describe('Driver Edit Application Docs API Testing', () => {
         describe('User is an approved Driver ans tries to edit the application docs', () => {
 
             before(() => {
-                login(driverRole.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                login(roleEmail.approvedDriver, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body.data).to.have.property('token');
                     userToken = response.body.data.token;
                });
@@ -40,9 +40,9 @@ describe('Driver Edit Application Docs API Testing', () => {
         describe('User has not applied for Driver and tries to edit the application docs', () => {
 
             before(() => {
-                login(driverRole.freshEmail, Cypress.env('password'), 'email').then((response) => {
+                login(roleEmail.noRoleEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body.data).to.have.property('token');
                     userToken = response.body.data.token;
                 });
@@ -66,9 +66,9 @@ describe('Driver Edit Application Docs API Testing', () => {
         describe('User has applied for Driver and wants to edit the application', () => {
 
             before(() => {
-                login(driverRole.appliedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                login(roleEmail.driverAppliedEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body.data).to.have.property('token');
                     userToken = response.body.data.token;
                 });

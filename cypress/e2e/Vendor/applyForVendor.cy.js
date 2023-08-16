@@ -1,9 +1,10 @@
 /// <reference types="cypress" />
 
+import { roleEmail } from '../../api/Auth_APIs/auth.data';
 import { login } from '../../api/Auth_APIs/handleAuth.api';
 import { applyForVendor } from "../../api/Vendor_APIs/handleVendor.api";
 import { vendorCreateData } from "../../api/Vendor_APIs/vendor.data";
-import SUCCESSFUL from "../../message/successfulMessage";
+import { commonSuccessMessages } from "../../message/successfulMessage";
 
 let userToken;
 
@@ -42,9 +43,9 @@ describe('Apply for Vendor', () => {
         describe('If user has already applied for the vendor', () => {
 
             before(() => {
-                login(Cypress.env('userAppliedForVendorOnly'), Cypress.env('password'), 'email').then((response) => {
+                login(roleEmail.vendorAppliedEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('token');
                     userToken = response.body.data.token;
@@ -79,9 +80,9 @@ describe('Apply for Vendor', () => {
         describe('If user is already a vendor', () => {
                 
                 before(() => {
-                    login(Cypress.env('userWithVendorRoleApproved'), Cypress.env('password'), 'email').then((response) => {
+                    login(roleEmail.approvedVendor, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
-                        expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                        expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                         expect(response.body).to.have.property('data');
                         expect(response.body.data).to.have.property('token');
                         userToken = response.body.data.token;
@@ -117,9 +118,9 @@ describe('Apply for Vendor', () => {
         describe('If user is not a vendor and has not applied for vendor', () => {
 
             before(() => {
-                login(vendorCreateData.notAppliedEmail, Cypress.env('password'), 'email').then((response) => {
+                login(roleEmail.noRoleEmail, Cypress.env('password'), 'email').then((response) => {
                     expect(response.status).to.eq(200);
-                    expect(response.body).to.have.property('message', SUCCESSFUL.sucessfulLogin);
+                    expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                     expect(response.body).to.have.property('data');
                     expect(response.body.data).to.have.property('token');
                     userToken = response.body.data.token;

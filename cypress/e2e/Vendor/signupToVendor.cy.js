@@ -3,7 +3,7 @@
 import { adminLogin } from "../../api/Admin_APIs/adminDriver.api";
 import { approveVendor, getAllNotVerifiedVendors } from "../../api/Admin_APIs/adminVendor.api";
 import { randomEmail } from "../../api/Auth_APIs/auth.data";
-import { login, registerCustomerWithImage, setOTP, verifyOTP } from "../../api/Auth_APIs/handleAuth.api";
+import { login, registerCustomerWithImage, setOTP, switchRole, verifyOTP } from "../../api/Auth_APIs/handleAuth.api";
 import { applyForVendor } from "../../api/Vendor_APIs/handleVendor.api";
 import { vendorCreateData } from "../../api/Vendor_APIs/vendor.data";
 import { pageOptions } from "../../constants/apiOptions.constants";
@@ -118,6 +118,16 @@ describe("Journey from Signing up to being a verified Vendor", () => {
             approveVendor(vendorId, adminToken).then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body).to.have.property('message', "Successfully accepted");
+            });
+        });
+
+    });
+
+    describe("User switches to the vendor account", () => {
+
+        it("should switch to vendor role", () => {
+            switchRole('vendor', userToken).then((response) => {
+                expect(response.status).to.eq(200);
             });
         });
 
