@@ -137,3 +137,13 @@ export const getServiceTypes = (page, limit, token) => cy.api({
     },
     failOnStatusCode: false,
 });
+
+export const addOverweight = (orderId, token, overage) => cy.api({
+    method: 'PATCH',
+    url: Cypress.env('apiUrl') + vendorEndpoints.getOrders + '/' + orderId + vendorEndpoints.addOverweight,
+    headers: {
+        'Authorization': 'Bearer ' + token,
+    },
+    body: {...overage},
+    failOnStatusCode: false,
+});

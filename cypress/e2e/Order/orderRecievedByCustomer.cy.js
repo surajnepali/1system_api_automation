@@ -5,7 +5,8 @@ import { createBidding, getAllGigs, getGigDetails, orderDroppedbyDriver, pickGig
 import { acceptOrderByVendor, completeOrderProcess, createOrder, vendorFinishServicing, vendorStartServicing } from "../../api/Order_APIs/handleOrder.api";
 import { createOrderData, orderAccessEmails } from "../../api/Order_APIs/order.data";
 import { acceptBid, viewBiddings } from "../../api/User_APIs/handleUser.api";
-import { getAllBranchesOfVendor, getAllOfferingsOfBranch, getOrders } from "../../api/Vendor_APIs/handleVendor.api";
+import { addOverweight, getAllBranchesOfVendor, getAllOfferingsOfBranch, getOrders } from "../../api/Vendor_APIs/handleVendor.api";
+import { overweightData } from "../../api/Vendor_APIs/vendor.data";
 import { orderApiOptions, pageOptions } from "../../constants/apiOptions.constants";
 import { commonError, orderErrorMessages } from "../../message/errorMessage";
 import { commonSuccessMessages, driverSuccessMessages, orderSuccessMessages, userSuccessMessages, vendorSuccessMessages } from "../../message/successfulMessage";
@@ -257,6 +258,13 @@ describe('Order Recieved By Customer API Testing', () => {
                     vendorStartServicing(orderId, vendorToken).then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', `${orderSuccessMessages.isNow} in servicing.`);
+                    });
+                });
+
+                it('Vendor should add the over-weight', () => {
+                    addOverweight(orderId, vendorToken, overweightData).then((response) => {
+                        expect(response.status).to.eq(200);
+                        // expect(response.body).to.have.property('message', `${orderSuccessMessages.overweightAdded}`);
                     });
                 });
 

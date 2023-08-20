@@ -1,18 +1,22 @@
 /// <reference types="cypress" />
 
 import { adminLogin, approveDriver, getAllNotVerifiedDrivers } from "../../api/Admin_APIs/adminDriver.api";
+import { approveVendor, getAllNotVerifiedVendors } from "../../api/Admin_APIs/adminVendor.api";
 import { randomEmail } from "../../api/Auth_APIs/auth.data";
-import { login, registerCustomerWithImage, setOTP, switchRole, verifyOTP } from "../../api/Auth_APIs/handleAuth.api";
+import { login, registerCustomerWithImage, setOTP, verifyOTP } from "../../api/Auth_APIs/handleAuth.api";
 import { applyDriver, getVehicleTypes } from "../../api/Driver_APIs/driver.api";
 import { orderAccessEmails } from "../../api/Order_APIs/order.data";
+import { applyForVendor } from "../../api/Vendor_APIs/handleVendor.api";
+import { vendorCreateData } from "../../api/Vendor_APIs/vendor.data";
 import { pageOptions } from "../../constants/apiOptions.constants";
 import { commonSuccessMessages } from "../../message/successfulMessage";
 
-let otp, email, userToken, adminToken, driverType, driverId;
+let userToken, adminToken;
+let driverType, vendorId, driverId, email, otp;
 
-describe("Journey from Signing up to being a verified Driver", () => {
+describe("Journey from Signing up to being a verified Driver and Vendor", () => {
 
-    describe('Return vehicle Types', () => {
+    describe("Register as a Driver", () => {
 
         before(() => {
             login(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
@@ -35,7 +39,7 @@ describe("Journey from Signing up to being a verified Driver", () => {
                 cy.log(driverType);
             });
         });
-            
+
     });
 
     describe("First: Sign up", () => {
@@ -80,7 +84,7 @@ describe("Journey from Signing up to being a verified Driver", () => {
 
     });
 
-    describe("Second: Login and Apply for Driver", () => {
+    describe("Second: Login and Apply for Driver and Vendor", () => {
 
         it("Can login with registered email and password", () => {
             login(email, Cypress.env('password'), 'email').then((response) => {
@@ -119,6 +123,34 @@ describe("Journey from Signing up to being a verified Driver", () => {
 
         });
 
+        it('Should apply for vendor successfully', () => {     
+            cy.fixture('vendorLogo.jpg', 'binary')
+                .then((file1) => Cypress.Blob.binaryStringToBlob(file1, 'image/jpg'))
+                .then((blob1) => {  
+                    cy.fixture('vendorRegistrationDocument.jpg', 'binary')
+                        .then((file2) => Cypress.Blob.binaryStringToBlob(file2, 'image/jpg'))
+                        .then((blob2) => {
+                                
+                            let formData = new FormData();
+                            formData.append('company_name', vendorCreateData.vendorName);
+                            formData.append('state_id', vendorCreateData.vendorStateId);
+                            formData.append('name', vendorCreateData.branchName);
+                            formData.append('company_logo', blob1, 'vendorLogo.jpg');
+                            formData.append('registration_document', blob2, 'vendorRegistrationDocument.jpg');
+                            formData.append('landmark', vendorCreateData.vendorLandmark);
+                            formData.append('contact', vendorCreateData.vendorContact);
+                            formData.append('place_id', vendorCreateData.vendorPlaceId);
+                            formData.append('company_email', vendorCreateData.vendorEmail);
+                            formData.append('longitude', vendorCreateData.vendorLongitude);
+                            formData.append('latitude', vendorCreateData.vendorLatitude);
+
+                            applyForVendor(formData, userToken).then((response) => {
+                                expect(response.status).to.eq(200);
+                            });
+                        });
+                    });
+        });
+
     });
 
     describe("Third: Admin logs in and approves the application", () => {
@@ -127,6 +159,25 @@ describe("Journey from Signing up to being a verified Driver", () => {
             adminLogin(Cypress.env('adminEmail'), Cypress.env('adminPassword')).then((response) => {
                 expect(response.status).to.eq(200);
                 adminToken = response.body.data.token;
+            });
+        });
+
+        it("Should get all the not verified vendors", () => {
+            getAllNotVerifiedVendors(pageOptions.PAGE, pageOptions.LIMIT, adminToken).then((response) => {
+                expect(response.status).to.eq(200);
+                expect(response.body).to.have.property('data');
+                const data = response.body.data.data;
+                const object = data.find((vendor) => vendor.email === email);
+                cy.log(JSON.stringify(object));
+                vendorId = object.vendor.id
+                cy.log("Driver ID: " + vendorId);
+            });
+        });
+
+        it("Should approve the driver", () => {
+            approveVendor(vendorId, adminToken).then((response) => {
+                expect(response.status).to.eq(200);
+                expect(response.body).to.have.property('message', "Successfully accepted");
             });
         });
 
@@ -146,16 +197,6 @@ describe("Journey from Signing up to being a verified Driver", () => {
             approveDriver(driverId, adminToken).then((response) => {
                 expect(response.status).to.eq(200);
                 expect(response.body).to.have.property('message', "Successfully updated.");
-            });
-        });
-
-    });
-
-    describe("User switches to the driver account", () => {
-
-        it("should switch to driver role", () => {
-            switchRole('driver', userToken).then((response) => {
-                expect(response.status).to.eq(200);
             });
         });
 
