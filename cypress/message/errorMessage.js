@@ -36,6 +36,8 @@ export const orderErrorMessages = {
     cantAcceptBid: "Can't accept bidding right now.",
     nothingToReject: 'No order found to reject',
     couldNotCancel: "You cann't cancel your order at this point.",
+    cantPerformAction: "You can't perform this action.",
+    cantReAccept: "Can't accept this order at this time.",
 };
 
 export const driverErrorMessages = {

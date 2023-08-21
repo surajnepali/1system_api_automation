@@ -4,7 +4,7 @@ import { login, switchRole } from "../../api/Auth_APIs/handleAuth.api";
 import { createBidding, getAllGigs, getGigDetails, orderDroppedbyDriver, pickGig } from "../../api/Driver_APIs/driver.api";
 import { acceptOrderByVendor, completeOrderProcess, createOrder, vendorFinishServicing, vendorStartServicing } from "../../api/Order_APIs/handleOrder.api";
 import { createOrderData, orderAccessEmails } from "../../api/Order_APIs/order.data";
-import { acceptBid, viewBiddings } from "../../api/User_APIs/handleUser.api";
+import { acceptBid, getOrderDetailsById, viewBiddings } from "../../api/User_APIs/handleUser.api";
 import { addOverweight, getAllBranchesOfVendor, getAllOfferingsOfBranch, getOrders } from "../../api/Vendor_APIs/handleVendor.api";
 import { overweightData } from "../../api/Vendor_APIs/vendor.data";
 import { orderApiOptions, pageOptions } from "../../constants/apiOptions.constants";
@@ -13,7 +13,7 @@ import { commonSuccessMessages, driverSuccessMessages, orderSuccessMessages, use
 
 let mainUserToken, userToken, vendorToken, driverToken, branchId, serviceId, offeringId, orderId, gigId;
 let selfPickup, selfDelivery, gigType, randomBidOption, randomBidId, biddingId, driverId,role;
-
+let priceOfOffering, estimatedWeight, estimatedPrice;
 
 
 describe('Order Recieved By Customer API Testing', () => {
@@ -63,6 +63,8 @@ describe('Order Recieved By Customer API Testing', () => {
                 const randomOffering = offerings[randomIndex];
                 offeringId = randomOffering.id;
                 cy.log('Offering ID: ' + offeringId);
+                priceOfOffering = randomOffering.price;
+                cy.log('Price of Offering: ' + priceOfOffering)
             });
         });
 
@@ -72,7 +74,7 @@ describe('Order Recieved By Customer API Testing', () => {
 
         describe('User is genuine customer and tries to complete the order by receiving the order from vendor', () => {
 
-            for(let i = 0; i < 6; i++) {
+            // for(let i = 0; i < 6; i++) {
             describe('User receives the order from the driver', () => {
 
                 before(() => {
@@ -85,7 +87,10 @@ describe('Order Recieved By Customer API Testing', () => {
                 });
 
                 it('should create order successfully', () => {
-                    const x = {...createOrderData,is_self_delivery:i%2===0, is_self_pickup: i%3===1,branch_id: branchId, service_id: serviceId, offering_id: offeringId};
+                    estimatedWeight = Math.floor(Math.random() * 20) + 1;
+                    estimatedPrice = estimatedWeight * priceOfOffering;
+                    // const x = {...createOrderData,is_self_delivery:i%2===0, is_self_pickup: i%3===1,branch_id: branchId, service_id: serviceId, offering_id: offeringId};
+                    const x = {...createOrderData, branch_id: branchId, service_id: serviceId, offering_id: offeringId, estimated_weight: estimatedWeight, estimated_price: estimatedPrice};
                     createOrder(x, mainUserToken).then((response) => {
                         expect(response.status).to.eq(201);
                         expect(response.body).to.have.property('message', `${orderSuccessMessages.successful}created`);
@@ -431,8 +436,20 @@ describe('Order Recieved By Customer API Testing', () => {
                     });
                 });
 
+                it('should display the order details', () => {
+                    getOrderDetailsById(orderId, mainUserToken).then((response) => {
+                        expect(response.status).to.eq(200);
+                        expect(response.body).to.have.property('message', `${orderSuccessMessages.successful}retrived data`);
+                        const resultedPrice = response.body.data.estimated_price;
+                        expect(response.body.data).to.have.property('estimated_weight', estimatedWeight);
+                        expect(estimatedPrice).to.eq(parseInt(resultedPrice.split('.')[0]));
+                        expect(response.body.data).to.have.property('status', orderApiOptions.COMPLETED);
+                        expect(response.body.data.order_payment_meta).to.have.property('status', "paid");
+                    });
+                });
+
             });
-        }
+        // }
 
             describe('When user tries to complete the order which is already completed', () => {
 

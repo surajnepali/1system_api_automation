@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-import { driverEndpoints, orderEndpoints } from "../../constants/endpoints";
+import { orderEndpoints } from "../../constants/endpoints";
 
 export const createOrder = (orderData, token) => cy.api({
     method: 'POST',
@@ -14,7 +14,7 @@ export const createOrder = (orderData, token) => cy.api({
 
 export const getOrderDetails = (orderId, token) => cy.api({
     method: 'GET',
-    url: Cypress.env('apiUrl') + orderEndpoints.orderApi + '/' + orderId + orderEndpoints.getOrderDetails,
+    url: Cypress.env('apiUrl') + orderEndpoints.orderApi + '/' + orderId,
     headers: {
         'Authorization': 'Bearer ' + token,
     },
