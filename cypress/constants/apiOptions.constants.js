@@ -15,6 +15,7 @@ export const orderApiOptions = {
     DECLINED: 'declined',
     PICKUP: 'pickup',
     PLACED: 'placed',
+    DROPPED: 'dropped',
 };
 
 export const orderTabs = {

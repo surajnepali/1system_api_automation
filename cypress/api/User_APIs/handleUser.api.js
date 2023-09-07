@@ -78,3 +78,15 @@ export const acceptBid = (orderId, bidId, gigType, token) => cy.api({
     },
     failOnStatusCode: false,
 });
+
+export const sofeDeleteUser = (password, token) => cy.api({
+    method: 'DELETE',
+    url: Cypress.env('apiUrl') + userEndpoints.sofeDeleteUser,
+    headers: {
+        'Authorization': 'Bearer ' + token,
+    },
+    body: {
+        password,
+    },
+    failOnStatusCode: false,
+});

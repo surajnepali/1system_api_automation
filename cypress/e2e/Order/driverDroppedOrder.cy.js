@@ -8,11 +8,12 @@ import { getAllBranchesOfVendor, getAllOfferingsOfBranch, getOrders } from "../.
 import { createOrder, acceptOrderByVendor, vendorStartServicing, vendorFinishServicing } from "../../api/Order_APIs/handleOrder.api";
 import { getAllGigs, getGigDetails, createBidding, pickGig, orderDroppedbyDriver } from "../../api/Driver_APIs/driver.api";
 import { pageOptions, orderApiOptions } from "../../constants/apiOptions.constants";
-import { viewBiddings, acceptBid } from "../../api/User_APIs/handleUser.api";
-import { driverErrorMessages, commonError } from "../../message/errorMessage";
+import { viewBiddings, acceptBid, getOrderDetailsById } from "../../api/User_APIs/handleUser.api";
+import { driverLocation } from "../../api/Driver_APIs/driver.data";
 
 let mainUserToken, userToken, vendorToken, driverToken, role, branchId, serviceId, offeringId, orderId, gigId;
 let gigType, randomBidOption, selfPickup, selfDelivery, biddingId, randomBidId, driverId;
+let estimatedWeight, estimatedPrice, priceOfOffering;
 const drivers = [];
 
 describe('Create Bidding For Delivery API Testing', () => {
@@ -62,6 +63,8 @@ describe('Create Bidding For Delivery API Testing', () => {
                 const randomOffering = offerings[randomIndex];
                 offeringId = randomOffering.id;
                 cy.log('Offering ID: ' + offeringId);
+                priceOfOffering = randomOffering.price;
+                cy.log('Price of Offering: ' + priceOfOffering)
             });
         });
     });
@@ -73,7 +76,7 @@ describe('Create Bidding For Delivery API Testing', () => {
             describe("Tries to pick the gig to deliver at user's house", () => {
 
                 before(() => {
-                    login(orderAccessEmails.approvedDriverEmail, Cypress.env('password'), 'email').then((response) => {
+                    login(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', `${commonSuccessMessages.sucessfulLogin}`);
                         expect(response.body.data).to.have.property('token');
@@ -82,14 +85,10 @@ describe('Create Bidding For Delivery API Testing', () => {
                 });
 
                 it('should create order successfully', () => {
-                    const x = {
-                        ...createOrderData,
-                        branch_id: branchId,
-                        service_id: serviceId,
-                        offering_id: offeringId,
-                        pickup_time: '2022-06-30 01:05:00.099',
-                        dropoff_time: '2022-07-01 01:05:00.099',
-                    };
+                    estimatedWeight = Math.floor(Math.random() * 20) + 1;
+                    estimatedPrice = estimatedWeight * priceOfOffering;
+                    // const x = {...createOrderData,is_self_delivery:i%2===0, is_self_pickup: i%3===1,branch_id: branchId, service_id: serviceId, offering_id: offeringId};
+                    const x = {...createOrderData, branch_id: branchId, service_id: serviceId, offering_id: offeringId, estimated_weight: estimatedWeight, estimated_price: estimatedPrice};
                     createOrder(x, mainUserToken).then((response) => {
                         expect(response.status).to.eq(201);
                         expect(response.body).to.have.property('message', `${orderSuccessMessages.successful}created`);
@@ -146,7 +145,7 @@ describe('Create Bidding For Delivery API Testing', () => {
 
                 it('should get all the gigs', () => {
                     if (selfPickup === false) {
-                        getAllGigs(driverToken, pageOptions.PAGE, pageOptions.LIMIT).then((response) => {
+                        getAllGigs(driverToken, pageOptions.PAGE, pageOptions.LIMIT, driverLocation.longitude, driverLocation.latitude).then((response) => {
                             expect(response.status).to.eq(200);
                             expect(response.body).to.have.property('message', `${driverSuccessMessages.gigsRetrieved}`);
                             expect(response.body.data).to.have.property('gigs');
@@ -312,7 +311,7 @@ describe('Create Bidding For Delivery API Testing', () => {
 
                 it('should get all the gigs', () => {
                     if (selfDelivery === false) {
-                        getAllGigs(driverToken, pageOptions.PAGE, pageOptions.LIMIT).then((response) => {
+                        getAllGigs(driverToken, pageOptions.PAGE, pageOptions.LIMIT, driverLocation.longitude, driverLocation.latitude).then((response) => {
                             expect(response.status).to.eq(200);
                             expect(response.body).to.have.property('message', `${driverSuccessMessages.gigsRetrieved}`);
                             expect(response.body.data).to.have.property('gigs');
@@ -436,6 +435,18 @@ describe('Create Bidding For Delivery API Testing', () => {
                     }else{
                         cy.log('Self Delivery is true, so no need to drop the gig');
                     }
+                });
+
+                it('should display the order details', () => {
+                    getOrderDetailsById(orderId, mainUserToken).then((response) => {
+                        expect(response.status).to.eq(200);
+                        expect(response.body).to.have.property('message', `${orderSuccessMessages.successful}retrived data`);
+                        const resultedPrice = response.body.data.estimated_price;
+                        expect(response.body.data).to.have.property('estimated_weight', estimatedWeight);
+                        expect(estimatedPrice).to.eq(parseInt(resultedPrice.split('.')[0]));
+                        expect(response.body.data).to.have.property('status', orderApiOptions.DROPPED);
+                        expect(response.body.data.order_payment_meta).to.have.property('status', "unpaid");
+                    });
                 });
 
             });

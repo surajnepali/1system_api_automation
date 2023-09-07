@@ -2,6 +2,7 @@
 
 import { login, switchRole } from "../../api/Auth_APIs/handleAuth.api";
 import { createBidding, getAllGigs, getGigDetails, orderDroppedbyDriver, pickGig } from "../../api/Driver_APIs/driver.api";
+import { driverLocation } from "../../api/Driver_APIs/driver.data";
 import { acceptOrderByVendor, completeOrderProcess, createOrder, vendorFinishServicing, vendorStartServicing } from "../../api/Order_APIs/handleOrder.api";
 import { createOrderData, orderAccessEmails } from "../../api/Order_APIs/order.data";
 import { acceptBid, getOrderDetailsById, viewBiddings } from "../../api/User_APIs/handleUser.api";
@@ -149,7 +150,7 @@ describe('Order Recieved By Customer API Testing', () => {
                 it('should get all the gigs', () => {
 
                     if(selfPickup === false){
-                        getAllGigs(driverToken, pageOptions.PAGE, pageOptions.LIMIT).then((response) => {
+                        getAllGigs(driverToken, pageOptions.PAGE, pageOptions.LIMIT, driverLocation.longitude, driverLocation.latitude).then((response) => {
                             expect(response.status).to.eq(200);
                             expect(response.body).to.have.property('message', `${driverSuccessMessages.gigsRetrieved}`);
                             expect(response.body.data).to.have.property('gigs');
@@ -310,7 +311,7 @@ describe('Order Recieved By Customer API Testing', () => {
 
                 it('should get all the gigs', () => {
                     if (selfDelivery === false) {
-                        getAllGigs(driverToken, pageOptions.PAGE, pageOptions.LIMIT).then((response) => {
+                        getAllGigs(driverToken, pageOptions.PAGE, pageOptions.LIMIT, driverLocation.longitude, driverLocation.latitude).then((response) => {
                             expect(response.status).to.eq(200);
                             expect(response.body).to.have.property('message', `${driverSuccessMessages.gigsRetrieved}`);
                             expect(response.body.data).to.have.property('gigs');
@@ -434,6 +435,7 @@ describe('Order Recieved By Customer API Testing', () => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', `${orderSuccessMessages.isNow} ${complete}.`);
                     });
+                    cy.wait(30000);
                 });
 
                 it('should display the order details', () => {

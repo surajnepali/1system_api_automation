@@ -32,9 +32,9 @@ export const editDriverApplicationDocs = (formData, token) => cy.api({
     failOnStatusCode: false,
 });
 
-export const getAllGigs = (token, page, limit) => cy.api({
+export const getAllGigs = (token, page, limit, longitude, latitude) => cy.api({
     method: 'GET',
-    url: Cypress.env('apiUrl') + driverEndpoints.gig + '?page=' + page + '&limit=' + limit,
+    url: Cypress.env('apiUrl') + driverEndpoints.gig + '?page=' + page + '&limit=' + limit + '&longitude=' + longitude + '&latitude=' + latitude,
     headers: {
         'Authorization': 'Bearer ' + token,
     },
