@@ -52,3 +52,8 @@ export const authSuccessMessages = {
     otpVerified: 'OTP matched',
     applicationInReview: 'You application is in review process. Please wait to login into'
 };
+
+export const paymentSuccesMessages = { 
+    onboard: 'onboarding link',
+    driverOnboard: 'driver Onboarding Link',
+};

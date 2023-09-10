@@ -4,12 +4,19 @@ import { adminLogin } from "../../api/Admin_APIs/adminDriver.api";
 import { approveVendor, getAllNotVerifiedVendors } from "../../api/Admin_APIs/adminVendor.api";
 import { randomEmail } from "../../api/Auth_APIs/auth.data";
 import { login, registerCustomerWithImage, setOTP, switchRole, verifyOTP } from "../../api/Auth_APIs/handleAuth.api";
+import { onboardPayment } from "../../api/Payment_APIs/handlePayment.api";
 import { applyForVendor } from "../../api/Vendor_APIs/handleVendor.api";
 import { vendorCreateData } from "../../api/Vendor_APIs/vendor.data";
 import { pageOptions } from "../../constants/apiOptions.constants";
-import { commonSuccessMessages } from "../../message/successfulMessage";
+import { commonSuccessMessages, paymentSuccesMessages } from "../../message/successfulMessage";
 
-let otp, email, userToken, adminToken, vendorId;
+let otp, email, userToken, vendorToken, adminToken, vendorId;
+let connectUrl, role;
+
+Cypress.on('uncaught:exception', (err, runnable) => {
+    // You can choose to handle the error here or simply prevent Cypress from failing the test
+    return false; // Return false to prevent Cypress from failing the test
+  });
 
 describe("Journey from Signing up to being a verified Vendor", () => {
 
@@ -128,6 +135,51 @@ describe("Journey from Signing up to being a verified Vendor", () => {
         it("should switch to vendor role", () => {
             switchRole('vendor', userToken).then((response) => {
                 expect(response.status).to.eq(200);
+                vendorToken = response.body.data.token;
+            });
+        });
+
+    });
+
+    describe("Setup Payout", () => {
+
+        it("Should onboard a vendor to connect for payout", () => {
+            role = 'vendor';
+            onboardPayment(vendorToken, role).then((response) => {
+                expect(response.status).to.eq(200);
+                expect(response.body).to.have.property('message', paymentSuccesMessages.onboard);
+                connectUrl = response.body.data.url;
+                cy.log(connectUrl);
+                cy.visit(connectUrl);
+                cy.get('input[id="phone_number"]').type('0000000000');
+                cy.get('[data-test="phone-entry-submit"]').click();
+                cy.wait(5000);
+                cy.get('[data-test="test-mode-fill-button"]').click();
+                cy.wait(10000);
+                cy.get('input[id="first_name"]').type('John');
+                cy.get('input[id="last_name"]').type('Doe');
+                cy.get('input[id="email"]').type(email);
+                cy.get('#dob').type('01');
+                cy.get(':nth-child(3) > .Box-root > .Input').type('01');
+                cy.get(':nth-child(5) > .Box-root > .Input').type('1901');
+                cy.get('input[placeholder="Address line 1"]').type('1 Line Drive');
+                cy.get('input[placeholder="City"]').type('Manchester');
+                cy.get('select#subregion').select('New Hampshire');
+                cy.get('input[placeholder="ZIP"]').type('03101');
+                cy.get('input[id="phone"]').type('0000000000');
+                cy.get('input[id="ssn_last_4"]').type('0000');
+                cy.get('[data-test="bizrep-submit-button"]').click();
+                cy.wait(8000);
+                cy.get('.SearchableSelect-element').click();
+                cy.get('div[class="Box-root Padding-left--16"]').contains('Software').click();
+                cy.get('[data-test="company-submit-button"]').click();
+                cy.wait(20000);
+                cy.get('span').contains('Debit card').click();
+                cy.wait(2000);
+                cy.get('span').contains('Use test card').click();
+                cy.wait(5000);
+                cy.get('div.ContentFooter-end.Box-root.Flex-flex.Flex-alignItems--center.Flex-justifyContent--flexStart').click();
+                cy.wait(10000);
             });
         });
 

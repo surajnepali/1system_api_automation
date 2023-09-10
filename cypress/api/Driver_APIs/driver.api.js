@@ -1,4 +1,4 @@
-import { driverEndpoints } from "../../constants/endpoints";
+import { driverEndpoints, paymentEndpoints } from "../../constants/endpoints";
 
 export const applyDriver = (formData, token) => cy.api({
     method: 'POST',

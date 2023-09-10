@@ -3,16 +3,24 @@
 import { adminLogin, approveDriver, getAllNotVerifiedDrivers } from "../../api/Admin_APIs/adminDriver.api";
 import { approveVendor, getAllNotVerifiedVendors } from "../../api/Admin_APIs/adminVendor.api";
 import { randomEmail } from "../../api/Auth_APIs/auth.data";
-import { login, registerCustomerWithImage, setOTP, verifyOTP } from "../../api/Auth_APIs/handleAuth.api";
+import { login, registerCustomerWithImage, setOTP, switchRole, verifyOTP } from "../../api/Auth_APIs/handleAuth.api";
 import { applyDriver, getVehicleTypes } from "../../api/Driver_APIs/driver.api";
 import { orderAccessEmails } from "../../api/Order_APIs/order.data";
+import { onboardPayment } from "../../api/Payment_APIs/handlePayment.api";
+import { sofeDeleteUser } from "../../api/User_APIs/handleUser.api";
 import { applyForVendor } from "../../api/Vendor_APIs/handleVendor.api";
 import { vendorCreateData } from "../../api/Vendor_APIs/vendor.data";
 import { pageOptions } from "../../constants/apiOptions.constants";
-import { commonSuccessMessages } from "../../message/successfulMessage";
+import { commonSuccessMessages, paymentSuccesMessages } from "../../message/successfulMessage";
 
-let userToken, adminToken;
-let driverType, vendorId, driverId, email, otp;
+let userToken, adminToken, vendorToken, driverToken;
+let driverType, vendorId, driverId, email, otp, role;
+let connectUrl;
+
+Cypress.on('uncaught:exception', (err, runnable) => {
+    // You can choose to handle the error here or simply prevent Cypress from failing the test
+    return false; // Return false to prevent Cypress from failing the test
+});
 
 describe("Journey from Signing up to being a verified Driver and Vendor", () => {
 
@@ -200,6 +208,122 @@ describe("Journey from Signing up to being a verified Driver and Vendor", () => 
             });
         });
 
+    });
+
+    describe("Switch to Vendor and setup Payout", () => {
+
+        it("Switch to vendor and click on setup payout", () => {
+            role = 'vendor';
+            switchRole(role, userToken).then((response) => {
+                expect(response.status).to.eq(200);
+                expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role}`);
+                vendorToken = response.body.data.token;
+                cy.log(vendorToken);
+            });
+        });
+
+        it("Should onboard a vendor to connect for payout", () => {
+            role = 'vendor';
+            onboardPayment(vendorToken, role).then((response) => {
+                expect(response.status).to.eq(200);
+                expect(response.body).to.have.property('message', paymentSuccesMessages.onboard);
+                connectUrl = response.body.data.url;
+                cy.log(connectUrl);
+                cy.visit(connectUrl);
+                cy.get('input[id="phone_number"]').type('0000000000');
+                cy.get('[data-test="phone-entry-submit"]').click();
+                cy.wait(5000);
+                cy.get('[data-test="test-mode-fill-button"]').click();
+                cy.wait(10000);
+                cy.get('input[id="first_name"]').type('John');
+                cy.get('input[id="last_name"]').type('Doe');
+                cy.get('input[id="email"]').type(email);
+                cy.get('#dob').type('01');
+                cy.get(':nth-child(3) > .Box-root > .Input').type('01');
+                cy.get(':nth-child(5) > .Box-root > .Input').type('1901');
+                cy.get('input[placeholder="Address line 1"]').type('1 Line Drive');
+                cy.get('input[placeholder="City"]').type('Manchester');
+                cy.get('select#subregion').select('New Hampshire');
+                cy.get('input[placeholder="ZIP"]').type('03101');
+                cy.get('input[id="phone"]').type('0000000000');
+                cy.get('input[id="ssn_last_4"]').type('0000');
+                cy.get('[data-test="bizrep-submit-button"]').click();
+                cy.wait(8000);
+                cy.get('.SearchableSelect-element').click();
+                cy.get('div[class="Box-root Padding-left--16"]').contains('Software').click();
+                cy.get('[data-test="company-submit-button"]').click();
+                cy.wait(20000);
+                cy.get('span').contains('Debit card').click();
+                cy.wait(2000);
+                cy.get('span').contains('Use test card').click();
+                cy.wait(5000);
+                cy.get('div.ContentFooter-end.Box-root.Flex-flex.Flex-alignItems--center.Flex-justifyContent--flexStart').click();
+                cy.wait(10000);
+            });
+        });
+
+    });
+
+    describe("Switch to Driver and setup Payout", () => {
+
+        it("Switch to driver and click on setup payout", () => {
+            cy.wait(3000);
+            role = 'driver';
+            switchRole(role, userToken).then((response) => {
+                expect(response.status).to.eq(200);
+                expect(response.body).to.have.property('message', `${commonSuccessMessages.switchedTo} ${role}`);
+                driverToken = response.body.data.token;
+                cy.log(driverToken);
+            });
+        });
+
+        it("Should onboard a vendor to connect for payout", () => {
+            role = 'driver';
+            onboardPayment(driverToken, role).then((response) => {
+                expect(response.status).to.eq(200);
+                expect(response.body).to.have.property('message', paymentSuccesMessages.driverOnboard);
+                expect(response.body.data.url).to.not.eql(connectUrl);
+                connectUrl = response.body.data.url;
+                cy.log(connectUrl);
+                cy.visit(connectUrl);
+                cy.get('input[id="phone_number"]').type('0000000000');
+                cy.get('[data-test="phone-entry-submit"]').click();
+                cy.wait(5000);
+                cy.get('[data-test="test-mode-fill-button"]').click();
+                cy.wait(10000);
+                cy.get('input[id="first_name"]').type('John');
+                cy.get('input[id="last_name"]').type('Doe');
+                cy.get('input[id="email"]').type(email);
+                cy.get('#dob').type('01');
+                cy.get(':nth-child(3) > .Box-root > .Input').type('01');
+                cy.get(':nth-child(5) > .Box-root > .Input').type('1901');
+                cy.get('input[placeholder="Address line 1"]').type('1 Line Drive');
+                cy.get('input[placeholder="City"]').type('Manchester');
+                cy.get('select#subregion').select('New Hampshire');
+                cy.get('input[placeholder="ZIP"]').type('03101');
+                cy.get('input[id="phone"]').type('0000000000');
+                cy.get('input[id="ssn_last_4"]').type('0000');
+                cy.get('[data-test="bizrep-submit-button"]').click();
+                cy.wait(8000);
+                cy.get('.SearchableSelect-element').click();
+                cy.get('div[class="Box-root Padding-left--16"]').contains('Software').click();
+                cy.get('[data-test="company-submit-button"]').click();
+                cy.wait(20000);
+                cy.get('span').contains('Debit card').click();
+                cy.wait(2000);
+                cy.get('span').contains('Use test card').click();
+                cy.wait(5000);
+                cy.get('div.ContentFooter-end.Box-root.Flex-flex.Flex-alignItems--center.Flex-justifyContent--flexStart').click();
+                cy.wait(10000);
+            });
+        });
+
+    });
+
+    after(() => {
+        sofeDeleteUser(Cypress.env('password'), userToken).then((response) => {
+            expect(response.status).to.eq(200);
+        });
     });
 
 });
