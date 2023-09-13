@@ -10,7 +10,7 @@ export const orderApiOptions = {
     COMPLETED: 'completed',
     REJECTED: 'rejected',
     CANCELLED: 'cancelled',
-    PICKING: 'picking',
+    PICKUP: 'pickup',
     PROCESSING: 'processing',
     DECLINED: 'declined',
     PICKUP: 'pickup',

@@ -70,6 +70,7 @@ describe('Order Recieved By Customer API Testing', () => {
         });
 
     });
+    let timer = 0;
 
     describe('After Login', () => {
 
@@ -78,6 +79,7 @@ describe('Order Recieved By Customer API Testing', () => {
             // for(let i = 0; i < 6; i++) {
             describe('User receives the order from the driver', () => {
 
+                // for(let i = 0; i < 6; i++) {
                 before(() => {
                     login(orderAccessEmails.onlyCustomerEmail, Cypress.env('password'), 'email').then((response) => {
                         expect(response.status).to.eq(200);
@@ -104,6 +106,7 @@ describe('Order Recieved By Customer API Testing', () => {
                         expect(response.body.data.order).to.have.property('status', orderApiOptions.INITIALIZED);
                         cy.log('Order Status: ', response.body.data.order.status)
                     });
+                    cy.wait(timer);
                 });
 
                 it('Vendor should accept the order', () => {
@@ -117,6 +120,7 @@ describe('Order Recieved By Customer API Testing', () => {
                         cy.log('Self Pickup: ', selfPickup);
                         cy.log('Self Delivery: ', selfDelivery);
                     });
+                    cy.wait(timer);
                 });
 
                 it('should login with the driver email', () => {
@@ -202,6 +206,7 @@ describe('Order Recieved By Customer API Testing', () => {
                     } else {
                         cy.log('Self Pickup is true, so no need to create bidding');
                     }
+                    cy.wait(timer);
                 });
 
                 it('should view the list of biddings by the user', () => {
@@ -226,7 +231,9 @@ describe('Order Recieved By Customer API Testing', () => {
                             expect(response.body).to.have.property('message', `${userSuccessMessages.bidAccepted}`);
                         });
                     }
+                    cy.wait(timer);
                 });
+            
 
                 it('should pick the gig', () => {
                     if (selfPickup === false) {
@@ -237,11 +244,12 @@ describe('Order Recieved By Customer API Testing', () => {
                     } else {
                         cy.log('Self Pickup is true, so no need to pick the gig');
                     }
+                    cy.wait(timer);
                 });
 
                 it('should get order from the gig', () => {
                     if (selfPickup === false) {
-                        getOrders(vendorToken, pageOptions.PAGE, pageOptions.LIMIT, orderApiOptions.PICKING, branchId).then((response) => {
+                        getOrders(vendorToken, pageOptions.PAGE, pageOptions.LIMIT, orderApiOptions.PICKUP, branchId).then((response) => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property( 'message', `${orderSuccessMessages.getOrdersByVendor}`);
                         expect(response.body.data).to.have.property('orders');
@@ -258,6 +266,7 @@ describe('Order Recieved By Customer API Testing', () => {
                     } else {
                         cy.log('Self Pickup is true, so no need to get order from the gig');
                     }
+                    cy.wait(timer);
                 });
 
                 it('should start servicing by the vendor', () => {
@@ -265,13 +274,16 @@ describe('Order Recieved By Customer API Testing', () => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', `${orderSuccessMessages.isNow} in servicing.`);
                     });
+                    cy.wait(timer);
                 });
+            // }
 
                 it('Vendor should add the over-weight', () => {
                     addOverweight(orderId, vendorToken, overweightData).then((response) => {
                         expect(response.status).to.eq(200);
                         // expect(response.body).to.have.property('message', `${orderSuccessMessages.overweightAdded}`);
                     });
+                    cy.wait(timer);
                 });
 
                 it('should finish the servicing by the vendor', () => {
@@ -279,6 +291,7 @@ describe('Order Recieved By Customer API Testing', () => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', `${orderSuccessMessages.isNow} ready..`);
                     });
+                    cy.wait(timer);
                 });
 
             
@@ -367,6 +380,7 @@ describe('Order Recieved By Customer API Testing', () => {
                     } else {
                         cy.log('Self Delivery is true, so no need to create bidding');
                     }
+                    cy.wait(timer);
                 });
 
                 it('should view the list of biddings by the user', () => {
@@ -387,6 +401,7 @@ describe('Order Recieved By Customer API Testing', () => {
                     } else {
                         cy.log('Self Delivery is true, so no need to get bidding details');
                     }
+                    cy.wait(timer);
                 });
 
                 it('should accept a bid successfully', () => {
@@ -399,6 +414,7 @@ describe('Order Recieved By Customer API Testing', () => {
                     }else{
                         cy.log("Self Delivery is true, so no need to accept the bid")
                     }
+                    cy.wait(timer);
                 });
 
                 it('should pick the gig', () => {
@@ -410,6 +426,7 @@ describe('Order Recieved By Customer API Testing', () => {
                     }else{
                         cy.log('Self Pickup is true, so no need to pick the gig')
                     }
+                    cy.wait(timer);
                 });
 
                 it('should drop the gig', () => {
@@ -427,6 +444,7 @@ describe('Order Recieved By Customer API Testing', () => {
                     }else{
                         cy.log('Self Delivery is true, so no need to drop the gig');
                     }
+                    cy.wait(timer);
                 });
 
                 it('should complete the order succesfully', () => {
@@ -435,7 +453,7 @@ describe('Order Recieved By Customer API Testing', () => {
                         expect(response.status).to.eq(200);
                         expect(response.body).to.have.property('message', `${orderSuccessMessages.isNow} ${complete}.`);
                     });
-                    cy.wait(30000);
+                    cy.wait(timer);
                 });
 
                 it('should display the order details', () => {
